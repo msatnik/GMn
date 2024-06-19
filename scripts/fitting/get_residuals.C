@@ -1,0 +1,62 @@
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include "TCut.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TTreeFormula.h"
+#include "TChain.h"
+#include "TLatex.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TCanvas.h"
+#include "TStopwatch.h"
+#include <fstream>
+#include <string>
+#include "TProfile.h"
+#include "TGraphErrors.h"
+
+// Global Params
+
+// Function Declarations
+
+// MAIN
+void get_residuals(){
+
+  // Load rootfiles for histograms
+  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p.root"); 
+  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_sim_50p.root"); // Load rootfile
+
+  // Load Histograms
+  TH1D *hist1 = (TH1D*)f1->Get("h_dx_HCAL");
+  TH1D *hist2 = (TH1D*)f2->Get("h_dx_HCAL");
+
+  // Normalize the integrals of the histograms to 1
+  hist1->Scale(1.0 / hist1->Integral());
+  hist2->Scale(1.0 / hist2->Integral());
+
+  // Create a new histogram as the difference of the two
+  TH1D *hist_res = (TH1D*)hist1->Clone("hist_res");
+  hist_res->Add(hist2, -1);
+
+
+  // Set up canvas 
+  TCanvas *c1 = new TCanvas("c1", "Canvas", 800, 600);
+  c1->Divide(1,2);
+  c1->cd(1);
+  hist1->SetLineColor(kRed);
+  hist2->SetLineColor(kBlue);
+  hist2->Draw("hist");
+  hist1 ->Draw("hist same");
+  c1->cd(2);
+  hist_res->Draw("hist");
+
+  c1->cd(1);
+    // Create a legend. (Doesn't seem to show up like this)
+    TLegend *legend = new TLegend(0.6, 0.7, 0.9, 0.9); // Adjust the legend coordinates as needed
+   // Add entries to the legend for the fit parameters
+    legend->AddEntry(hist1, "Data", "l");
+    legend->AddEntry(hist2, "Simulation", "l");
+    legend->Draw();
+    c1->Update();
+}

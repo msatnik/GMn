@@ -1,0 +1,26 @@
+#####################################
+#sseeds 2.28.23 - Setup file for  SBS4. Modified by msatnik.
+#####################################
+## scalesbsfield = 0.369
+#/lustre19/expphy/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc_badfield/rootfiles/deep/*
+#/volatile/halla/sbs/seeds/simc/sbs4_30p_simc/rootfiles/deen/*
+/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deen/*
+#
+#/volatile/halla/sbs/seeds/simc/sbs4_30p_simc/rootfiles/deep/*
+#/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deep/*
+#/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deep/replayed_sbs4_30p_simc_deep_job_6.root
+#/lustre19/expphy/volatile/halla/sbs/msatnik/sbs4_sf02_sbs0p_g4sbs_deeN_job_0.root
+endlist
+bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz[0])<0.08&&sbs.hcal.e>0.025&&bb.ps.e+bb.sh.e>1.7
+endcut
+E_e 3.728
+BB_d 1.7988
+BB_th 36.0
+HCal_d 11.0
+HCal_th 31.9
+hcalheight 0
+W2_mean 1.00
+W2_sig 0.24
+N_tries 100000
+Generation_Volume 12.566
+Luminosity 3.8476e36

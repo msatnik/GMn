@@ -1,0 +1,345 @@
+#include <TSystem.h>
+#include <TChain.h>
+#include <TString.h>
+#include "TFile.h"
+#include "TTree.h"
+#include <TNtuple.h>
+#include "TCanvas.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include "TMath.h"
+#include "TH1F.h"
+#include <TH2.h>
+#include <TStyle.h>
+#include <TGraph.h>
+#include <TROOT.h>
+#include <TMath.h>
+#include <TLegend.h>
+#include <TPaveLabel.h>
+#include <TProfile.h>
+#include <TPolyLine.h>
+#include <TObjArray.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include<math.h>
+#include <stack>
+#include "TLorentzVector.h"
+#include "TCut.h"
+#include "TLatex.h"
+#include "TLine.h"
+using namespace std;
+
+void read_in_parsed_test_mc(TString configfileinput="sbs4_30p_test_mc"){ // main
+
+  gStyle->SetNumberContours(255); 
+
+  cout<<"Loading branches. Hold tight! "<<endl;
+  
+
+  TChain *C = new TChain("P");
+
+  //string configfilename = Form("../config/sbs%d.cfg",kine);
+  TString configfilename = "../config/" + configfileinput + ".cfg";
+  // string configfilename = "/w/halla-scshelf2102/sbs/msatnik/GMn/config/sbs4_30p.cfg";
+  cout<<"reading from config file: "<<configfilename<<endl;
+
+
+  // set location and name for output file 
+  TString outputfilename = "../output/" + configfileinput + ".root";
+  //TString outputfilename = "../output/test.root";
+
+  // Declare outfile
+  // TFile *fout = new TFile( Form("../output/sbs%d.root",kine), "RECREATE" );
+  //TFile *fout = new TFile("../output/sbs4_30p.root", "RECREATE" );
+  TFile *fout = new TFile(outputfilename,"RECREATE");
+  cout<<"writing to file: "<< outputfilename <<endl;
+
+  // C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_may20.root");
+  // C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_may18.root");
+   C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_simc_deen.root");
+  // C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_simc_deep.root");
+
+
+  double E_e=0;
+
+  ifstream configfile(configfilename);
+  TString currentline;
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endlist") ){
+    if( !currentline.BeginsWith("#") ){
+      if(!currentline) cout << "WARNING: No file exists at " << currentline << "." << endl;
+      // C->Add(currentline);
+      cout << "Loaded file at: " << currentline << endl;
+    }    
+  }
+  TCut globalcut = "";
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endcut") ){
+    if( !currentline.BeginsWith("#") ){
+      globalcut += currentline;
+    }    
+    cout<< "Global Cut: "<<globalcut<<endl;
+  }
+
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("#") ){
+    TObjArray *tokens = currentline.Tokenize(" ");
+    Int_t ntokens = tokens->GetEntries();
+    if( ntokens>1 ){
+      TString skey = ( (TObjString*)(*tokens)[0] )->GetString();
+      if( skey == "E_e" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	E_e = sval.Atof();
+	cout << "Loading beam energy: " << E_e << endl;
+      }
+
+    }
+    delete tokens;
+  }
+
+  configfile.close();
+
+  // Setting up cuts 
+  std::string EnergyCutString = "bb_ps_e>0.2&&(bb_ps_e+bb_sh_e)>1.7"; // PS and Shower Energy cut
+  std::string TrackQualityCutString = "bb_tr_n==1&&bb_gem_track_nhits>=3"; //  coudl also put chi2 cut
+  std::string TargetVertexCutString = "abs(bb_tr_vz)<0.07";
+  // eventually need optics cuts
+  std::string W2CutString = "W2<2"; 
+  std::string FidXCutString = "nsigx_fid>0.5";
+  std::string FidYCutString = "nsigy_fid>0.5";
+  std::string e_over_p_CutString = "abs(e_over_p - 1)<0.5";
+  std::string HCal_Shower_atime_CutString= " abs(hcal_sh_atime_diff)<10";
+  std::string HCal_Energy_CutString = "hcal_e>0.01";
+  // data vs sim
+  std::string is_data_CutString = "is_hydrogen==1||is_deuterium==1";
+  std::string is_simulation_CutString = "is_proton==1||is_neutron==1";
+  std::string is_proton_CutString= "is_proton==1";
+  std::string is_neutron_CutString= "is_neutron==1";
+
+  // define TCut 
+  TCut EnergyCut(EnergyCutString.c_str());
+  TCut TrackQualityCut(TrackQualityCutString.c_str());
+  TCut TargetVertexCut(TargetVertexCutString.c_str());
+  TCut W2Cut(W2CutString.c_str());
+  TCut FidXCut(FidXCutString.c_str());
+  TCut FidYCut(FidYCutString.c_str());
+  TCut e_over_p_Cut(e_over_p_CutString.c_str());
+  TCut HCal_Shower_atime_Cut(HCal_Shower_atime_CutString.c_str());
+  TCut HCal_Energy_Cut(HCal_Energy_CutString.c_str());
+  TCut is_data_Cut(is_data_CutString.c_str());
+  TCut is_simulation_Cut(is_simulation_CutString.c_str());
+
+  // apply TCut to TTreeFormula
+  TTreeFormula *EnergyCutFormula = new TTreeFormula("EnergyCut", EnergyCut, C);
+  TTreeFormula *TrackQualityCutFormula = new TTreeFormula("TrackQualityCut", TrackQualityCut, C);
+  TTreeFormula *TargetVertexCutFormula = new TTreeFormula("TargetVertexCut", TargetVertexCut, C);
+  TTreeFormula *W2CutFormula = new TTreeFormula("W2Cut", W2Cut, C);
+  TTreeFormula *FixXCutFormula = new TTreeFormula("FidXCut", FidXCut, C);
+  TTreeFormula *FixYCutFormula = new TTreeFormula("FidYCut", FidYCut, C);
+  TTreeFormula *e_over_p_CutFormula = new TTreeFormula("e_over_p_Cut", e_over_p_Cut, C);
+  TTreeFormula *HCal_Shower_atime_CutFormula = new TTreeFormula("HCal_Shower_atime_Cut", HCal_Shower_atime_Cut, C);
+  TTreeFormula *HCal_Energy_CutFormula = new TTreeFormula("HCal_Energy_Cut",HCal_Energy_Cut , C);
+  TTreeFormula *is_data_CutFormula = new TTreeFormula("is_data_Cut",is_data_Cut , C);
+  TTreeFormula *is_simulation_CutFormula = new TTreeFormula("is_simulation_Cut",is_simulation_Cut , C);
+
+
+
+  double  bb_tr_n, bb_tr_vz, bb_tr_p, bb_tr_th, bb_tr_ph; // track variables
+  double bb_tr_r_x, bb_tr_r_y, bb_tr_r_th, bb_tr_r_ph;// optics variables 
+  double bb_ps_e, bb_ps_rowblk, bb_ps_colblk, bb_sh_e, bb_sh_rowblk, bb_sh_colblk; //shower variables
+  double bb_gem_track_nhits, bb_gem_track_ngoodhits, bb_gem_track_chi2ndf ;// track quality
+  double hcal_x, hcal_y,hcal_e; // hcal 
+  double  hcal_dx, hcal_dy, hcal_x_exp, hcal_y_exp;// hcal projections 
+  double Q2, W2, nu, tau, epsilon; // physics quantities 
+  int is_deuterium, is_hydrogen; // truth variables on what target was analyzed. 
+  double dxsig_p, dxsig_n, dysig, dx_pn; // variables used in fid cuts
+  double nsigx_fid, nsigy_fid; // fiducial cut size 
+  double e_over_p;
+  double mag_field; 
+
+  double hcal_clus_atime, bb_sh_atimeblk, hcal_sh_atime_diff; // time for coinicidene cuts 
+
+  // MC variables 
+  int is_proton, is_neutron; // if it was proton simulaiton or neutron simulation
+  double corrected_weight;
+
+  
+
+  // set branches 
+  C->SetBranchAddress("bb_tr_n",&bb_tr_n);
+  C->SetBranchAddress("bb_tr_vz",&bb_tr_vz);
+  C->SetBranchAddress("bb_tr_p",&bb_tr_p);
+  C->SetBranchAddress("bb_tr_th",&bb_tr_th);
+  C->SetBranchAddress("bb_tr_ph",&bb_tr_ph);
+  C->SetBranchAddress("bb_tr_r_x",&bb_tr_r_x);
+  C->SetBranchAddress("bb_tr_r_y",&bb_tr_r_y);
+  C->SetBranchAddress("bb_tr_r_th",&bb_tr_r_th);
+  C->SetBranchAddress("bb_tr_r_ph",&bb_tr_r_ph);
+
+  C->SetBranchAddress("bb_ps_e",&bb_ps_e);
+  C->SetBranchAddress("bb_ps_rowblk",&bb_ps_rowblk);
+  C->SetBranchAddress("bb_ps_colblk",&bb_ps_colblk);
+  C->SetBranchAddress("bb_sh_e",&bb_sh_e);
+  C->SetBranchAddress("bb_sh_rowblk",&bb_sh_rowblk);
+  C->SetBranchAddress("bb_sh_colblk",&bb_sh_colblk);
+
+  C->SetBranchAddress("bb_gem_track_nhits",&bb_gem_track_nhits);
+  C->SetBranchAddress("bb_gem_track_ngoodhits",&bb_gem_track_ngoodhits);
+  C->SetBranchAddress("bb_gem_track_chi2ndf",&bb_gem_track_chi2ndf);
+
+  C->SetBranchAddress("hcal_x",&hcal_x);
+  C->SetBranchAddress("hcal_y",&hcal_y);
+  C->SetBranchAddress("hcal_dx",&hcal_dx);
+  C->SetBranchAddress("hcal_dy",&hcal_dy);
+  C->SetBranchAddress("hcal_x_exp",&hcal_x_exp);
+  C->SetBranchAddress("hcal_y_exp",&hcal_y_exp);
+  C->SetBranchAddress("hcal_e",&hcal_e);
+
+  C->SetBranchAddress("Q2",&Q2);
+  C->SetBranchAddress("W2",&W2);
+  C->SetBranchAddress("nu",&nu);
+  C->SetBranchAddress("tau",&tau);
+  C->SetBranchAddress("epsilon",&epsilon);
+
+  C->SetBranchAddress("is_deuterium",&is_deuterium); // data only
+  C->SetBranchAddress("is_hydrogen",&is_hydrogen);
+
+  C->SetBranchAddress("dxsig_p",&dxsig_p);
+  C->SetBranchAddress("dxsig_n",&dxsig_n);
+  C->SetBranchAddress("dysig",&dysig);
+  C->SetBranchAddress("dx_pn",&dx_pn);
+
+  C->SetBranchAddress("nsigx_fid",&nsigx_fid);
+  C->SetBranchAddress("nsigy_fid",&nsigy_fid);
+
+  C->SetBranchAddress("e_over_p",&e_over_p);
+  C->SetBranchAddress("mag_field",&mag_field);
+
+  C->SetBranchAddress("hcal_clus_atime",&hcal_clus_atime);
+  C->SetBranchAddress("bb_sh_atimeblk",&bb_sh_atimeblk);
+  C->SetBranchAddress("hcal_sh_atime_diff",&hcal_sh_atime_diff);
+
+  C->SetBranchAddress("is_proton",&is_proton);
+  C->SetBranchAddress("is_neutron",&is_neutron);
+  C->SetBranchAddress("corrected_weight",&corrected_weight);
+
+// need to check binning on all of these histos. Just quickly testing now. 
+  TH1D* h_BBps_e = new TH1D("h_BBps_e","h_BBps_e",200,0,2); 
+  TH1D* h_W2= new TH1D("h_W2","h_W2",300,0,3); 
+  TH1D* h_dx_HCAL = new TH1D("h_dx_HCAL", "h_dx_HCAL",200,-4,4);
+
+  TH1D* h_dx_HCAL_sim = new TH1D("h_dx_HCAL_sim", "h_dx_HCAL_sim",200,-4,4);
+
+  //// testing out using Draw instead of looping through. 
+
+  std::string ps_e_study_string = TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString;
+//// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_ps_e>>hcal_dx__ps_e(100, 0, 2, 200, -4, 4)", Form("corrected_weight*(%s)",ps_e_study_string.c_str()), "COLZ");
+  // Retrieve and customize histogram
+    TH2D *hcal_dx__ps_e = (TH2D*)gDirectory->Get("hcal_dx__ps_e");
+    if (hcal_dx__ps_e) {
+        hcal_dx__ps_e->SetXTitle("bb_ps_e");
+        hcal_dx__ps_e->SetYTitle("hcal_dx");
+    }
+
+
+    /// testing out making the y projections on the TH2D 
+    std::vector<double>xSlices;
+    double min= 0.1;
+    double max = 0.3;
+    int nSlices = 10;
+    double step = (max-min)/nSlices;
+    for (int i = 0; i<=nSlices;i++)
+      {
+	xSlices.push_back(min + i*step);
+      }
+
+    int nBins = hcal_dx__ps_e->GetNbinsX();
+// Loop over the specified X value ranges to create slices and project them onto the Y-axis
+    for (size_t i = 0; i < xSlices.size() - 1; ++i) {
+        double xMin = xSlices[i];
+        //double xMax = xSlices[i + 1];
+	double xMax = hcal_dx__ps_e->GetXaxis()->GetBinUpEdge(nBins);
+
+        int binMin = hcal_dx__ps_e->GetXaxis()->FindBin(xMin);
+        int binMax = nBins;
+
+        // Define the name and title for the TH1D histogram
+
+ // Format the histogram name to display only two decimal places
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(2) << xMin << "_to_" << xMax;
+        std::string histName = "slice_y_x_" + stream.str();
+        TH1D *projY = hcal_dx__ps_e->ProjectionY(histName.c_str(), binMin, binMax);
+    }
+
+
+
+    //abs(bb.tr.r_x[0]-bb.tr.r_th[0]*0.9)<0.3
+
+
+  //   C->Draw("bb_tr_r_x:bb_tr_r_th*0.9>>tr_r_x__tr_r_th(500,-0.5,0.5, 1000, -1, 1)", test_string.c_str(), "COLZ");
+ // // Retrieve and customize histogram
+ //    TH2D *tr_r_x__tr_r_th= (TH2D*)gDirectory->Get("tr_r_x__tr_r_th");
+ //    if (tr_r_x__tr_r_th) {
+ //      //hist->SetTitle("Histogram Title;X-axis Title;Y-axis Title");
+ //        // Alternatively, you can set each title separately
+ //        tr_r_x__tr_r_th ->SetXTitle("bb_tr_r_th");
+ // 	tr_r_x__tr_r_th ->SetYTitle("bb_tr_r_y");
+ //    }
+
+ //    C->Draw("bb_tr_r_x-bb_tr_r_th*0.9>>optics_x(100,-1,1)","","");
+
+ //    C->Draw("bb_tr_r_y-bb_tr_r_ph*0.9>>optics_x(100,-1,1)","","");
+
+
+
+
+ //  cout<<"Loading branches. Hold tight! "<<endl;
+//   Long64_t Nevents = C->GetEntries();
+//   UInt_t run_number = 0;
+ 
+ 
+//  cout<< "# Events = "<<Nevents<<endl;
+
+//  for( Long64_t nevent = 1; nevent <Nevents; nevent++){
+
+//   if (nevent%50000==0) cout << " Entry = " << nevent << endl;
+    
+//   C->GetEntry(nevent); 
+//   //cout<<"crashed yet?"<<endl;
+
+//   // // // Apply cuts 
+//   //if (bb_ps_e <0.2 )continue;
+//   if(!EnergyCutString.c_str() )continue;
+//   //if (!EnergyCutFormula ->EvalInstance() ) continue; 
+//   //if (!TrackQualityCutFormula ->EvalInstance() ) continue; 
+//   // if (!TargetVertexCutFormula ->EvalInstance() ) continue; 
+//   // if (!W2CutFormula ->EvalInstance() ) continue; 
+//   // if (!FixXCutFormula ->EvalInstance() ) continue; 
+//   // if (!FixYCutFormula ->EvalInstance() ) continue; 
+//   // if (!e_over_p_CutFormula ->EvalInstance() ) continue; 
+//   // if (!HCal_Energy_CutFormula ->EvalInstance() ) continue; 
+
+//   if (is_data_CutFormula ->EvalInstance()){
+//      if (HCal_Shower_atime_CutFormula ->EvalInstance() ){
+//    	h_dx_HCAL->Fill(hcal_dx);
+//    	h_BBps_e ->Fill(bb_ps_e);
+//    	h_W2->Fill(W2);
+//      }
+//    }// end data cut
+
+//   if (is_simulation_CutFormula ->EvalInstance() ){
+//     h_dx_HCAL->Fill(hcal_dx);
+//     h_BBps_e ->Fill(bb_ps_e);
+//     h_W2->Fill(W2);
+//   }// end simulaton cut 
+
+//   // h_dx_HCAL->Fill(hcal_dx);
+//   // h_BBps_e ->Fill(bb_ps_e);
+//   // h_W2->Fill(W2);
+
+
+// }// end loop over Nevents
+ 
+  fout ->Write();
+}// end main

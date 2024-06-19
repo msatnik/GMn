@@ -1,0 +1,49 @@
+#include <TSystem.h>
+#include <TChain.h>
+#include <TString.h>
+#include "TFile.h"
+#include "TTree.h"
+#include <TNtuple.h>
+#include "TCanvas.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include "TMath.h"
+#include "TH1F.h"
+#include <TH2.h>
+#include <TStyle.h>
+#include <TGraph.h>
+#include <TROOT.h>
+#include <TMath.h>
+#include <TLegend.h>
+#include <TPaveLabel.h>
+#include <TProfile.h>
+#include <TPolyLine.h>
+#include <TObjArray.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include<math.h>
+#include <stack>
+#include "TLorentzVector.h"
+#include "TCut.h"
+#include "TLatex.h"
+#include <algorithm>
+
+
+void parser_test(){ //main
+
+  TChain *C = new TChain("T");
+
+  C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/sbs4_30p/*11496*");
+  C->Add("/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/sbs4_30p/*11495*");
+
+ // Create output file
+    TFile outputFile("../output/parser_test.root", "RECREATE");
+    
+    // Create output tree
+    TTree outputTree("P", "P");
+
+
+
+}//end main

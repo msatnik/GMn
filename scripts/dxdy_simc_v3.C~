@@ -1,0 +1,642 @@
+#include <TSystem.h>
+#include <TChain.h>
+#include <TString.h>
+#include "TFile.h"
+#include "TTree.h"
+#include <TNtuple.h>
+#include "TCanvas.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include "TMath.h"
+#include "TH1F.h"
+#include <TH2.h>
+#include <TStyle.h>
+#include <TGraph.h>
+#include <TROOT.h>
+#include <TMath.h>
+#include <TLegend.h>
+#include <TPaveLabel.h>
+#include <TProfile.h>
+#include <TPolyLine.h>
+#include <TObjArray.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include<math.h>
+#include <stack>
+#include "TLorentzVector.h"
+#include "TCut.h"
+#include "TLatex.h"
+using namespace std;
+
+
+//global variables
+const int maxTracks = 16; 
+const double PI = TMath::Pi();
+const double M_e = 0.0051;
+const double M_p = 0.938272;
+const double M_n = 0.939565;
+
+//const double hcalheight = -0.2897; // Need for Pass0 or Pass1 data
+//const double hcalheight = 0; // should put in config file maybe
+
+ // HCAL 
+  // Dimensions
+  static const Int_t hcalchan = 288;
+  static const Int_t hcalcol = 12;
+  static const Int_t hcalrow = 24;
+  static const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
+  static const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
+  static const Double_t hcaladc_binw = 4.;        //ns, width of each ADC bin
+  static const Double_t hcalblk_w_p0 = 0.15;      //m, width of a HCAL block, pass0/1
+  static const Double_t hcalblk_h_p0 = 0.15;      //m, height of a HCAL block, pass0/1 
+  static const Double_t hcalblk_w = 0.1524;       //m, width of a HCAL block
+  static const Double_t hcalblk_h = 0.1524;       //m, height of a HCAL block
+  static const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
+  static const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
+  static const Double_t hcalblk_div_hyp = 0.15875;//m, division corner-to-cornter dist.
+  static const Double_t hcalblk_gap_h = 0.00254;  //m, horiz. gap bet. two blocks
+  static const Double_t hcalblk_gap_v = 0.00635;  //m, vert. gap bet. two blocks
+  // Positions (mc)
+  static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
+  static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
+  static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
+  static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
+  // Pass0/1 (no block spacing)
+  static const Double_t hcalposXi_p0 = -2.16014;  //m, distance from beam center to top of HCal w/75cm offset
+  static const Double_t hcalposXf_p0 = 1.43826;   //m, distance from beam center to bottom of HCal w/75cm offset
+  static const Double_t hcalposYi_p0 = -0.9;      //m, distance from beam center to opposite-beam side of HCal
+  static const Double_t hcalposYf_p0 = 0.9;       //m, distance from beam center to beam side of HCal
+  // Positions (data fits)
+  static const Double_t hcalposXi = -2.268095;    //m, distance from beam center to top of HCal (obsolete)
+  static const Double_t hcalposXf = 1.538095;     //m, distance from beam center to bottom of HCal (obsolete)
+  static const Double_t hcalposYi = -0.931545;    //m, distance from beam center to opposite-beam side of HCal (obsolete)
+  static const Double_t hcalposYf = 0.931545;     //m, distance from beam center to beam side of HCal (obsolete)
+  // Global
+  //static const Double_t hcalvoff = -0.2897;       //m, height of the center of hcal above beam (m)
+  //static const Double_t hcalvoff = -0.3735;       //m, height of the center of hcal above beam (m) (sbs8)
+  //static const Double_t hcalvoff = -0.75;       //m, height of the center of hcal above beam (m)
+  //static const Double_t hcalvoff = 0.0;         //m, height of the center of hcal above beam (m) after pass2 corr
+
+
+//function declarations
+std::vector<Double_t> hcalaa_data (int exblkN_x=1, int exblkN_y=1);
+bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa);
+std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa);
+bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid);
+std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1);
+
+
+void dxdy_simc_v3(int entries_input = -1, int kine = 4 ){//main
+  
+  gStyle->SetNumberContours(255); 
+
+
+  TChain *C = new TChain("T");
+ 
+  //SBS 4
+  double E_e = 3.728;
+  double BB_d = 1.7988;
+  double BB_th = 36.0* TMath::DegToRad();
+  double HCal_d =11.0;
+  double HCal_th = 31.9 * TMath::DegToRad();
+  double W2_mean = 1.00;
+  double W2_sig = 0.24;
+  //const double hcalheight = -0.2897; // Need for Pass0 or Pass1 data
+  double hcalheight = 0; // should put in config file maybe
+  double dxsig_p = 0.17; // sbs4 30% 
+  double dxsig_n = 0.17; // sbs4 30% 
+  double dysig = 0.25;
+  double dx_pn = 1.18; // 0.639
+  double N_tries = 100000;
+  double Generation_Volume = 12.566;
+  double Luminosity =4.67495e9;  // 3.8476e36; ////4.67495e09
+
+  cout<<"kine: "<<kine<<endl;
+  //cout<<"config file"<<configfileinput<<endl;
+
+  //// set location to config file
+   //string configfilename = Form("../config/sbs%d.cfg",kine);
+   //string configfilename = Form("../config/%s.cfg",configfileinput);
+  //string configfilename = "/w/halla-scshelf2102/sbs/msatnik/GMn/config/sbs4_simc_30p_deen.cfg";
+  string configfilename = "/w/halla-scshelf2102/sbs/msatnik/GMn/config/sbs4_simc_50p.cfg";
+
+   // Declare outfile
+   // TFile *fout = new TFile( Form("../output/sbs%d.root",kine), "RECREATE" );
+  // TFile *fout = new TFile("../output/sbs4_simc_30p_deen.root", "RECREATE" );
+  TFile *fout = new TFile("../output/test_simc.root", "RECREATE" );
+  //TFile *fout = new TFile(outputfilename,"RECREATE");
+  
+
+  cout<<"testing reading in from a config file"<<endl;
+
+  ifstream configfile(configfilename);
+  TString currentline;
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endlist") ){
+    if( !currentline.BeginsWith("#") ){
+      if(!currentline) cout << "WARNING: No file exists at " << currentline << "." << endl;
+      C->Add(currentline);
+      cout << "Loaded file at: " << currentline << endl;
+    }    
+  }
+  TCut globalcut = "";
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endcut") ){
+    if( !currentline.BeginsWith("#") ){
+      globalcut += currentline;
+    }    
+    cout<< "Global Cut: "<<globalcut<<endl;
+  }
+  while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("#") ){
+    TObjArray *tokens = currentline.Tokenize(" ");
+    Int_t ntokens = tokens->GetEntries();
+    if( ntokens>1 ){
+      TString skey = ( (TObjString*)(*tokens)[0] )->GetString();
+      if( skey == "E_e" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	E_e = sval.Atof();
+	cout << "Loading beam energy: " << E_e << endl;
+      }
+      if( skey == "HCal_d" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	HCal_d = sval.Atof();
+	cout << "Loading HCal distance: " << HCal_d << endl;
+      }
+      if( skey == "HCal_th" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	HCal_th = sval.Atof();	
+	cout << "Loading HCal angle: " << HCal_th << endl;
+	HCal_th = HCal_th * TMath::DegToRad();
+      }
+      if( skey == "hcalheight" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	hcalheight = sval.Atof();	
+	cout << "Loading HCal 'height': " << hcalheight<< endl;
+      }
+      if( skey == "BB_d" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	BB_d = sval.Atof();
+	cout << "Loading BB distance: " << BB_d << endl;
+      }
+      if( skey == "BB_th" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	BB_th = sval.Atof();	
+	cout << "Loading BB angle: " << BB_th << endl;
+	BB_th = BB_th * TMath::DegToRad();
+      }
+      if( skey == "W2_mean" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        W2_mean = sval.Atof();
+	cout << "Loading W2 mean cut: " << W2_mean << endl;
+      }
+      if( skey == "W2_sig" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        W2_sig = sval.Atof();
+	cout << "Loading W2 sigma cut: " << W2_sig << endl;
+      }
+      if( skey == "N_tries" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        N_tries = sval.Atof();
+	cout << "Loading N_tries: " << N_tries << endl;
+      }
+      if( skey == "Generation_Volume" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        Generation_Volume = sval.Atof();
+	cout << "Loading Generation Volume: " << Generation_Volume << endl;
+      }
+      // if( skey == "Luminosity" ){
+      // 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+      //   Luminosity = sval.Atof();
+      // 	cout << "Loading Luminosity: " << Luminosity << endl;
+      // }
+    }
+    delete tokens;
+  }
+
+ 
+
+  //TCut globalcut = "bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz[0])<0.08&&sbs.hcal.e>0.025&&bb.ps.e+bb.sh.e>1.7";
+
+  cout<<"Applying Global Cut to rootfiles. May take a few minutes...."<<endl;
+  TEventList *elist = new TEventList("elist","Elastic Event List");
+  C->Draw(">>elist",globalcut);
+
+
+
+  double BBtr_p[maxTracks], BBtr_px[maxTracks], BBtr_py[maxTracks], BBtr_pz[maxTracks];
+  double BBtr_vz[maxTracks];
+  double BBtgt_x[maxTracks], BBtgt_y[maxTracks], BBtgt_th[maxTracks], BBtgt_ph[maxTracks];
+  double BBtr_n, BBps_x, BBps_y, BBps_e, BBsh_x, BBsh_y, BBsh_e;
+  double HCALx, HCALy, HCALe, ekineW2;
+
+  double mc_sigma, mc_nucl;
+  double simc_weight;
+
+  C ->SetBranchStatus("*",0);
+
+  C->SetBranchStatus("sbs.hcal.x",1);
+  C->SetBranchStatus("sbs.hcal.y",1);
+  C->SetBranchStatus("sbs.hcal.e",1);
+  C->SetBranchStatus("bb.tr.n",1);
+  C->SetBranchStatus("bb.tr.px",1);
+  C->SetBranchStatus("bb.tr.py",1);
+  C->SetBranchStatus("bb.tr.pz",1);
+  C->SetBranchStatus("bb.tr.p",1);
+  C->SetBranchStatus("bb.tr.vz",1);
+  C->SetBranchStatus("bb.ps.e",1);
+  C->SetBranchStatus("bb.ps.x",1);
+  C->SetBranchStatus("bb.ps.y",1);
+  C->SetBranchStatus("bb.sh.e",1);
+  C->SetBranchStatus("bb.sh.x",1);
+  C->SetBranchStatus("bb.sh.y",1);
+  C->SetBranchStatus("e.kine.W2",1);
+
+  // MC branches
+  C->SetBranchStatus("MC.mc_sigma",1);
+  C->SetBranchStatus("MC.mc_nucl",1);
+  C->SetBranchStatus("MC.simc_Weight",1);
+
+
+  C->SetBranchAddress("sbs.hcal.x", &HCALx);
+  C->SetBranchAddress("sbs.hcal.y", &HCALy);
+  C->SetBranchAddress("sbs.hcal.e", &HCALe);
+  C->SetBranchAddress("bb.tr.n", &BBtr_n);
+  C->SetBranchAddress("bb.tr.px", BBtr_px);
+  C->SetBranchAddress("bb.tr.py", BBtr_py);
+  C->SetBranchAddress("bb.tr.pz", BBtr_pz);
+  C->SetBranchAddress("bb.tr.p", BBtr_p);
+  C->SetBranchAddress("bb.tr.vz", BBtr_vz);
+  C->SetBranchAddress("bb.ps.e", &BBps_e);
+  C->SetBranchAddress("bb.ps.x", &BBps_x);
+  C->SetBranchAddress("bb.ps.y", &BBps_y);
+  C->SetBranchAddress("bb.sh.e", &BBsh_e);
+  C->SetBranchAddress("bb.sh.x", &BBsh_x);
+  C->SetBranchAddress("bb.sh.y", &BBsh_y);
+  C->SetBranchAddress("e.kine.W2", &ekineW2);
+
+  // MC branches
+  C->SetBranchAddress("MC.mc_sigma", &mc_sigma);
+  C->SetBranchAddress("MC.mc_nucl", &mc_nucl);
+  C->SetBranchAddress("MC.simc_Weight", &simc_weight);
+ 
+
+
+
+  TH1D *h_dx_HCAL = new TH1D("h_dx_HCAL ", " ; x_{HCAL} - x_{exp} (m)  ", 250,-4,3);
+  TH1D *h_dy_HCAL = new TH1D("h_dy_HCAL ", " ; y_{HCAL} - y_{exp} (m)  ", 250,-2,2);
+  TH2D *h_dxdy_HCAL = new TH2D("h_dxdy_HCAL","HCAL_{actual} - HCAL_{expected} positions  ;y_{HCAL}-y_{expect} (m); x_{HCAL}-x_{expect} (m)", 250, -1.25, 1.25, 250, -2.5, 2.5 );
+  TH1D* h_W2 = new TH1D("h_W2", "W2",100,0,2);
+  TH1D *h_dx_HCAL_p = new TH1D("h_dx_HCAL_p ", " ; x_{HCAL} - x_{exp} (m)  for proton only", 250,-4,3);
+  TH1D *h_dx_HCAL_n = new TH1D("h_dx_HCAL_n ", " ; x_{HCAL} - x_{exp} (m)  for neutron only", 250,-4,3);
+ TH1D *h_dx_HCAL_noFid = new TH1D("h_dx_HCAL_noFid", " ; x_{HCAL} - x_{exp} (m)  ", 250,-4,3);
+  TH1D *h_dy_HCAL_noFid = new TH1D("h_dy_HCAL_noFid", " ; y_{HCAL} - y_{exp} (m)  ", 250,-2,2);
+  TH2D *h_dxdy_HCAL_noFid = new TH2D("h_dxdy_HCAL_noFid","HCAL_{actual} - HCAL_{expected} positions  ;y_{HCAL}-y_{expect} (m); x_{HCAL}-x_{expect} (m)", 250, -1.25, 1.25, 250, -2.5, 2.5 );
+  TH1D* h_W2_noFid = new TH1D("h_W2_noFid", "W2",100,0,2);
+
+  TH1D *h_dx_HCAL_noAA = new TH1D("h_dx_HCAL_noAA", " ; x_{HCAL} - x_{exp} (m)  ", 250,-4,3);
+  TH1D *h_dy_HCAL_noAA = new TH1D("h_dy_HCAL_noAA", " ; y_{HCAL} - y_{exp} (m)  ", 250,-2,2);
+  TH2D *h_dxdy_HCAL_noAA = new TH2D("h_dxdy_HCAL_noAA","HCAL_{actual} - HCAL_{expected} positions  ;y_{HCAL}-y_{expect} (m); x_{HCAL}-x_{expect} (m)", 250, -1.25, 1.25, 250, -2.5, 2.5 );
+  TH1D *h_dx_HCAL_failedFid = new TH1D("h_dx_HCAL_failedFid", " ; x_{HCAL} - x_{exp} (m)  ", 250,-4,3);
+  TH1D *h_dy_HCAL_failedFid = new TH1D("h_dy_HCAL_failedFid", " ; y_{HCAL} - y_{exp} (m)  ", 250,-2,2);
+  TH1D* h_W2_noAA = new TH1D("h_W2_noAA", "W2",100,0,2);
+
+  TH2D* h_xy_HCAL = new TH2D("h_xy_HCAL", "Actual HCAL Positions;HCAL Y_{actual} ; HCAL X_{actual}",100,-1,1,250,-3,2);
+  TH2D* h_xy_HCAL_exp = new TH2D("h_xy_HCAL_exp", "Expected HCAL positions;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
+  TH2D* h_xy_HCAL_exp_failedFid = new TH2D("h_xy_HCAL_exp_failedFid", "Expected: Failed Fiducial;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
+  TH2D* h_xy_HCAL_exp_passedFid = new TH2D("h_xy_HCAL_exp_passedFid", "Expected: Passed Fiducial;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
+
+  TH2D* h_W2_dx =  new TH2D("h_W2_dx",";HCAL dx; W2",250,-4,3,100,0,2);
+
+   TH2D* h_xy_HCAL_passedFid_n = new TH2D("h_xy_HCAL_passedFid_n", "Expected: Passed Fiducial for Neutron hyp.;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
+   TH2D* h_xy_HCAL_passedFid_p = new TH2D("h_xy_HCAL_passedFid_p", "Expected: Passed Fiducial for Proton hyp.;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
+
+  //TH1D* h_mc_sigma = new TH1D("h_mc_sigma","mc_sigma",
+
+
+//// define hcal active area
+  std::vector<Double_t> hcalaa = hcalaa_mc(1, 1);//
+  cout<< "HCal acitve area cut params: "<< hcalaa[0] << ", " << hcalaa[1] << ", " << hcalaa[2] << ", " << hcalaa[3] <<endl;
+
+  //// define hcal fiducial cut 
+  std::vector<Double_t> hcalfid_mc =hcalfid(dxsig_p, dxsig_n, dysig, hcalaa);
+  cout<< "HCal fiducial cut params: "<< hcalfid_mc[0] << ", " << hcalfid_mc[1] << ", " << hcalfid_mc[2] << ", " << hcalfid_mc[3] <<endl;
+ cout<< "dxsig_p =  "<< dxsig_p <<", dxsig_n = "<<dxsig_n<< ", dysig = " <<dysig<<", dx_pn = "<<dx_pn<<endl;
+
+  Long64_t Nevents = elist ->GetN();
+
+  Int_t max = 0;
+    if (entries_input == -1){
+      max = Nevents;
+    }
+    else{
+      max = entries_input;
+    }
+    if (max > Nevents){ max = Nevents;}
+    cout<<"max = "<<max<<endl;
+
+ cout<<endl << "Opened up TChain with nentries: " << C->GetEntries() << ". After globalcut: " << Nevents << "." << endl << endl;
+
+
+
+  cout<< "# Events = "<<Nevents<<endl;
+  for( Long64_t nevent = 1; nevent <max; nevent++){
+
+    if (nevent%50000==0) cout << " Entry = " << nevent << endl;
+    
+    C->GetEntry(elist ->GetEntry(nevent)); 
+    
+    double etheta = acos( BBtr_pz[0]/BBtr_p[0]);
+    double ephi = atan2(BBtr_py[0],BBtr_px[0]);
+    
+    TVector3 vertex(0,0,BBtr_vz[0]);
+    TLorentzVector Pbeam(0,0,E_e,E_e);
+    TLorentzVector kprime(BBtr_px[0], BBtr_py[0], BBtr_pz[0], BBtr_p[0]);
+    TLorentzVector Ptarg(0, 0, 0, M_p);
+
+    TLorentzVector q = Pbeam - kprime;
+    TLorentzVector PgammaN = Ptarg +q; //should go through and write this out. Momentum of virtual photon
+
+    double pel = E_e/ (1. +E_e/M_p*(1.-cos(etheta)));//momentum of elastically scattered electron 
+    double nu = E_e -BBtr_p[0]; //kinetic energy of the elasticlly scattered electron 
+    double pp = sqrt(pow(nu,2)+2 *M_p*nu); 
+    double phinucleon = ephi + PI; //coplanar 
+    double thetanucleon = acos((E_e - BBtr_pz[0])/pp);
+
+    TVector3 pNhat( sin(thetanucleon) *cos(phinucleon),sin(thetanucleon)*sin(phinucleon),cos(thetanucleon));
+    
+    TVector3 HCAL_zaxis(sin(-HCal_th),0,cos(-HCal_th));
+    TVector3 HCAL_xaxis(0,-1,0);
+    TVector3 HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
+
+    TVector3 HCAL_origin = HCal_d * HCAL_zaxis + hcalheight * HCAL_xaxis;
+
+    double sintersect = ( HCAL_origin - vertex).Dot( HCAL_zaxis) / (pNhat.Dot( HCAL_zaxis));
+    
+    TVector3 HCAL_intersect = vertex + sintersect * pNhat; 
+
+    double yexpect_HCAL = (HCAL_intersect - HCAL_origin).Dot( HCAL_yaxis);
+    double xexpect_HCAL =  (HCAL_intersect - HCAL_origin).Dot( HCAL_xaxis);
+
+    double Q2 = 2*E_e *BBtr_p[0]*( 1-BBtr_pz[0]/BBtr_p[0]);
+    
+    double W = PgammaN.M();
+    double W2 = ekineW2;
+
+    double dx = HCALx - xexpect_HCAL;
+    double dy = HCALy - yexpect_HCAL;
+
+
+    if (abs(ekineW2- W2_mean)>W2_sig ) continue; 
+
+    double corrected_weight = simc_weight * Luminosity * Generation_Volume / N_tries; // this SHOULD work but isn't. It seems like the "luminocity" from the csv file is too big. Right now, I have a value that Sebastian used. 
+    //double corrected_weight = simc_weight;
+
+
+    h_xy_HCAL ->Fill(HCALy, HCALx);
+
+    h_dx_HCAL_noAA ->Fill(dx, corrected_weight);
+    h_dy_HCAL_noAA ->Fill(dy, corrected_weight);
+    h_dxdy_HCAL_noAA ->Fill(dy,dx, corrected_weight);
+    h_W2_noAA ->Fill(ekineW2);
+
+      //// check if it's on the hcal active area
+    if ( hcalaaON( HCALx, HCALy , hcalaa))// was HCALx, HCALy should this be actual or expected? 
+      {
+	h_dx_HCAL_noFid ->Fill(dx, corrected_weight);
+	h_dy_HCAL_noFid ->Fill(dy, corrected_weight);
+	h_dxdy_HCAL_noFid ->Fill(dy,dx, corrected_weight);
+	h_W2_noFid->Fill(ekineW2);
+
+	//// check if it's within the fiducial cuts 
+	if(  hcalfidIN(xexpect_HCAL, yexpect_HCAL, dx_pn, hcalfid_mc ) ) 
+	  {
+	    h_dx_HCAL ->Fill(dx, corrected_weight);
+	    h_dy_HCAL ->Fill(dy, corrected_weight);
+	    h_dxdy_HCAL ->Fill(dy,dx, corrected_weight);
+	    h_W2->Fill(ekineW2);
+	    h_xy_HCAL_exp_passedFid ->Fill(yexpect_HCAL, xexpect_HCAL);
+	    h_xy_HCAL_passedFid_n ->Fill(yexpect_HCAL, xexpect_HCAL);
+	    h_xy_HCAL_passedFid_p ->Fill(yexpect_HCAL, xexpect_HCAL - dx_pn);
+	  }//end fid cut
+      }//end AA cut
+    if (!hcalaaON( xexpect_HCAL , yexpect_HCAL , hcalaa) || !hcalfidIN(xexpect_HCAL, yexpect_HCAL, dx_pn, hcalfid_mc ))
+      {
+	h_dx_HCAL_failedFid ->Fill(dx,corrected_weight);
+	h_dy_HCAL_failedFid ->Fill(dy,corrected_weight);
+	h_xy_HCAL_exp_failedFid ->Fill(yexpect_HCAL, xexpect_HCAL);
+      }
+
+
+  }// end loop over data 
+
+  double aaXi = hcalaa[0];
+  double aaXf = hcalaa[1];
+  double aaYi = hcalaa[2];
+  double aaYf = hcalaa[3]; 
+
+  double fidXi = hcalfid_mc[0];
+  double fidXf = hcalfid_mc[1];
+  double fidYi = hcalfid_mc[2];
+  double fidYf = hcalfid_mc[3];
+   
+  TLine *LineXi = new TLine(aaYi,aaXi, aaYf, aaXi); //horizontal line at aaXi from Yi to Yf.  geometry: (x1, y1, x2, y2)
+  LineXi->SetLineWidth(2);
+  // LineXi->SetLineStyle(2);
+  LineXi ->SetLineColor(kRed);
+  TLine *LineXf =  new TLine(aaYi,aaXf, aaYf, aaXf); //horizontal line at aaXf from Yi to Yf.
+  LineXf->SetLineWidth(2);
+  //LineXf->SetLineStyle(2);
+  LineXf ->SetLineColor(kRed);
+  TLine *LineYi = new TLine(aaYi,aaXi, aaYi, aaXf); //vert line at aaYi from Xi to Xf.
+  LineYi->SetLineWidth(2);
+  //LineYi->SetLineStyle(2);
+  LineYi ->SetLineColor(kRed);
+  TLine *LineYf = new TLine(aaYf,aaXi, aaYf, aaXf); //vert line at aaYf from Xi to Xf.
+  LineYf->SetLineWidth(2);
+  //LineYf->SetLineStyle(2);
+  LineYf ->SetLineColor(kRed);
+
+  TLine *LineFidXi = new TLine(fidYi,fidXi, fidYf, fidXi); //horizontal line at fidXi from Yi to Yf.  geometry: (x1, y1, x2, y2)
+  LineFidXi->SetLineWidth(2);
+  // LineFidXi->SetLineStyle(2);
+  LineFidXi ->SetLineColor(kMagenta);
+  TLine *LineFidXf =  new TLine(fidYi,fidXf, fidYf, fidXf); //horizontal line at fidXf from Yi to Yf.
+  LineFidXf->SetLineWidth(2);
+  //LineFidXf->SetLineStyle(2);
+  LineFidXf ->SetLineColor(kMagenta);
+  TLine *LineFidXproton =  new TLine(fidYi, fidXi + dx_pn, fidYf, fidXi + dx_pn); //horizontal line at fidXi+dx_pn from Yi to Yf.
+  LineFidXproton->SetLineWidth(2);
+  LineFidXproton->SetLineStyle(2);
+  LineFidXproton ->SetLineColor(kMagenta);
+  TLine *LineFidYi = new TLine(fidYi,fidXi, fidYi, fidXf); //vert line at fidYi from Xi to Xf.
+  LineFidYi->SetLineWidth(2);
+  // LineFidYi->SetLineStyle(2);
+  LineFidYi ->SetLineColor(kMagenta);
+  TLine *LineFidYf = new TLine(fidYf,fidXi, fidYf, fidXf); //vert line at fidYf from Xi to Xf.
+  LineFidYf->SetLineWidth(2);
+  //LineFidYf->SetLineStyle(2);
+  LineFidYf ->SetLineColor(kMagenta);
+
+
+  TLine *LinePosXi = new TLine(hcalposYi_mc,hcalposXi_mc, hcalposYf_mc, hcalposXi_mc); //horizontal line at hcalposXi from Yi to Yf.  geometry: (x1, y1, x2, y2)
+  LinePosXi->SetLineWidth(2);
+  // LinePosXi->SetLineStyle(2);
+  LinePosXi ->SetLineColor(kGreen);
+  TLine *LinePosXf =  new TLine(hcalposYi_mc,hcalposXf_mc,hcalposYf_mc, hcalposXf_mc); //horizontal line at hcalposXf from Yi to Yf.
+  LinePosXf->SetLineWidth(2);
+  //LinePosXf->SetLineStyle(2);
+  LinePosXf ->SetLineColor(kGreen);
+  TLine *LinePosYi = new TLine(hcalposYi_mc,hcalposXi_mc,hcalposYi_mc, hcalposXf_mc); //vert line at hcalposYi from Xi to Xf.
+  LinePosYi->SetLineWidth(2);
+  // LinePosYi->SetLineStyle(2);
+  LinePosYi ->SetLineColor(kGreen);
+  TLine *LinePosYf = new TLine(hcalposYf_mc,hcalposXi_mc,hcalposYf_mc,hcalposXf_mc ); //vert line at hcalposYf from Xi to Xf.
+  LinePosYf->SetLineWidth(2);
+  //LinePosYf->SetLineStyle(2);
+  LinePosYf ->SetLineColor(kGreen);
+
+  TCanvas* canvas = new TCanvas("canvas", "Canvas");
+  canvas->Divide(3,1);
+  canvas ->cd(1);
+  h_xy_HCAL ->Draw("colz");
+  LineXi ->Draw("same");
+  LineXf ->Draw("same");
+  LineYi ->Draw("same");
+  LineYf->Draw("same");
+  LineFidXi ->Draw("same");
+  LineFidXf ->Draw("same");
+  LineFidYi ->Draw("same");
+  LineFidYf->Draw("same");
+  LinePosXi ->Draw("same");
+  LinePosXf ->Draw("same");
+  LinePosYi ->Draw("same");
+  LinePosYf->Draw("same");
+  canvas ->cd(2);
+  h_xy_HCAL_exp_passedFid->Draw("colz");
+  LineXi ->Draw("same");
+  LineXf ->Draw("same");
+  LineYi ->Draw("same");
+  LineYf->Draw("same");
+  LineFidXi ->Draw("same");
+  LineFidXf ->Draw("same");
+  LineFidYi ->Draw("same");
+  LineFidYf->Draw("same");
+  LineFidXproton->Draw("same");
+  LinePosXi ->Draw("same");
+  LinePosXf ->Draw("same");
+  LinePosYi ->Draw("same");
+  LinePosYf->Draw("same");
+  canvas ->cd(3);
+  h_xy_HCAL_exp_failedFid->Draw("colz");
+  LineXi ->Draw("same");
+  LineXf ->Draw("same");
+  LineYi ->Draw("same");
+  LineYf->Draw("same");
+  LineFidXi ->Draw("same");
+  LineFidXf ->Draw("same");
+  LineFidYi ->Draw("same");
+  LineFidYf->Draw("same");
+  LineFidXproton->Draw("same");
+  LinePosXi ->Draw("same");
+  LinePosXf ->Draw("same");
+  LinePosYi ->Draw("same");
+  LinePosYf->Draw("same");
+
+  TCanvas* canvas2 = new TCanvas("canvas2", "Canvas");
+  canvas2->Divide(2,1);
+  canvas2 ->cd(1);
+  h_xy_HCAL_passedFid_n->Draw("colz");
+  LineFidXi ->Draw("same");
+  LineFidXf ->Draw("same");
+  LineFidYi ->Draw("same");
+  LineFidYf->Draw("same");
+  LineFidXproton->Draw("same");
+  canvas2 ->cd(2);
+  h_xy_HCAL_passedFid_p->Draw("colz");
+  LineFidXi ->Draw("same");
+  LineFidXf ->Draw("same");
+  LineFidYi ->Draw("same");
+  LineFidYf->Draw("same");
+  LineFidXproton->Draw("same");
+
+  //// end visualizig cuts 
+
+
+  fout->Write();
+
+}// end main
+
+
+ // Establish hcal active area excluding N blks from edge, Pass0/1 DB
+  std::vector<Double_t> hcalaa_data(int exblkN_x=1, int exblkN_y=1) {
+    std::vector<Double_t> hcalaa;
+    Double_t hcalaaXi = hcalposXi + exblkN_x*hcalblk_w;
+    Double_t hcalaaXf = hcalposXf - exblkN_x*hcalblk_w;
+    Double_t hcalaaYi = hcalposYi + exblkN_y*hcalblk_h;
+    Double_t hcalaaYf = hcalposYf - exblkN_y*hcalblk_h;
+    hcalaa.push_back( hcalaaXi ); 
+    hcalaa.push_back( hcalaaXf );
+    hcalaa.push_back( hcalaaYi );
+    hcalaa.push_back( hcalaaYf );
+    return hcalaa;
+  }
+
+ // Check position per event against hcal active area (TRUE if detection on active area)
+  bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa) {
+    bool on = false;
+    // active area dimensions
+    Double_t hcalx_t = hcalaa[0];
+    Double_t hcalx_b = hcalaa[1];
+    Double_t hcaly_r = hcalaa[2];
+    Double_t hcaly_l = hcalaa[3];
+    on = hcaly>hcaly_r && hcaly<hcaly_l && hcalx>hcalx_t && hcalx<hcalx_b;
+    return on;
+  } 
+
+
+// Overload for most cases where dy margin negligable and dx top/bottom configurable by p/n
+  std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa) {
+    std::vector<Double_t> fid;
+    Double_t hcalx_t = hcalaa[0] + dxsig_p;  // top margin (relevant for proton)
+    Double_t hcalx_b = hcalaa[1] - dxsig_n;  // bottom margin (relevant for neutron)
+    Double_t hcaly_r = hcalaa[2] + dysig;    // right margin
+    Double_t hcaly_l = hcalaa[3] - dysig;    // left margin
+    fid.push_back( hcalx_t ); 
+    fid.push_back( hcalx_b );
+    fid.push_back( hcaly_r );
+    fid.push_back( hcaly_l );
+    return fid;
+  }
+
+
+  // Check position by event and verify in hcal fiducial area
+  bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid) {
+    Double_t hcalx_t = fid[0];
+    Double_t hcalx_b = fid[1];
+    Double_t hcaly_r = fid[2];
+    Double_t hcaly_l = fid[3];
+
+    Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
+
+    bool infid = hcaly_exp>hcaly_r && hcaly_exp<hcaly_l &&      //dy same for protons and neutrons
+	         hcalx_exp>hcalx_t && hcalx_exp<hcalx_b &&      //dx for neutrons
+	         hcalx_exp_p>hcalx_t && hcalx_exp_p<hcalx_b;	//dx for protons							     
+    return infid;
+  } 
+
+
+ // Establish hcal active area excluding N blks from edge, MC DB
+  std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1) {
+    std::vector<Double_t> hcalaa;
+    Double_t hcalaaXi = hcalposXi_mc + exblkN_x*hcalblk_div_v;
+    Double_t hcalaaXf = hcalposXf_mc - exblkN_x*hcalblk_div_v;
+    Double_t hcalaaYi = hcalposYi_mc + exblkN_y*hcalblk_div_h;
+    Double_t hcalaaYf = hcalposYf_mc - exblkN_y*hcalblk_div_h;
+    hcalaa.push_back( hcalaaXi ); 
+    hcalaa.push_back( hcalaaXf );
+    hcalaa.push_back( hcalaaYi );
+    hcalaa.push_back( hcalaaYf );
+    return hcalaa;
+  }
+
+
