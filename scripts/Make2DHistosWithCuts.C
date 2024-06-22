@@ -419,6 +419,30 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
+  // hcal_x_exp vs hcal_y_exp
+  std::string hcal_x_exp_hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp__hcal_y_exp(400, -2, 2, 600, -3, 3)",hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_x_exp__hcal_y_exp= (TH2D*)gDirectory->Get("hcal_x_exp__hcal_y_exp");
+  if (hcal_x_exp__hcal_y_exp) {
+    hcal_x_exp__hcal_y_exp->SetXTitle("hcal_y_exp");
+    hcal_x_exp__hcal_y_exp->SetYTitle("hcal_x_exp");
+  }
+
+
+  // hcal_x_exp vs hcal_y_exp no optics cut
+  std::string hcal_x_exp_hcal_y_exp_study_string2 = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp__hcal_y_exp2(400, -2, 2, 600, -3, 3)",hcal_x_exp_hcal_y_exp_study_string2.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_x_exp__hcal_y_exp2= (TH2D*)gDirectory->Get("hcal_x_exp__hcal_y_exp2");
+  if (hcal_x_exp__hcal_y_exp2) {
+    hcal_x_exp__hcal_y_exp2->SetXTitle("hcal_y_exp");
+    hcal_x_exp__hcal_y_exp2->SetYTitle("hcal_x_exp");
+  }
+
+
 // hcal_y vs dx 
   std::string hcal_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
@@ -605,6 +629,20 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
+// optics y vs hcal_y_exp
+ std::string optics_y_exp_study_string=TargetVertexCutString;
+ //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_y_exp:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_y_exp__optics_y(200, -0.2, 0.2, 400, -2, 2)", optics_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_y_exp__optics_y= (TH2D*)gDirectory->Get("hcal_y_exp__optics_y");
+  if (hcal_y_exp__optics_y) {
+    hcal_y_exp__optics_y->SetXTitle("bb_tr_r_y-0.9*bb_tr_r_ph");
+    hcal_y_exp__optics_y->SetYTitle("hcal_y_exp");
+  }
+  
+
+
  // optics x vs dx study
  std::string optics_x_study_string=TargetVertexCutString;
  //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
@@ -629,7 +667,17 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     W2__optics_x->SetYTitle("W^{2}");
   }
 
-
+ // optics x vs hcal_x_exp
+ std::string optics_x_exp_study_string=TargetVertexCutString;
+ //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_x_exp__optics_x(120, -0.6, 0.6, 600, -3, 3)", optics_x_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_x_exp__optics_x= (TH2D*)gDirectory->Get("hcal_x_exp__optics_x");
+  if (hcal_x_exp__optics_x) {
+    hcal_x_exp__optics_x->SetXTitle("bb_tr_r_x-0.9*bb_tr_r_th");
+    hcal_x_exp__optics_x->SetYTitle("hcal_x_exp");
+  }
  
 
 

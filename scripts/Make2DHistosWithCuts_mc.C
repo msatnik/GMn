@@ -408,6 +408,21 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
 
+// hcal_x_exp vs hcal_y_exp
+  std::string hcal_x_exp_hcal_y_exp_study_string =TargetVertexCutString;
+    //= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" +  Optics_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp__hcal_y_exp(400, -2, 2, 600, -3, 3)", ,Form("corrected_weight*(%s)",hcal_x_exp_hcal_y_exp_study_string.c_str()), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_x_exp__hcal_y_exp= (TH2D*)gDirectory->Get("hcal_x_exp__hcal_y_exp");
+  if (hcal_x_exp__hcal_y_exp) {
+    hcal_x_exp__hcal_y_exp->SetXTitle("hcal_y_exp");
+    hcal_x_exp__hcal_y_exp->SetYTitle("hcal_x_exp");
+  }
+
+
+
+
 // hcal_y vs dx 
   std::string hcal_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
   //// Draw the 2D histogram

@@ -29,13 +29,24 @@
 #include "TCut.h"
 #include "TLatex.h"
 #include "TLine.h"
+#include <string>
 using namespace std;
+
+
+ // Positions (mc)
+  static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
+  static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
+  static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
+  static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
 
 
 // functions
 void adjustCanvas(TCanvas* canvas,
                   double leftMargin = 0.15, double rightMargin = 0.05, 
                   double bottomMargin = 0.15, double topMargin = 0.10);
+void printParsedTitle(const std::string& title);
+
+
 
 void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
 //set draw params
@@ -449,13 +460,15 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   np_hcal_x_hist ->Draw("E");
 
 
+
+
  // Studying n/p over HCAL_X Expected
 
 /// 1d histo of hcal_x_exp 
-  std::string hcal_x_exp_study_string =  TrackQualityCutString;
-    //EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&" + W2CutString;
+  std::string hcal_x_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString;
+    //TrackQualityCutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_x_exp>>hcal_x_exp_hist(450, -2, 2.5)",  hcal_x_exp_study_string.c_str(), "COLZ");
+  C->Draw("hcal_x_exp>>hcal_x_exp_hist(600, -3, 3)",  hcal_x_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *hcal_x_exp_hist= (TH1D*)gDirectory->Get("hcal_x_exp_hist");
   if (hcal_x_exp_hist) {
@@ -463,10 +476,10 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
    /// 1d histo of hcal_x_exp  with proton spot cut. 
-  std::string proton_hcal_x_exp_study_string = TrackQualityCutString+"&&"+ ProtonSpot_CutString;
-    //EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString  + "&&"+  HCal_Shower_atime_CutString +"&&" +W2CutString+"&&"+ ProtonSpot_CutString;
+  std::string proton_hcal_x_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString  + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString+"&&"+ ProtonSpot_CutString;
+    //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_x_exp>>hcal_x_exp_hist_proton(450, -2, 2.5)",  proton_hcal_x_exp_study_string.c_str(), "COLZ E");
+  C->Draw("hcal_x_exp>>hcal_x_exp_hist_proton(600, -3, 3)",  proton_hcal_x_exp_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *hcal_x_exp_hist_proton= (TH1D*)gDirectory->Get("hcal_x_exp_hist_proton");
   if (hcal_x_exp_hist_proton) {
@@ -474,10 +487,10 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
  /// 1d histo of hcal_x_exp with neutron spot cut. 
-  std::string neutron_hcal_x_exp_study_string = TargetVertexCutString+"&&"+NeutronSpot_CutString;
-    //EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString +"&&"+HCal_Shower_atime_CutString +"&&" + W2CutString+"&&"+NeutronSpot_CutString;
+  std::string neutron_hcal_x_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString +"&&"+HCal_Shower_atime_CutString +"&&"+e_over_p_CutString+"&&"+NeutronSpot_CutString;
+    //TargetVertexCutString+"&&"+NeutronSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_x_exp>>hcal_x_exp_hist_neutron(450, -2, 2.5)",  neutron_hcal_x_exp_study_string.c_str(), "COLZ E");
+  C->Draw("hcal_x_exp>>hcal_x_exp_hist_neutron(600, -3, 3)",  neutron_hcal_x_exp_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *hcal_x_exp_hist_neutron= (TH1D*)gDirectory->Get("hcal_x_exp_hist_neutron");
   if (hcal_x_exp_hist_neutron) {
@@ -496,6 +509,172 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
 
 
 
+
+   // Studying n/p over HCAL_X Exp vs HCal Y Exp 2d histo
+
+/// 2d histo of hcal_x_exp vs hcal_y_exp 
+  std::string hcal_x_exp_hcal_y_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString;
+    //TrackQualityCutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp_hcal_y_exp_hist(20,-2,2,30, -3, 3)",  hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_x_exp_hcal_y_exp_hist= (TH1D*)gDirectory->Get("hcal_x_exp_hcal_y_exp_hist");
+  if (hcal_x_exp_hcal_y_exp_hist) {
+    hcal_x_exp_hcal_y_exp_hist->SetXTitle("hcal y expected");
+    hcal_x_exp_hcal_y_exp_hist->SetXTitle("hcal x expected");
+  }
+
+   /// 2d histo of hcal_x_exp vs hcal y exp  with proton spot cut. 
+  std::string proton_hcal_x_exp_hcal_y_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString  + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString+"&&"+ ProtonSpot_CutString;
+    //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp_hcal_y_exp_hist_proton(20,-2,2,30, -3, 3)",  proton_hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_x_exp_hcal_y_exp_hist_proton= (TH1D*)gDirectory->Get("hcal_x_exp_hcal_y_exp_hist_proton");
+  if (hcal_x_exp_hcal_y_exp_hist_proton) {
+    hcal_x_exp_hcal_y_exp_hist_proton->SetXTitle("hcal y expected with proton spot cut");
+     hcal_x_exp_hcal_y_exp_hist_proton->SetYTitle("hcal x expected with proton spot cut");
+  }
+
+ /// 1d histo of hcal_x_exp with neutron spot cut. 
+  std::string neutron_hcal_x_exp_hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+HCal_Energy_CutString +"&&"+HCal_Shower_atime_CutString +"&&"+e_over_p_CutString+"&&"+NeutronSpot_CutString;
+    //TargetVertexCutString+"&&"+NeutronSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp_hcal_y_exp_hist_neutron(20,-2,2,30, -3, 3)",  neutron_hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_x_exp_hcal_y_exp_hist_neutron= (TH1D*)gDirectory->Get("hcal_x_exp_hcal_y_exp_hist_neutron");
+  if (hcal_x_exp_hcal_y_exp_hist_neutron) {
+    hcal_x_exp_hcal_y_exp_hist_neutron->SetXTitle("hcal y expected with neutron spot cut");
+     hcal_x_exp_hcal_y_exp_hist_neutron->SetYTitle("hcal x expected with neutron spot cut");
+  }
+
+
+  // Get the neutron/proton ratio, bin-by-bin, by dividing the hcal_x_exp histo with the neutron spot cut by the hcal_x_exp histo with the proton spot cut.
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH2D *np_hcal_x_exp_hcal_y_exp_hist = (TH2D*)hcal_x_exp_hcal_y_exp_hist_neutron->Clone("np_hcal_x_exp_hcal_y_exp_hist"); 
+  np_hcal_x_exp_hcal_y_exp_hist ->SetXTitle("hcal y expected");
+  np_hcal_x_exp_hcal_y_exp_hist  ->SetYTitle("hcal x expected");
+  np_hcal_x_exp_hcal_y_exp_hist  ->Divide(hcal_x_exp_hcal_y_exp_hist_proton);
+
+  
+
+
+
+ // Studying the Nucleon Detection Eff  over HCAL_X Expected
+
+/// 1d histo of hcal_x_exp with proton and neutron spots and HCal variables. 
+  std::string detected_hcal_x_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString +"&&"+ W2CutString+"&&("+ ProtonSpot_CutString +"||"+ NeutronSpot_CutString+")";
+    //TrackQualityCutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp>>detected_hcal_x_exp_hist(600, -3, 3)",  detected_hcal_x_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *detected_hcal_x_exp_hist= (TH1D*)gDirectory->Get("detected_hcal_x_exp_hist");
+  if (detected_hcal_x_exp_hist) {
+    detected_hcal_x_exp_hist->SetXTitle("detected: hcal x expected");
+  }
+  
+std::string detected_title = detected_hcal_x_exp_hist->GetTitle();
+// cout<<detected_title<<endl;
+  
+   /// 1d histo of hcal_x_exp  with no HCal variables. . 
+  std::string expected_hcal_x_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+e_over_p_CutString +"&&"+ W2CutString;
+    //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp>>expected_hcal_x_exp_hist(600, -3, 3)",  expected_hcal_x_exp_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *expected_hcal_x_exp_hist= (TH1D*)gDirectory->Get("expected_hcal_x_exp_hist");
+  if (expected_hcal_x_exp_hist) {
+    expected_hcal_x_exp_hist->SetXTitle("expected: hcal x expected");
+  }
+ std::string expected_title = expected_hcal_x_exp_hist->GetTitle();
+ //cout<<expected_title<<endl;
+
+
+  // Get the detection eff by the ratio, bin-by-bin, by dividing hcal_x_exp histogram with HCal cuts (detected) by the hcal_x_exp histogram without hcal cuts (expected)
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH1D *HDE_hcal_x_exp_hist = (TH1D*)detected_hcal_x_exp_hist->Clone("HDE_hcal_x_exp_hist"); 
+  HDE_hcal_x_exp_hist->SetXTitle("hcal x expected");
+  HDE_hcal_x_exp_hist->SetYTitle("Nucleon Detecton Eff");
+  HDE_hcal_x_exp_hist ->Divide(expected_hcal_x_exp_hist);
+  HDE_hcal_x_exp_hist ->Draw("E");
+
+
+
+ // Studying the Nucleon Detection Eff  over HCAL_Y Expected
+
+/// 1d histo of hcal_y_exp with proton and neutron spots and HCal variables. 
+  std::string detected_hcal_y_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString +"&&"+ W2CutString+"&&("+ ProtonSpot_CutString +"||"+ NeutronSpot_CutString+")";
+    //TrackQualityCutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_y_exp>>detected_hcal_y_exp_hist(400, -2, 2)",  detected_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *detected_hcal_y_exp_hist= (TH1D*)gDirectory->Get("detected_hcal_y_exp_hist");
+  if (detected_hcal_y_exp_hist) {
+    detected_hcal_y_exp_hist->SetXTitle("detected: hcal y expected");
+  }
+  
+  
+   /// 1d histo of hcal_y_exp  with no HCal variables. . 
+  std::string expected_hcal_y_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+e_over_p_CutString +"&&"+ W2CutString;
+    //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_y_exp>>expected_hcal_y_exp_hist(400, -2, 2)",  expected_hcal_y_exp_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *expected_hcal_y_exp_hist= (TH1D*)gDirectory->Get("expected_hcal_y_exp_hist");
+  if (expected_hcal_y_exp_hist) {
+    expected_hcal_y_exp_hist->SetXTitle("expected: hcal y expected");
+  }
+ 
+
+  // Get the detection eff by the ratio, bin-by-bin, by dividing hcal_y_exp histogram with HCal cuts (detected) by the hcal_y_exp histogram without hcal cuts (expected)
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH1D *HDE_hcal_y_exp_hist = (TH1D*)detected_hcal_y_exp_hist->Clone("HDE_hcal_y_exp_hist"); 
+  HDE_hcal_y_exp_hist->SetXTitle("hcal y expected");
+  HDE_hcal_y_exp_hist->SetYTitle("Nucleon Detecton Eff");
+  HDE_hcal_y_exp_hist ->Divide(expected_hcal_y_exp_hist);
+  HDE_hcal_y_exp_hist ->Draw("E");
+
+
+   // Studying the Nucleon Detection Eff  over 2d HCAL X Expected vs HCAL Y expected 
+
+/// 2d histo of hcal_x_exp vs hcal_y_exp with proton and neutron spots and HCal variables. 
+  std::string detected_hcal_x_exp_hcal_y_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString +"&&"+ W2CutString+"&&("+ ProtonSpot_CutString +"||"+ NeutronSpot_CutString+")";
+  //// Draw the histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>detected_hcal_x_exp_hcal_y_exp_hist(75,-3,3,50, -2, 2)",  detected_hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *detected_hcal_x_exp_hcal_y_exp_hist= (TH1D*)gDirectory->Get("detected_hcal_x_exp_hcal_y_exp_hist");
+  if (detected_hcal_x_exp_hcal_y_exp_hist) {
+    detected_hcal_x_exp_hcal_y_exp_hist->SetXTitle("detected: hcal y exp");
+    detected_hcal_x_exp_hcal_y_exp_hist->SetYTitle("detected: hcal x exp");
+  }
+
+/// 2d histo of hcal_x_exp vs hcal_y_exp with NO HCAL or Spot cuts 
+  std::string expected_hcal_x_exp_hcal_y_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+e_over_p_CutString +"&&"+ W2CutString;
+  //// Draw the histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>expected_hcal_x_exp_hcal_y_exp_hist(75,-3,3,50, -2, 2)",  expected_hcal_x_exp_hcal_y_exp_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *expected_hcal_x_exp_hcal_y_exp_hist= (TH1D*)gDirectory->Get("expected_hcal_x_exp_hcal_y_exp_hist");
+  if (expected_hcal_x_exp_hcal_y_exp_hist) {
+    expected_hcal_x_exp_hcal_y_exp_hist->SetXTitle("expected: hcal y exp");
+    expected_hcal_x_exp_hcal_y_exp_hist->SetYTitle("expected: hcal x exp");
+  }
+  
+  
+
+  // Get the detection eff by the ratio, bin-by-bin, by dividing 2d histogram with HCal cuts (detected) by the 2d histogram without hcal cuts (expected)
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH1D *HDE_hcal_x_exp_hcal_y_exp_hist = (TH1D*)detected_hcal_x_exp_hcal_y_exp_hist->Clone("HDE_hcal_x_exp_hcal_y_exp_hist"); 
+  HDE_hcal_x_exp_hcal_y_exp_hist->SetXTitle("hcal y expected");
+  HDE_hcal_x_exp_hcal_y_exp_hist->SetYTitle("hcal x expected");
+  HDE_hcal_x_exp_hcal_y_exp_hist->SetYTitle("Nucleon Detecton Eff");
+  HDE_hcal_x_exp_hcal_y_exp_hist ->Divide(expected_hcal_x_exp_hcal_y_exp_hist);
+
+  
+  
  // Studying n/p over W2 
 
 /// 1d histo of W2 
@@ -844,13 +1023,40 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   hcal_x_exp_hist_neutron->SetLineColor(kMagenta);
   hcal_x_exp_hist_neutron->Draw("same E");
   TLegend *hcal_x_exp_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_x_exp_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_x_exp_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_x_exp_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  hcal_x_exp_leg ->AddEntry(hcal_x_exp_hist,"No Spot Cuts","l");
+  hcal_x_exp_leg ->AddEntry(hcal_x_exp_hist_proton,"Proton Spot Cut","l");
+  hcal_x_exp_leg ->AddEntry(hcal_x_exp_hist_neutron,"Neutron Spot Cut","l");
   hcal_x_exp_leg->Draw();
   hcal_x_exp_canvas->cd(2);
   np_hcal_x_exp_hist->Draw("E");
+  TLine* np_hcal_x_exp_min_line = new TLine(hcalposXi_mc,0, hcalposXi_mc, 1);
+  np_hcal_x_exp_min_line->SetLineColor(kRed);  // Set line color (e.g., red)
+  np_hcal_x_exp_min_line ->SetLineWidth(2);     // Set line width
+  np_hcal_x_exp_min_line->Draw("SAME");
+  TLine* np_hcal_x_exp_max_line = new TLine(hcalposXf_mc, 0, hcalposXf_mc, 1 );
+  np_hcal_x_exp_max_line->SetLineColor(kRed);  // Set line color (e.g., red)
+  np_hcal_x_exp_max_line ->SetLineWidth(2);     // Set line width
+  np_hcal_x_exp_max_line->Draw("SAME");
 
+
+  TCanvas* HDE_hcal_x_exp_canvas = new TCanvas("HDE_hcal_x_exp_canvas", "HDE_hcal_x_exp_canvas", 1000, 600);
+  HDE_hcal_x_exp_canvas ->Divide(1,2);
+  HDE_hcal_x_exp_canvas->cd(1);
+  gPad->SetLogy();
+  expected_hcal_x_exp_hist->SetTitle("hcal x expected");
+  expected_hcal_x_exp_hist->Draw("E");
+  detected_hcal_x_exp_hist->SetLineColor(kViolet);
+  detected_hcal_x_exp_hist->Draw("same E");
+  TLegend *HDE_hcal_x_exp_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
+  HDE_hcal_x_exp_leg ->AddEntry(expected_hcal_x_exp_hist,"No HCal Cuts","l");
+  HDE_hcal_x_exp_leg ->AddEntry(detected_hcal_x_exp_hist,"HCal Cuts and Spot Cuts","l");
+  HDE_hcal_x_exp_leg->Draw();
+  HDE_hcal_x_exp_canvas->cd(2);
+  HDE_hcal_x_exp_hist->Draw("E");
+
+  
+
+  
   TCanvas* hcal_y_canvas = new TCanvas("hcal_y_canvas", "hcal_y_canvas", 1000, 600);
   hcal_y_canvas ->Divide(1,2);
   hcal_y_canvas->cd(1);
@@ -888,6 +1094,22 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   np_hcal_y_exp_hist->Draw("E");
 
 
+  TCanvas* HDE_hcal_y_exp_canvas = new TCanvas("HDE_hcal_y_exp_canvas", "HDE_hcal_y_exp_canvas", 1000, 600);
+  HDE_hcal_y_exp_canvas ->Divide(1,2);
+  HDE_hcal_y_exp_canvas->cd(1);
+  gPad->SetLogy();
+  expected_hcal_y_exp_hist->SetTitle("hcal y expected");
+  expected_hcal_y_exp_hist->Draw("E");
+  detected_hcal_y_exp_hist->SetLineColor(kViolet);
+  detected_hcal_y_exp_hist->Draw("same E");
+  TLegend *HDE_hcal_y_exp_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
+  HDE_hcal_y_exp_leg ->AddEntry(expected_hcal_y_exp_hist,"No HCal Cuts","l");
+  HDE_hcal_y_exp_leg ->AddEntry(detected_hcal_y_exp_hist,"HCal Cuts and Spot Cuts","l");
+  HDE_hcal_y_exp_leg->Draw();
+  HDE_hcal_y_exp_canvas->cd(2);
+  HDE_hcal_y_exp_hist->Draw("E");
+
+  
   TCanvas* hcal_dy_canvas = new TCanvas("hcal_dy_canvas", "hcal_dy_canvas", 1000, 600);
   hcal_dy_canvas ->Divide(1,2);
   hcal_dy_canvas->cd(1);
@@ -1020,17 +1242,45 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   TCanvas* results_canvas3 = new TCanvas("results_canvas3", "results_canvas3", 1000, 600);
   results_canvas3 ->Divide(2,2);
   results_canvas3 ->cd(1);
-  np_vz_hist->GetYaxis() ->SetRangeUser(0, 1);
-  np_vz_hist->SetTitle("n:p ratio across track vz");
-  np_vz_hist->Draw("E");
+   // np_hcal_y_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
+  // np_hcal_y_exp_hist->SetTitle("n:p ratio across hcal y expected");
+  // np_hcal_y_exp_hist->Draw("E");
+  hcal_x_exp_hcal_y_exp_hist_neutron->SetTitle("netutron");
+  hcal_x_exp_hcal_y_exp_hist_neutron ->Draw("colz");
   results_canvas3 ->cd(2);
- np_hcal_y_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
-  np_hcal_y_exp_hist->SetTitle("n:p ratio across hcal y expected");
-  np_hcal_y_exp_hist->Draw("E");
-results_canvas3 ->cd(3);
- np_hcal_x_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
-  np_hcal_x_exp_hist->SetTitle("n:p ratio across hcal x Expected");
-  np_hcal_x_exp_hist->Draw("E");
+  // np_hcal_x_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
+  // np_hcal_x_exp_hist->SetTitle("n:p ratio across hcal x Expected");
+  // np_hcal_x_exp_hist->Draw("E");
+  hcal_x_exp_hcal_y_exp_hist_proton->SetTitle("proton");
+  hcal_x_exp_hcal_y_exp_hist_proton ->Draw("colz");
+  results_canvas3 ->cd(3);
+  np_hcal_x_exp_hcal_y_exp_hist->SetTitle("n:p ratio across hcal x exp and hcal y exp");
+  np_hcal_x_exp_hcal_y_exp_hist->Draw("colz");
+  
+  
+ TCanvas* results_canvas4 = new TCanvas("results_canvas4", "results_canvas4", 1000, 600);
+ results_canvas4 ->Divide(2,2);
+ results_canvas4 ->cd(1);
+ HDE_hcal_y_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
+ HDE_hcal_y_exp_hist->SetTitle("Nucleon Detection Efficiency across hcal_y_exp");
+ HDE_hcal_y_exp_hist->Draw("E");
+ results_canvas4 ->cd(2);
+ HDE_hcal_x_exp_hist->GetYaxis() ->SetRangeUser(0, 1);
+  HDE_hcal_x_exp_hist->SetTitle("Nucleon Detection Efficiency across hcal_x_exp");
+  HDE_hcal_x_exp_hist->Draw("E");
+  results_canvas4->cd(3);
+  HDE_hcal_x_exp_hcal_y_exp_hist->SetTitle("Nucleon Detection Efficiency across hcal_x_exp and hcal_y_exp");
+ HDE_hcal_x_exp_hcal_y_exp_hist->Draw("Colz");
+
+ TCanvas* results_canvas5 = new TCanvas("results_canvas5", "results_canvas5", 1000, 600);
+ results_canvas5 ->Divide(2,2);
+ results_canvas5 ->cd(1);
+ np_vz_hist->GetYaxis() ->SetRangeUser(0, 1);
+ np_vz_hist->SetTitle("n:p ratio across track vz");
+ np_vz_hist->Draw("E");
+
+ 
+   printParsedTitle(detected_title);
  
   fout ->Write();
 }// end main
@@ -1048,4 +1298,71 @@ void adjustCanvas(TCanvas* canvas,
     canvas->SetRightMargin(rightMargin);
     canvas->SetBottomMargin(bottomMargin);
     canvas->SetTopMargin(topMargin);
+}
+
+
+//// Get the title from the histogram and display it on a canvas. 
+/// This expects the title to be in the form:
+///  y_axis:x_axis {cut1&&cut2&&cut3....}
+void printParsedTitle(const std::string& title) {
+  
+  cout<<title<<endl;
+  
+  // Find the position of the first '{' character
+  size_t pos = title.find('{');
+    
+  // Extract the y_axis:x_axis part
+  std::string axes = title.substr(0, pos);
+  //cout<<"axis = "<<axes<<endl;
+    
+  // Extract the cuts part and remove '{' and '}'
+  std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
+  //cout<<"cuts = "<<cuts<<endl;
+   
+  //cout<<"broken up cuts"<<endl;
+
+  // Split the cuts into individual cut expressions
+  std::vector<std::string> cutList;
+  std::stringstream ss(cuts);
+  std::string cut;
+  while (std::getline(ss, cut, '&')) {
+    // Remove leading and trailing whitespace
+    cut.erase(0, cut.find_first_not_of(" \t"));
+    cut.erase(cut.find_last_not_of(" \t") + 1);
+        
+    // Ensure the cut is not empty before processing
+    if (!cut.empty() && cut.front() == '&') {
+      cut.erase(cut.begin());
+    }
+        
+    if (!cut.empty()) {
+      cutList.push_back(cut);
+      // cout<<cut<<endl;
+    }
+  }
+
+    
+  // Create a new canvas
+  TCanvas* cuts_canvas = new TCanvas("cuts_canvas", "Parsed Histogram Title", 1000, 600);
+    
+  // Create a TLatex object to draw the text
+  TLatex latex;
+  latex.SetTextSize(0.03);  // Adjust text size
+  latex.SetTextAlign(13);   // Align text to top left
+    
+  // Draw the axes part
+  latex.DrawLatex(0.1, 0.9, axes.c_str());
+    
+  // Draw each cut expression on a new line
+  double yPos = 0.8;  // Start position for the first cut
+  for (const auto& cut : cutList) {
+      latex.DrawLatex(0.1, yPos, cut.c_str());
+      yPos -= 0.03;  // Move down for the next cut
+  }
+    
+  // Update the canvas
+  cuts_canvas->Update();
+    
+  // // Optionally, save the canvas as an image
+  // // canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
 }
