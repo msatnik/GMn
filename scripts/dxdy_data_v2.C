@@ -321,7 +321,7 @@ if (target == "deuterium")
   double BBtr_r_th[maxTracks], BBtr_r_ph[maxTracks],BBtr_r_x[maxTracks],BBtr_r_y[maxTracks], BBtr_th[maxTracks],BBtr_ph[maxTracks];
   double BBtr_n, BBps_x, BBps_y, BBps_e, BBps_rowblk, BBps_colblk, BBsh_x, BBsh_y, BBsh_e,BBsh_rowblk, BBsh_colblk,BBsh_atimeblk;
   double HCALx, HCALy, HCALe, ekineW2;
-  double HCALx_default, HCALy_default,HCALe_default;
+  double HCALx_default, HCALy_default,HCALe_default,HCAL_atime_default;
 
   double HCAL_clus_e[1000],HCAL_clus_x[1000],HCAL_clus_y[1000],HCAL_clus_row[1000], HCAL_clus_col[1000],HCAL_clus_nblk[1000],HCAL_clus_id[1000],HCAL_clus_tdctime[1000],HCAL_clus_atime[1000];
   int Ndata_HCAL_clus_id;
@@ -333,6 +333,7 @@ if (target == "deuterium")
   C->SetBranchStatus("sbs.hcal.x",1);
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
+  C->SetBranchStatus("sbs.hcal.atimeblk",1);
   C->SetBranchStatus("sbs.hcal.clus.id",1);
   C->SetBranchStatus("sbs.hcal.clus.e",1);
   C->SetBranchStatus("sbs.hcal.clus.x",1);
@@ -382,6 +383,7 @@ if (target == "deuterium")
   C->SetBranchAddress("sbs.hcal.x", &HCALx_default);
   C->SetBranchAddress("sbs.hcal.y", &HCALy_default);
   C->SetBranchAddress("sbs.hcal.e", &HCALe_default);
+  C->SetBranchAddress("sbs.hcal.atimeblk",&HCAL_atime_default);
   C->SetBranchAddress("sbs.hcal.clus.id",&HCAL_clus_id);
   C->SetBranchAddress("sbs.hcal.clus.e",&HCAL_clus_e);
   C->SetBranchAddress("sbs.hcal.clus.x",&HCAL_clus_x);
@@ -463,6 +465,10 @@ if (target == "deuterium")
     double hcal_x, hcal_y; // 
     double hcal_e;
 
+    // hcal default cluster
+    double hcal_x_def, hcal_y_def;
+    double hcal_e_def;
+
     // calculated variables 
     double hcal_dx, hcal_dy; // 
     double hcal_x_exp, hcal_y_exp; // 
@@ -492,10 +498,16 @@ if (target == "deuterium")
     // other
     double e_over_p_out;
 
-    // HCal - Shower timing 
+    // HCal - Shower timing best cluster
     double hcal_clus_atime_out;
     double bb_sh_atimeblk_out;
     double hcal_sh_atime_diff_out;
+    int passed_atime_cuts_out;
+   
+
+    
+    
+    
 
 
   // Create new branches for the output tree
@@ -563,7 +575,8 @@ if (target == "deuterium")
     // HCal - Shower timing
     P->Branch("hcal_clus_atime", &hcal_clus_atime_out,"hcal_clus_atime/D");
     P->Branch("bb_sh_atimeblk", &bb_sh_atimeblk_out,"bb_sh_atimeblk/D");
-    P->Branch("hcal_sh_atime_diff", &hcal_sh_atime_diff_out,"hcal_sh_atime_diff_out/D");
+    P->Branch("hcal_sh_atime_diff", &hcal_sh_atime_diff_out,"hcal_sh_atime_diff/D");
+    P->Branch("passed_atime_cuts",&passed_atime_cuts_out,"passed_atime_cuts/I");
 
     // mc info. These will all be filled with zeros. I want the branches to match between data and MC for ease later. 
     P->Branch("is_proton", &is_proton_out, "is_proton/I");
@@ -771,8 +784,6 @@ if (target == "deuterium")
       // double W = PgammaN.M();
       // double W2 = ekineW2;
 
-      if (W2>3) continue; 
-
 
       h_BBsh_atime ->Fill(BBsh_atimeblk);
 
@@ -823,10 +834,17 @@ if (target == "deuterium")
 	}
 
       h_max_e_index ->Fill(max_e_index);
-    
-      if(max_e_index == -1) continue; // no clusters passed the adc time checks 
-    
 
+      
+      int passed_atime_cuts = 1; // flag to say if the a cluster passed the in-time and coin-time cuts
+      
+      if(max_e_index == -1){// no clusters passed the adc time checks
+	max_e_index = 0; // let it fill with the default highest energy values. We'll have to cut on hcal time and coin time later.
+	passed_atime_cuts = 0; // put up a flag that it failed one or both of the atime cuts and is using the default cluster. 
+      }
+    
+     
+      
       //if (abs(ekineW2- W2_mean)>W2_sig ) continue; // I probably should remove this when I turn this into a parsing script. Or just make it > 1.5 or something. 
       // if (ekineW2>2 ) continue; // I probably should remove this when I turn this into a parsing script. Or just make it > 1.5 or something. 
 
@@ -964,6 +982,7 @@ if (target == "deuterium")
       hcal_clus_atime_out = HCAL_clus_atime[max_e_index];
       bb_sh_atimeblk_out = BBsh_atimeblk;
       hcal_sh_atime_diff_out = HCAL_clus_atime[max_e_index] - BBsh_atimeblk;
+      passed_atime_cuts_out = passed_atime_cuts;
    
       P -> Fill();
     }// end global cut  

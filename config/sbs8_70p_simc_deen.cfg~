@@ -1,0 +1,28 @@
+#####################################
+#sseeds 2.28.23 - Setup file for  SBS4. Modified by msatnik.
+#####################################
+## scalesbsfield = 0.65
+#/lustre19/expphy/volatile/halla/sbs/msatnik/g4sbs/sbs4_sbs30p_sf0p359/rootfiles/*
+## sbs4 50p, rejection sampling 
+/lustre19/expphy/volatile/halla/sbs/seeds/simc/65sf_sbs4_sbs50p_simc/replayed_65sf_sbs4_sbs50p_simc_deen_*.root
+endlist
+#bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz[0])<0.08&&sbs.hcal.e>0.025&&bb.ps.e+bb.sh.e>1.7
+endcut
+summaryfilePath /lustre19/expphy/volatile/halla/sbs/seeds/simc/65sf_sbs4_sbs50p_simc/simcout/65sf_sbs4_sbs50p_simc_deen_summary.csv
+nucleon n
+E_e 3.728
+BB_d 1.7988
+BB_th 36.0
+HCal_d 11.65
+HCal_th 31.9
+hcalheight 0
+W2_mean 1.00
+W2_sig 0.24
+dxsig_p 0.22
+dxsig_n 0.21
+dysig 0.29
+dx_pn 1.17
+nsigma_p 1
+nsigma_n 1
+nsigma_y 1
+mag_field 50

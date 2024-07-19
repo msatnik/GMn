@@ -771,50 +771,66 @@ void adjustCanvas(TCanvas* canvas,
 void printParsedTitle(TH2D* hist,  const char* outputname="") {
     // Get the histogram title
     std::string title = hist->GetTitle();
-    
-    cout<<title<<endl;
 
-    // Find the position of the first '{' character
-    size_t pos = title.find('{');
+    cout<<title<<endl;
+  
+    // // Find the position of the first '{' character
+  //   size_t pos = title.find('{');
     
-    // Extract the y_axis:x_axis part
-    std::string axes = title.substr(0, pos);
+  //   // Extract the y_axis:x_axis part
+  // std::string axes = title.substr(0, pos);
+  // //cout<<"axis = "<<axes<<endl;
     
-    // Extract the cuts part and remove '{' and '}'
-    std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
+  // // Extract the cuts part and remove '{' and '}'
+  // std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
+  // //cout<<"cuts = "<<cuts<<endl;
+   
+  // //cout<<"broken up cuts"<<endl;
+
+  // // Split the cuts into individual cut expressions
+  // std::vector<std::string> cutList;
+  // std::stringstream ss(cuts);
+  // std::string cut;
+  // while (std::getline(ss, cut, '&')) {
+  //   // Remove leading and trailing whitespace
+  //   cut.erase(0, cut.find_first_not_of(" \t"));
+  //   cut.erase(cut.find_last_not_of(" \t") + 1);
+        
+  //   // Ensure the cut is not empty before processing
+  //   if (!cut.empty() && cut.front() == '&') {
+  //     cut.erase(cut.begin());
+  //   }
+        
+  //   if (!cut.empty()) {
+  //     cutList.push_back(cut);
+  //     // cout<<cut<<endl;
+  //   }
+  // }
+
     
-    // Split the cuts into individual cut expressions
-    std::vector<std::string> cutList;
-    std::stringstream ss(cuts);
-    std::string cut;
-    while (std::getline(ss, cut, '&')) {
-        if (cut.front() == '&') {
-            cut.erase(cut.begin());
-        }
-        cutList.push_back(cut);
-    }
+  // // Create a new canvas
+  // TCanvas* cuts_canvas = new TCanvas("cuts_canvas", "Parsed Histogram Title", 1000, 600);
     
-    // Create a new canvas
-    TCanvas* canvas = new TCanvas("canvas", "Parsed Histogram Title", 800, 600);
+  // // Create a TLatex object to draw the text
+  // TLatex latex;
+  // latex.SetTextSize(0.03);  // Adjust text size
+  // latex.SetTextAlign(13);   // Align text to top left
     
-    // Create a TLatex object to draw the text
-    TLatex latex;
-    latex.SetTextSize(0.03);  // Adjust text size
-    latex.SetTextAlign(13);   // Align text to top left
+  // // Draw the axes part
+  // latex.DrawLatex(0.1, 0.9, axes.c_str());
     
-    // Draw the axes part
-    latex.DrawLatex(0.1, 0.9, axes.c_str());
+  // // Draw each cut expression on a new line
+  // double yPos = 0.8;  // Start position for the first cut
+  // for (const auto& cut : cutList) {
+  //   latex.DrawLatex(0.1, yPos, cut.c_str());
+  //   yPos -= 0.03;  // Move down for the next cut
+  // }
+
+
     
-    // Draw each cut expression on a new line
-    double yPos = 0.8;  // Start position for the first cut
-    for (const auto& cut : cutList) {
-        latex.DrawLatex(0.1, yPos, cut.c_str());
-        yPos -= 0.0175;  // Move down for the next cut
-    }
+  //   // Update the canvas
+  //  cuts_canvas->Update();
     
-    // Update the canvas
-    canvas->Update();
-    
-    // Optionally, save the canvas as an image
-    canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
+  //   // Optionally, save the canvas as an image
+  //   cuts_canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
 }

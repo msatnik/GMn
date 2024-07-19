@@ -26,8 +26,8 @@
 // Global Params
 Double_t wide_x_range = 0.2;
 Double_t nsigma = 0.6;
-Double_t xmin = -3; // -1.8
-Double_t xmax = 2.5;//1;
+Double_t xmin = -2.5; // -2.1 for SBS4 30p
+Double_t xmax = 1.4;//1.4 for SBS4 40p
 const int numbins = 200;
 
 
@@ -40,6 +40,7 @@ Double_t poly4(Double_t *x, Double_t *par);
 Double_t poly2_2gaus(Double_t *x, Double_t *par);
 Double_t poly4_2gaus(Double_t *x, Double_t *par);
 Double_t mc_p_n_poly4_fit(Double_t *x, Double_t *par);
+Double_t mc_p_n_poly2_fit(Double_t *x, Double_t *par);
 Double_t mc_p_fit(Double_t *x, Double_t *par);
 Double_t mc_n_fit(Double_t *x, Double_t *par);
 TH1D* shiftHistogramX(TH1D* originalHist, double shiftValue);
@@ -54,7 +55,7 @@ void adjustPad(TPad* pad,
                   double leftMargin = 0.15, double rightMargin = 0.05, 
 		double bottomMargin = 0.15, double topMargin = 0.10);
 void AdjustHistLabelOffset(TH1D* hist, double xoffset = 0.03, double yoffset= 0.02);
-void printParsedTitle(TH1D* hist,  const char* outputname="");
+void printParsedTitle(const std::string& title);
 
 
 TH1D *histP;
@@ -83,10 +84,25 @@ void fit_dx_with_cuts(){//main
   
   // Using histograms that come from the Make2Dhistos scripts.  
 
- TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
- TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); // proton
- TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); // neutron
+ // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
+ // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); // proton
+ // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); // neutron
 
+ TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_2Dhistos.root"); // data
+ TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deep_2Dhistos.root"); // proton
+ TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deen_2Dhistos.root"); // neutron
+
+
+// TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_BinStudy.root"); // data
+//  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_BinStudy.root"); // proton
+//  TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_BinStudy.root"); // neutron
+
+ // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_cuts_2Dhistos.root"); // data
+ // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_cuts_deep_2Dhistos.root"); // proton
+ // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_cuts_deen_2Dhistos.root"); // neutron
+
+ 
+ 
   // Load Histograms
   TH1D *hist1 = (TH1D*)f1->Get("hcal_dx_1d_allcuts");
   TH1D *hist2 = (TH1D*)f2->Get("hcal_dx_1d_allcuts");
@@ -111,20 +127,36 @@ void fit_dx_with_cuts(){//main
   cout<<endl;
 
 
+  // Get the mean and standard deviation from the MC histograms
+  double proton_mean_mc = hist2->GetMean();
+  double proton_StdDev_mc = hist2->GetStdDev();
+  double neutron_mean_mc = hist3->GetMean();
+  double neutron_StdDev_mc = hist3->GetStdDev();
 
+  cout<< "Proton: mean = "<<proton_mean_mc<<", StdDev = "<<proton_StdDev_mc<<endl;
+  cout<< "Neutron: mean = "<<neutron_mean_mc<<", StdDev = "<<neutron_StdDev_mc<<endl;
+  cout<<endl;
 
-  double initialParameters[9] = {1,1,0,0,1,1,1,1,1};
+  TLine *zero_line = new TLine(xmin, 0, xmax, 0);
+  zero_line ->SetLineColor(kRed);
+  zero_line->SetLineWidth(2);
+  
+
+  double initialParameters[9] = {1,1,0,0,1,1,-1};
 
    // Create custom fit function
-    TF1 *fitFunc = new TF1("fitFunc", mc_p_n_poly4_fit, xmin, xmax, 9); //
+    TF1 *fitFunc = new TF1("fitFunc", mc_p_n_poly2_fit, xmin, xmax, 7); //
 
     // Set initial parameters for the fit function
     fitFunc->SetParameters(initialParameters); // Define initial parameters
     fitFunc ->SetNpx(500);
-
-    // Fit combined histogram with custom fit function
-    hist1->GetXaxis() ->SetRangeUser(xmin, xmax);
-    hist1->Fit(fitFunc, "Q");
+    fitFunc->SetParLimits(2, -0.10, 0.10); // setting the limit on parameter 2 (proton shift)
+     fitFunc->SetParLimits(3, -0.10, 0.10); // setting the limit on parameter 2 (neutron shift)
+     fitFunc->SetParLimits(6,-10000000,-0.0000000001); // x^2 term negative to force downward concavity 
+     fitFunc->SetNpx(500);
+     // Fit combined histogram with custom fit function
+     hist1->GetXaxis() ->SetRangeUser(xmin, xmax);
+     hist1->Fit(fitFunc, "Q R");
 
     double normP_result, normN_result;
     double normP_result_error, normN_result_error;
@@ -145,7 +177,7 @@ void fit_dx_with_cuts(){//main
     cout<<"Pshift " <<Pshift_result <<endl;
     cout<<"Nshift " <<Nshift_result <<endl;
 
-      for (int i =0 ; i < 5; i++)
+      for (int i =0 ; i < 3; i++)
 	{
 	  polyresult[i] = fitFunc->GetParameter(4+i);
 	}
@@ -171,7 +203,7 @@ void fit_dx_with_cuts(){//main
       TF1 *N_result =  new TF1("N_result", mc_n_fit, xmin,xmax,1);
       N_result ->SetParameter(0,normN_result);
 
-      TF1 *poly_result = new TF1("poly_result", poly4, xmin, xmax, 5);
+      TF1 *poly_result = new TF1("poly_result", poly2, xmin, xmax, 5);
       poly_result->SetParameters(polyresult);
 
       TH1D *residual_hist = GetResidualHistogram(hist1, fitFunc);
@@ -236,7 +268,7 @@ void fit_dx_with_cuts(){//main
       graphlegend->AddEntry("", Form("   shifted by %.4f ", Pshift_result), "");
       graphlegend->AddEntry(histN_clone,"Neutron simc","f");
       graphlegend->AddEntry("", Form("   shifted by %.4f ", Nshift_result), "");
-      graphlegend->AddEntry(poly_result,"4th order poly","f");
+      graphlegend->AddEntry(poly_result,"2nd order poly","f");
       graphlegend->AddEntry("", Form("R= %.4f +/- %.4f ", Ratio,Ratio_error), "");
       graphlegend->AddEntry("", Form("#chi^{2}/ndf = %.2f / %.0f  ", ChiSq ,ndf), "");
       graphlegend->Draw();
@@ -245,6 +277,7 @@ void fit_dx_with_cuts(){//main
       lowerPad1->cd();
       AdjustHistLabelOffset(residual_hist);
       residual_hist ->Draw("E sames");
+      zero_line ->Draw("same");
 
       graphcanvas->Update();
       graphcanvas->Draw();
@@ -299,18 +332,20 @@ void fit_dx_with_cuts(){//main
   /// Add entries to the legend for the fit parameters
   legend->AddEntry(hist1, "Data", "l");
   legend->AddEntry(fitFunc,"Overall Fit","l");
-  legend->AddEntry(histP_clone,"Proton simc","l");
+  legend->AddEntry(histP_clone,"Proton simc","f");
   legend->AddEntry("", Form("   shifted by %.4f ", Pshift_result), "");
-  legend->AddEntry(histN_clone,"Neutron simc","l");
+  legend->AddEntry(histN_clone,"Neutron simc","f");
  legend->AddEntry("", Form("   shifted by %.4f ", Nshift_result), "");
-  legend->AddEntry(poly_result,"4th order poly","l");
+  legend->AddEntry(poly_result,"2nd order poly","f");
   legend->AddEntry("", Form("R= %.4f +/- %.4f ", Ratio,Ratio_error), "");
+  legend->AddEntry("", Form("#chi^{2}/ndf = %.2f / %.0f  ", ChiSq ,ndf), "");
   legend->Draw();
 
   // draw residual histogram on lower pad
   lowerPad->cd();
   AdjustHistLabelOffset(residual_hist);
   residual_hist ->Draw("E sames");
+  zero_line->Draw("same");
 
   upperPad->Update(); // this is supposed to update the axis labels but it looks like crap
   lowerPad->Update();
@@ -329,7 +364,8 @@ void fit_dx_with_cuts(){//main
    histN->Draw("sames E");
 
 
-   printParsedTitle(hist1);
+   std::string title = hist1->GetTitle();
+   printParsedTitle(title);
 
 
 
@@ -589,10 +625,10 @@ Double_t poly4_2gaus(Double_t *x, Double_t *par)
 }
 
 
-// Custom fit function
+// Fit that is a combination of the scaled proton mc, scaled neutron mc, and 4th order polynomial. 
+//// histP and histN are globals that need to be set to the proper histograms right before you call the fit function. 
 Double_t mc_p_n_poly4_fit(Double_t *x, Double_t *par) {
     
-
     Double_t val = 0.0;
 
     // Get x value
@@ -618,6 +654,41 @@ Double_t mc_p_n_poly4_fit(Double_t *x, Double_t *par) {
 
     // Add polynomial background
     for (Int_t i = 0; i <= 4; ++i) {
+        val += polyCoefficients[i] * TMath::Power(xx, i);
+    }
+
+    return val;
+}
+
+// Fit that is a combination of the scaled proton mc, scaled neutron mc, and 2nd order polynomial. 
+//// histP and histN are globals that need to be set to the proper histograms right before you call the fit function. 
+Double_t mc_p_n_poly2_fit(Double_t *x, Double_t *par) {
+    
+    Double_t val = 0.0;
+
+    // Get x value
+    Double_t xx = x[0];
+
+    // Retrieve parameters
+    Double_t normP = par[0];
+    Double_t normN = par[1];
+    Double_t Pshift = par[2];
+    Double_t Nshift = par[3];
+
+    Double_t polyCoefficients[3]; 
+    
+
+
+    // Fill polynomial coefficients
+    for (Int_t i = 0; i <=2; ++i) {
+        polyCoefficients[i] = par[i + 4];
+    }
+
+    // Calculate value using combination of histograms and polynomial background
+    val = normP * histP->Interpolate(xx-Pshift) + normN * histN->Interpolate(xx-Nshift);
+
+    // Add polynomial background
+    for (Int_t i = 0; i <= 2; ++i) {
         val += polyCoefficients[i] * TMath::Power(xx, i);
     }
 
@@ -832,56 +903,65 @@ void AdjustHistLabelOffset(TH1D* hist, double xoffset = 0.03, double yoffset= 0.
 }
 
 
-//// Get the title from the histogram and display it on a canvas. 
-/// This expects the title to be in the form:
-///  y_axis:x_axis {cut1&&cut2&&cut3....}
-void printParsedTitle(TH1D* hist,  const char* outputname="") {
-    // Get the histogram title
-    std::string title = hist->GetTitle();
+void printParsedTitle(const std::string& title) {
+  
+  cout<<title<<endl;
+  
+  // Find the position of the first '{' character
+  size_t pos = title.find('{');
     
-    cout<<title<<endl;
+  // Extract the y_axis:x_axis part
+  std::string axes = title.substr(0, pos);
+  //cout<<"axis = "<<axes<<endl;
+    
+  // Extract the cuts part and remove '{' and '}'
+  std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
+  //cout<<"cuts = "<<cuts<<endl;
+   
+  //cout<<"broken up cuts"<<endl;
 
-    // Find the position of the first '{' character
-    size_t pos = title.find('{');
-    
-    // Extract the y_axis:x_axis part
-    std::string axes = title.substr(0, pos);
-    
-    // Extract the cuts part and remove '{' and '}'
-    std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
-    
-    // Split the cuts into individual cut expressions
-    std::vector<std::string> cutList;
-    std::stringstream ss(cuts);
-    std::string cut;
-    while (std::getline(ss, cut, '&')) {
-        if (cut.front() == '&') {
-            cut.erase(cut.begin());
-        }
-        cutList.push_back(cut);
+  // Split the cuts into individual cut expressions
+  std::vector<std::string> cutList;
+  std::stringstream ss(cuts);
+  std::string cut;
+  while (std::getline(ss, cut, '&')) {
+    // Remove leading and trailing whitespace
+    cut.erase(0, cut.find_first_not_of(" \t"));
+    cut.erase(cut.find_last_not_of(" \t") + 1);
+        
+    // Ensure the cut is not empty before processing
+    if (!cut.empty() && cut.front() == '&') {
+      cut.erase(cut.begin());
     }
-    
-    // Create a new canvas
-    TCanvas* canvas = new TCanvas("canvas", "Parsed Histogram Title", 800, 600);
-    
-    // Create a TLatex object to draw the text
-    TLatex latex;
-    latex.SetTextSize(0.03);  // Adjust text size
-    latex.SetTextAlign(13);   // Align text to top left
-    
-    // Draw the axes part
-    latex.DrawLatex(0.1, 0.9, axes.c_str());
-    
-    // Draw each cut expression on a new line
-    double yPos = 0.8;  // Start position for the first cut
-    for (const auto& cut : cutList) {
-        latex.DrawLatex(0.1, yPos, cut.c_str());
-        yPos -= 0.0175;  // Move down for the next cut
+        
+    if (!cut.empty()) {
+      cutList.push_back(cut);
+      // cout<<cut<<endl;
     }
+  }
+
     
-    // Update the canvas
-    canvas->Update();
+  // Create a new canvas
+  TCanvas* cuts_canvas = new TCanvas("cuts_canvas", "Parsed Histogram Title", 1000, 600);
     
-    // Optionally, save the canvas as an image
-    //canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
+  // Create a TLatex object to draw the text
+  TLatex latex;
+  latex.SetTextSize(0.03);  // Adjust text size
+  latex.SetTextAlign(13);   // Align text to top left
+    
+  // Draw the axes part
+  latex.DrawLatex(0.1, 0.9, axes.c_str());
+    
+  // Draw each cut expression on a new line
+  double yPos = 0.8;  // Start position for the first cut
+  for (const auto& cut : cutList) {
+    latex.DrawLatex(0.1, yPos, cut.c_str());
+    yPos -= 0.03;  // Move down for the next cut
+  }
+    
+  // Update the canvas
+  cuts_canvas->Update();
+    
+  // // Optionally, save the canvas as an image
+  // // canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
 }

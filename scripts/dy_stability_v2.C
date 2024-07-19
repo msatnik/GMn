@@ -50,8 +50,8 @@ TH1D *hist_p;
 TH1D *hist_n;
 
 
- double xmin = -3; // -1.8
-  double xmax = 2.5;//1;
+ double xmin = -2; // -1.8
+  double xmax = 1;//1;
 
 
 //// struct to store everything for each slice
@@ -75,15 +75,17 @@ struct SliceResults{
 // Functions 
 void SliceAndProjectHistogram_xMaxFixed(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMax, std::string xAxisName, std::string yAxisName, std::string type);
 Double_t mc_p_n_poly4_slice_fit(Double_t *x, Double_t *par);
+Double_t mc_p_n_poly2_slice_fit(Double_t *x, Double_t *par);
 TH1D* shiftHistogramX(TH1D* originalHist, double shiftValue);
 Double_t poly4(Double_t *x, Double_t *par);
+Double_t poly2(Double_t *x, Double_t *par);
 TH1D* GetResidualHistogram(TH1D* hist, TF1* fit);
 void adjustCanvas(TCanvas* canvas, double leftMargin = 0.15, double rightMargin = 0.05, double bottomMargin = 0.15, double topMargin = 0.10);
 void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markerSize, 
                     const char* graphTitle ="", const char* xAxisLabel="", const char* yAxisLabel="",
 		    double TitleOffsetX = 1.4, double TitleOffsetY = 2, 
 		    double LabelOffsetX = 0.01, double LabelOffsetY = 0.01);
-void printParsedTitle(TH2D* hist,  const char* outputname="");
+void printParsedTitle(const std::string& title,const char* outputname="");
 TH1D* sumHistogramsWithPolynomial(TH1D* h1, TH1D* h2, TF1* poly);
 void SliceAndProjectHistogram_AroundMean(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMean, std::string xAxisName, std::string yAxisName, std::string type);
 
@@ -130,10 +132,10 @@ void dy_stability_v2(){ // main
   TH2D *hist_2D_proton = (TH2D*)hist_proton_orig->Clone("hist_2D_proton");
   TH2D *hist_2D_neutron = (TH2D*)hist_neutron_orig->Clone("hist_2D_neutron");
 
- 
+  
 
  // Set up the slices for the Y projections. 
-  std::vector<double> xSlices = {1.0, 1.5, 2.0,2.5, 3.0, 3.5, 4.0, 4.5, 5.0};
+  std::vector<double> xSlices = {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25,3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0};
   //std::vector<double> xSlices = {5,4.5,4,3.5,3,2.5,2,1.5,1};
   double mean = 0;
 
@@ -175,6 +177,9 @@ void dy_stability_v2(){ // main
 
   std::vector<double> scale_p_err_vector;
   std::vector<double> scale_n_err_vector;
+  std::vector<double> shift_p_err_vector;
+  std::vector<double> shift_n_err_vector;
+  
 
   std::vector<double> ChiSq_vector;
   std::vector<double> ndf_vector;
@@ -194,6 +199,8 @@ void dy_stability_v2(){ // main
   shift_n_vector.clear();
   scale_p_err_vector.clear();
   scale_n_err_vector.clear();
+  shift_p_err_vector.clear();
+  shift_n_err_vector.clear();
   ChiSq_vector.clear();
   ndf_vector.clear();
   Rsf_vector.clear();
@@ -201,7 +208,7 @@ void dy_stability_v2(){ // main
   poly_result_vector_of_vectors.clear();
   poly_result_err_vector_of_vectors.clear();
 
-  double initialParameters[9]={1,1,0,0,1,1,1,1,1};
+  double initialParameters[7]={1,1,0,0,1,1,-1};
   // initialParameters = {0};
       
   TH1D *hist_data;
@@ -220,11 +227,17 @@ void dy_stability_v2(){ // main
       // hist_data  =hist_vector_data[sliceid];
 
 	 
-      TF1 *Fit = new TF1(Form("overall_fit_%i_",sliceid),mc_p_n_poly4_slice_fit, xmin, xmax, 9);
-      Fit->SetParameters(initialParameters); 
+      TF1 *Fit = new TF1(Form("overall_fit_%i_",sliceid),mc_p_n_poly2_slice_fit, xmin, xmax, 7);
+      Fit->SetParameters(initialParameters);
+       // set parameter limits. SetParLimits -> (par#, min, max)
+      Fit->SetParLimits(0, 0, 2000); // scale_p greater than 0
+      Fit->SetParLimits(1, 0,2000); // scale_n greater than 0
+      Fit->SetParLimits(2, -0.10,0.10); // shift_p less than +- 10cm
+      Fit->SetParLimits(3, -0.10,0.10); // shift_n less than +- 10cm
+      Fit->SetParLimits(6,-10000000,-0.0000000001); // x^2 term negative to force downward concavity 
       Fit->SetNpx(500);
       hist_data->GetXaxis() ->SetRangeUser(xmin, xmax);
-      hist_data->Fit(Fit,"Q");
+      hist_data->Fit(Fit,"Q R");
 
       // retrieve fit results 
       double scale_p  = Fit ->GetParameter(0);
@@ -232,15 +245,17 @@ void dy_stability_v2(){ // main
       double scale_n  = Fit ->GetParameter(1);
       double scale_n_err = Fit ->GetParError(1);
 
-      double shift_p= Fit ->GetParameter(2); 
+      double shift_p= Fit ->GetParameter(2);
+      double shift_p_err= Fit ->GetParError(2); 
       double shift_n = Fit ->GetParameter(3);
+      double shift_n_err = Fit ->GetParError(3);
 	  
       double ChiSq= Fit->GetChisquare();
       double ndf = Fit->GetNDF();
 
       std::vector<double> poly_result;
       std::vector<double> poly_result_err;
-      for (int i =0 ; i < 5; i++)
+      for (int i =0 ; i < 3; i++)
 	{
 	  poly_result.push_back( Fit->GetParameter(4+i) );
 	  poly_result_err.push_back(Fit->GetParError(4+i) );
@@ -251,6 +266,8 @@ void dy_stability_v2(){ // main
       double Rsf_err = Rsf * sqrt( pow( (scale_n_err / scale_n), 2) + pow( (scale_p_err / scale_p),2) ); //just adding the uncert from the fit parameters in quadrature for now. 
 
       cout<<"sliceid: "<<sliceid<< " ratio: scale_n / scale_p = "<< scale_n <<" / " <<scale_p <<" = "<< Rsf <<" +/- "<< Rsf_err<<endl;
+      cout<<"sliceid: "<<sliceid<<" shift p: "<<shift_p<<" +/- "<<shift_p_err<<" shift_n: "<<shift_n<<"+/-"<<shift_n_err<<endl;
+      cout<<endl;
 
       //// save results into the vectors 
       //fit_vector.push_back(Fit);
@@ -260,6 +277,8 @@ void dy_stability_v2(){ // main
       scale_n_err_vector.push_back(scale_n_err);
       shift_p_vector.push_back(shift_p);
       shift_n_vector.push_back(shift_n);
+      shift_p_err_vector.push_back(shift_p_err);
+      shift_n_err_vector.push_back(shift_n_err);
       ChiSq_vector.push_back(ChiSq);
       ndf_vector.push_back(ndf);
       Rsf_vector.push_back(Rsf);
@@ -316,7 +335,7 @@ void dy_stability_v2(){ // main
 	poly_params_array[i] = poly_params_vector[i];
       }
 
-      TF1 *fit = new TF1(Form("poly4_%i_",sliceid),poly4, xmin, xmax, 5);
+      TF1 *fit = new TF1(Form("poly2_%i_",sliceid),poly2, xmin, xmax, 3);
       fit->SetParameters(poly_params_array); 
       fit->SetNpx(500);
       poly_fit_result.push_back(fit);
@@ -338,9 +357,7 @@ void dy_stability_v2(){ // main
     }    
   TGraphErrors *Rsf_graph = new TGraphErrors(xSlices.size(), x, y, x_err, y_err);
   customizeGraph(Rsf_graph, 33, kBlue, 3,"","hcal_nsigdy","Rsf");
-  void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markerSize, 
-		      const char* graphTitle, const char* xAxisLabel, const char* yAxisLabel);
-
+  
   //// canvas
   TCanvas *graphcanvas = new TCanvas("graphcanvas","graphcanvas",800,600);  
   adjustCanvas(graphcanvas);
@@ -348,6 +365,33 @@ void dy_stability_v2(){ // main
   graphcanvas->Update();
   graphcanvas->SaveAs(Form("%s/Rsf.pdf",output_dir.c_str() ));
 
+
+  //// Plot nEntries
+     //// Make arrays that TGraphErrors can use 
+  double x_n[xSlices.size()];
+  double y_n[xSlices.size()];
+  double x_n_err[xSlices.size()];
+  double y_n_err[xSlices.size()];
+  for (int sliceid = 0 ; sliceid < xSlices.size() ; sliceid++)
+    {
+      x_n[sliceid] = xSlices[sliceid];
+      y_n[sliceid] = hist_vector_data[sliceid]->GetEntries();
+      x_n_err[sliceid] = 0;
+      y_n_err[sliceid] = 0;
+    }    
+  TGraphErrors *nEntries_graph = new TGraphErrors(xSlices.size(), x_n, y_n, x_n_err, y_n_err);
+  customizeGraph(nEntries_graph, 33, kBlue, 3,"","hcal_nsigdy","nEntries");
+ 
+  //// canvas
+  TCanvas *nEntriesCanvas = new TCanvas("nEntriesCanvas","nEntriesCanvas",800,600);  
+  adjustCanvas(nEntriesCanvas);
+  nEntries_graph->Draw("AP");
+  nEntriesCanvas->Update();
+  nEntriesCanvas->SaveAs(Form("%s/nEntries.pdf",output_dir.c_str() ));
+  
+
+
+  
 
   int nHist = hist_vector_data.size();
   int nCols = 4;
@@ -381,6 +425,8 @@ void dy_stability_v2(){ // main
     hist_result_vector_n[i]->Draw("same");
     sum_histo ->SetLineColor(kRed);
     sum_histo->Draw("same");
+    poly_fit_result[i]->SetLineColor(kCyan);
+    poly_fit_result[i]->Draw("same");
      
   }// end loop over slices
   fits_canvas->Update();
@@ -435,6 +481,12 @@ void dy_stability_v2(){ // main
   TH1D* hist1D_p = hist_2D_proton->ProjectionX("protonProjX");
   TH1D* hist1D_n = hist_2D_neutron->ProjectionX("neutronProjX");
 
+  cout<<"dy data:"<<endl;
+  cout<< "Mean = "<<hist1D_data->GetMean()<<", StdDev = "<<hist1D_data->GetStdDev()<<endl;
+  cout<<"dy proton:"<<endl;
+  cout<< "Mean = "<<hist1D_p->GetMean()<<", StdDev = "<<hist1D_p->GetStdDev()<<endl;
+  cout<<"dy neutron:"<<endl;
+  cout<< "Mean = "<<hist1D_n->GetMean()<<", StdDev = "<<hist1D_n->GetStdDev()<<endl;
 
   // Create a canvas to draw the histogram
   TCanvas* cutcanvas1D = new TCanvas("cutcanvas1D", "X Projection with Vertical Lines", 800, 600);
@@ -500,8 +552,9 @@ void dy_stability_v2(){ // main
 
   
  
-  //// extract the histogram title and print it 
-  printParsedTitle(hist_2D_data,"data");
+  //// extract the histogram title and print it
+  std::string title = hist_2D_data->GetTitle();
+  printParsedTitle(title,"data");
 
   fout->Write();
 
@@ -585,6 +638,45 @@ void SliceAndProjectHistogram_xMaxFixed(TH2D* hist2D, const std::vector<double>&
     }// end loop over slices
 }// end SliceAndProjectHistogram_xMaxFixed
 
+
+// Fit that is a combination of the scaled proton mc, scaled neutron mc, and 2nd order polynomial. 
+//// hist_p and hist_n are globals that need to be set to the proper histograms right before you call the fit function. 
+Double_t mc_p_n_poly2_slice_fit(Double_t *x, Double_t *par) {
+    
+    Double_t val = 0.0;
+
+    // Get x value
+    Double_t xx = x[0];
+
+    // Retrieve parameters
+    Double_t scale_p = par[0];
+    Double_t scale_n = par[1];
+    Double_t shift_p = par[2];
+    Double_t shift_n = par[3];
+
+    Double_t polyCoefficients[3]; 
+    
+    // Fill polynomial coefficients 
+    for (Int_t i = 0; i <=2; ++i) {
+        polyCoefficients[i] = par[i + 4];
+    }
+
+    //// hist_p and hist_n are globals that need to be set to the proper histograms right before you call the fit function. 
+
+    // Calculate value using combination of histograms and polynomial background
+    val = scale_p *hist_p ->Interpolate(xx-shift_p) + scale_n *hist_n ->Interpolate(xx-shift_n);
+
+    // Add polynomial background
+    for (Int_t i = 0; i <= 2; ++i) {
+        val += polyCoefficients[i] * TMath::Power(xx, i);
+    }
+
+    return val;
+}
+
+
+
+
 // Fit that is a combination of the scaled proton mc, scaled neutron mc, and 4th order polynomial. 
 //// hist_p and hist_n are globals that need to be set to the proper histograms right before you call the fit function. 
 Double_t mc_p_n_poly4_slice_fit(Double_t *x, Double_t *par) {
@@ -650,6 +742,11 @@ Double_t mc_p_n_poly4_slice_fit(Double_t *x, Double_t *par) {
     return shiftedHist;
   }
 
+Double_t poly2(Double_t *x, Double_t *par)
+{
+  Double_t fit = par[0] + par[1] * x[0] + par[2] * pow(x[0],2) ;
+  return fit;
+}
 
 Double_t poly4(Double_t *x, Double_t *par)
 {
@@ -765,56 +862,72 @@ void adjustCanvas(TCanvas* canvas,
 }
 
 
+
+
 //// Get the title from the histogram and display it on a canvas. 
 /// This expects the title to be in the form:
 ///  y_axis:x_axis {cut1&&cut2&&cut3....}
-void printParsedTitle(TH2D* hist,  const char* outputname="") {
-    // Get the histogram title
-    std::string title = hist->GetTitle();
-    
-    cout<<title<<endl;
+void printParsedTitle(const std::string& title,const char* outputname="") {
 
+    cout<<title<<endl;
+  
     // Find the position of the first '{' character
     size_t pos = title.find('{');
     
     // Extract the y_axis:x_axis part
-    std::string axes = title.substr(0, pos);
+  std::string axes = title.substr(0, pos);
+  //cout<<"axis = "<<axes<<endl;
     
-    // Extract the cuts part and remove '{' and '}'
-    std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
-    
-    // Split the cuts into individual cut expressions
-    std::vector<std::string> cutList;
-    std::stringstream ss(cuts);
-    std::string cut;
-    while (std::getline(ss, cut, '&')) {
-        if (cut.front() == '&') {
-            cut.erase(cut.begin());
-        }
-        cutList.push_back(cut);
+  // Extract the cuts part and remove '{' and '}'
+  std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
+  //cout<<"cuts = "<<cuts<<endl;
+   
+  //cout<<"broken up cuts"<<endl;
+
+  // Split the cuts into individual cut expressions
+  std::vector<std::string> cutList;
+  std::stringstream ss(cuts);
+  std::string cut;
+  while (std::getline(ss, cut, '&')) {
+    // Remove leading and trailing whitespace
+    cut.erase(0, cut.find_first_not_of(" \t"));
+    cut.erase(cut.find_last_not_of(" \t") + 1);
+        
+    // Ensure the cut is not empty before processing
+    if (!cut.empty() && cut.front() == '&') {
+      cut.erase(cut.begin());
     }
-    
-    // Create a new canvas
-    TCanvas* canvas = new TCanvas("canvas", "Parsed Histogram Title", 800, 600);
-    
-    // Create a TLatex object to draw the text
-    TLatex latex;
-    latex.SetTextSize(0.03);  // Adjust text size
-    latex.SetTextAlign(13);   // Align text to top left
-    
-    // Draw the axes part
-    latex.DrawLatex(0.1, 0.9, axes.c_str());
-    
-    // Draw each cut expression on a new line
-    double yPos = 0.8;  // Start position for the first cut
-    for (const auto& cut : cutList) {
-        latex.DrawLatex(0.1, yPos, cut.c_str());
-        yPos -= 0.0175;  // Move down for the next cut
+        
+    if (!cut.empty()) {
+      cutList.push_back(cut);
+      // cout<<cut<<endl;
     }
+  }
+
+    
+  // Create a new canvas
+  TCanvas* cuts_canvas = new TCanvas("cuts_canvas", "Parsed Histogram Title", 1000, 600);
+    
+  // Create a TLatex object to draw the text
+  TLatex latex;
+  latex.SetTextSize(0.03);  // Adjust text size
+  latex.SetTextAlign(13);   // Align text to top left
+    
+  // Draw the axes part
+  latex.DrawLatex(0.1, 0.9, axes.c_str());
+    
+  // Draw each cut expression on a new line
+  double yPos = 0.8;  // Start position for the first cut
+  for (const auto& cut : cutList) {
+    latex.DrawLatex(0.1, yPos, cut.c_str());
+    yPos -= 0.03;  // Move down for the next cut
+  }
+
+
     
     // Update the canvas
-    canvas->Update();
+   cuts_canvas->Update();
     
     // Optionally, save the canvas as an image
-    canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
+    cuts_canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
 }
