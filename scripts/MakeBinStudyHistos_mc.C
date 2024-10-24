@@ -265,87 +265,179 @@ void MakeBinStudyHistos_mc(TString configfileinput="sbs4_30p_test_mc"){ // main
 
 
   // Make with various numbers of bins. 
-  //// Draw the 1D histogram
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_50(50, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // 8m / 800 = 0.01 = 1 cm
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p01(800, -4, 4)",  Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_50= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_50");
-  if (hcal_dx_1d_allcuts_50) {
-    hcal_dx_1d_allcuts_50->SetXTitle("hcal_dx");
+  TH1D *hcal_dx_1d_allcuts_0p01= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p01");
+  if (hcal_dx_1d_allcuts_0p01) {
+    hcal_dx_1d_allcuts_0p01->SetXTitle("hcal_dx");
   }
 
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_100(100, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+   // 8m / 400 = 0.02 = 2 cm
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p02(400, -4, 4)",  Form("corrected_weight*(%s)", allcuts_study_string.c_str() ), "COLZ");
   // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_100= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_100");
-  if (hcal_dx_1d_allcuts_100) {
-    hcal_dx_1d_allcuts_100->SetXTitle("hcal_dx");
+  TH1D *hcal_dx_1d_allcuts_0p02= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p02");
+  if (hcal_dx_1d_allcuts_0p02) {
+    hcal_dx_1d_allcuts_0p02->SetXTitle("hcal_dx");
+  }
+
+    // 6m / 200 = 0.03 = 3 cm
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p03(200, -3, 3)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_dx_1d_allcuts_0p03= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p03");
+  if (hcal_dx_1d_allcuts_0p03) {
+    hcal_dx_1d_allcuts_0p03->SetXTitle("hcal_dx");
+  }
+
+    // 8m / 200 = 0.04 m= 4 cm
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p04(200, -4, 4)",  Form("corrected_weight*(%s)", allcuts_study_string.c_str() ), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_dx_1d_allcuts_0p04= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p04");
+  if (hcal_dx_1d_allcuts_0p04) {
+    hcal_dx_1d_allcuts_0p04->SetXTitle("hcal_dx");
+  }
+
+      // 10m / 200 = 0.05 m= 5 cm
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p05(200, -5, 5)",   Form("corrected_weight*(%s)",allcuts_study_string.c_str() ), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_dx_1d_allcuts_0p05= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p05");
+  if (hcal_dx_1d_allcuts_0p05) {
+    hcal_dx_1d_allcuts_0p05->SetXTitle("hcal_dx");
   }
   
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_200(200, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+    // 8m / 8000 = 0.001 m= 1 mm 
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p001(8000, -4, 4)",   Form("corrected_weight*(%s)",allcuts_study_string.c_str() ), "COLZ");
   // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_200= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_200");
-  if (hcal_dx_1d_allcuts_200) {
-    hcal_dx_1d_allcuts_200->SetXTitle("hcal_dx");
+  TH1D *hcal_dx_1d_allcuts_0p001= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p001");
+  if (hcal_dx_1d_allcuts_0p001) {
+    hcal_dx_1d_allcuts_0p001->SetXTitle("hcal_dx");
   }
 
-   C->Draw("hcal_dx>>hcal_dx_1d_allcuts_300(300, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+    // 10m / 2000 = 0.005 m= 5 mm 
+  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_0p005(2000, -5, 5)",  Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_300= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_300");
-  if (hcal_dx_1d_allcuts_300) {
-    hcal_dx_1d_allcuts_300->SetXTitle("hcal_dx");
+  TH1D *hcal_dx_1d_allcuts_0p005= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_0p005");
+  if (hcal_dx_1d_allcuts_0p005) {
+    hcal_dx_1d_allcuts_0p005->SetXTitle("hcal_dx");
   }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_400(400, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_400= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_400");
-  if (hcal_dx_1d_allcuts_400) {
-    hcal_dx_1d_allcuts_400->SetXTitle("hcal_dx");
-  }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_500(500, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_500= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_500");
-  if (hcal_dx_1d_allcuts_500) {
-    hcal_dx_1d_allcuts_500->SetXTitle("hcal_dx");
-  }
-
-   C->Draw("hcal_dx>>hcal_dx_1d_allcuts_600(600, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_600= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_600");
-  if (hcal_dx_1d_allcuts_600) {
-    hcal_dx_1d_allcuts_600->SetXTitle("hcal_dx");
-  }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_700(700, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_700= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_700");
-  if (hcal_dx_1d_allcuts_700) {
-    hcal_dx_1d_allcuts_700->SetXTitle("hcal_dx");
-  }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_800(800, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_800= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_800");
-  if (hcal_dx_1d_allcuts_800) {
-    hcal_dx_1d_allcuts_800->SetXTitle("hcal_dx");
-  }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_900(900, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_900= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_900");
-  if (hcal_dx_1d_allcuts_900) {
-    hcal_dx_1d_allcuts_900->SetXTitle("hcal_dx");
-  }
-
-  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1000(1000, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
-  // Retrieve and customize histogram
-  TH1D *hcal_dx_1d_allcuts_1000= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1000");
-  if (hcal_dx_1d_allcuts_1000) {
-    hcal_dx_1d_allcuts_1000->SetXTitle("hcal_dx");
-  }
-
 
   
+  
+  // // Make with various numbers of bins. 
+  // //// Draw the 1D histogram
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_50(50, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_50= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_50");
+  // if (hcal_dx_1d_allcuts_50) {
+  //   hcal_dx_1d_allcuts_50->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_100(100, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_100= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_100");
+  // if (hcal_dx_1d_allcuts_100) {
+  //   hcal_dx_1d_allcuts_100->SetXTitle("hcal_dx");
+  // }
+  
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_200(200, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_200= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_200");
+  // if (hcal_dx_1d_allcuts_200) {
+  //   hcal_dx_1d_allcuts_200->SetXTitle("hcal_dx");
+  // }
+
+  //  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_300(300, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_300= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_300");
+  // if (hcal_dx_1d_allcuts_300) {
+  //   hcal_dx_1d_allcuts_300->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_400(400, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_400= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_400");
+  // if (hcal_dx_1d_allcuts_400) {
+  //   hcal_dx_1d_allcuts_400->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_500(500, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_500= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_500");
+  // if (hcal_dx_1d_allcuts_500) {
+  //   hcal_dx_1d_allcuts_500->SetXTitle("hcal_dx");
+  // }
+
+  //  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_600(600, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_600= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_600");
+  // if (hcal_dx_1d_allcuts_600) {
+  //   hcal_dx_1d_allcuts_600->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_700(700, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_700= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_700");
+  // if (hcal_dx_1d_allcuts_700) {
+  //   hcal_dx_1d_allcuts_700->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_800(800, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_800= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_800");
+  // if (hcal_dx_1d_allcuts_800) {
+  //   hcal_dx_1d_allcuts_800->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_900(900, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_900= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_900");
+  // if (hcal_dx_1d_allcuts_900) {
+  //   hcal_dx_1d_allcuts_900->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1000(1000, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1000= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1000");
+  // if (hcal_dx_1d_allcuts_1000) {
+  //   hcal_dx_1d_allcuts_1000->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1100(1100, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1100= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1100");
+  // if (hcal_dx_1d_allcuts_1100) {
+  //   hcal_dx_1d_allcuts_1100->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1200(1200, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1200= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1200");
+  // if (hcal_dx_1d_allcuts_1200) {
+  //   hcal_dx_1d_allcuts_1200->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1300(1300, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1300= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1300");
+  // if (hcal_dx_1d_allcuts_1300) {
+  //   hcal_dx_1d_allcuts_1300->SetXTitle("hcal_dx");
+  // }
+
+  // C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1400(1400, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1400= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1400");
+  // if (hcal_dx_1d_allcuts_1400) {
+  //   hcal_dx_1d_allcuts_1400->SetXTitle("hcal_dx");
+  // }
+
+  //  C->Draw("hcal_dx>>hcal_dx_1d_allcuts_1500(1500, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
+  // // Retrieve and customize histogram
+  // TH1D *hcal_dx_1d_allcuts_1500= (TH1D*)gDirectory->Get("hcal_dx_1d_allcuts_1500");
+  // if (hcal_dx_1d_allcuts_1500) {
+  //   hcal_dx_1d_allcuts_1500->SetXTitle("hcal_dx");
+  // }
+
 
  
   fout ->Write();

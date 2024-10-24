@@ -32,137 +32,224 @@
 #include <TArrayD.h>
 
 
+#include "/work/halla//sbs/msatnik/GMn/classes/FitHistogram.h"
+#include "/work/halla//sbs/msatnik/GMn/classes/FitHistogram.cpp"
+
+#include "/work/halla//sbs/msatnik/GMn/classes/Utility.h"
+#include "/work/halla//sbs/msatnik/GMn/classes/Utility.cpp"
+
+
+#include "/work/halla//sbs/msatnik/GMn/classes/FileNames.h"
+#include "/work/halla//sbs/msatnik/GMn/classes/FileNames.cpp"
+
+
 //// Vectors to store the sliced histograms in. Declaring them outside so all the functions can see them. 
-  std::vector<TH1D*> hist_vector_data; 
-  std::vector<TH1D*> hist_vector_p; 
-  std::vector<TH1D*> hist_vector_n; 
+std::vector<TH1D*> hist_vector_data; 
+//std::vector<TH1D*> hist_vector_p; 
+//std::vector<TH1D*> hist_vector_n; 
+
+TH1D* hist_result_p;
+TH1D* hist_resut_n;
 
 std::vector<TH1D*> hist_result_vector_p; 
 std::vector<TH1D*> hist_result_vector_n; 
 
 std::vector<TH1D*> hist_residual_vector; 
 
-std::string output_dir = "testpdfs";
+
+//// default values to be overwritten 
+TString DataFileString = "/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root";
+TString ProtonFileString = "/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root";
+TString NeutronFileString = "/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root";
+TString HistogramName = "hcal_dx__hcal_sh_atime_diff";
+std::string AxisTitle ="hcal time - sh time";
+TString note = "";
+std::string xMin_xMax_string ="(-15,-13),(-13,-11),(-11,-9),(-9,-7),(-7,-5),(-5,-3),(-3,-1),(-1,1),(1,3),(3,5),(5,7),(7,9),(9,11),(11,13),(13,15)"; 
+int PolyOrder = 2;
+double xmin = -2.1; // -1.8
+double xmax = 1.4;//1;
+// for if we are going to use the range incrementers. Default to be overwriten. 
+double left=-0.055;
+double right = 0.055;
+double plus_or_minus_xmin = 0.01;
+double plus_or_minus_xmax = 0;
+double stepsize = 0.001;
+int nDecimals = 3;
 
 
-// these global histograms are going to temporarily hold the proton and neutron slices for when I call the fit function. 
-TH1D *hist_p;
-TH1D *hist_n;
+///******* coin time *************************************************************
+//std::string xMin_xMax_string_coin ="(-5,-4),(-4,-3),(-3,-2),(-2,-1),(-1,0),(0,1),(1,2),(2,3),(3,4),(4,5)";
+std::string xMin_xMax_string_coin ="(-5,-4.5),(-4.5,-4),(-4,-3.5),(-3.5,-3),(-3,-2.5),(-2.5,-2),(-2,-1.5),(-1.5,-1),(-1,-0.5),(-0.5,0),(0,0.5),(0.5,1),(1,1.5),(1.5,2),(2,2.5),(2.5,3),(3,3.5),(3.5,4),(4,4.5),(4.5,5)";
+
+//*********Coin Time Range Study ***************************************************************
+double left_coin=-10;
+double right_coin = 10;
+double plus_or_minus_coin =1;
+double stepsize_coin = 0.1;
+int nDecimals_coin = 1;
 
 
- double xmin = -3; // -1.8
-  double xmax = 2.5;//1;
-
-
-//// struct to store everything for each slice
-struct SliceResults{
-  //// histograms
-  //TH1D *hist_data; // dx from data
-  // TH1D *hist_proton; // dx from proton mc
-  //TH1D *hist_neutron; // dx from neutron mc
-
-  //// statistics
-  int nEntries_data = 0;
-  int nEntries_proton = 0;
-  int nEntries_neutron = 0;
-
-  //// Fits. Maybe multuple fits? Maybe start with 4th order poly.
-  TF1 *overall_fit;
-
-};
-
-
-// Functions 
-void SliceAndProjectHistogram_xMaxFixed(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMax, std::string xAxisName, std::string yAxisName, std::string type);
-void SliceAndProjectHistogram_slices(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, std::string xAxisName, std::string yAxisName, std::string type);
-Double_t mc_p_n_poly4_slice_fit(Double_t *x, Double_t *par);
-TH1D* shiftHistogramX(TH1D* originalHist, double shiftValue);
-Double_t poly4(Double_t *x, Double_t *par);
-TH1D* GetResidualHistogram(TH1D* hist, TF1* fit);
-void adjustCanvas(TCanvas* canvas, double leftMargin = 0.15, double rightMargin = 0.05, double bottomMargin = 0.15, double topMargin = 0.10);
-void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markerSize, 
-                    const char* graphTitle ="", const char* xAxisLabel="", const char* yAxisLabel="",
-		    double TitleOffsetX = 1.4, double TitleOffsetY = 2, 
-		    double LabelOffsetX = 0.01, double LabelOffsetY = 0.01);
-void printParsedTitle(TH2D* hist,  const char* outputname="");
-TH1D* sumHistogramsWithPolynomial(TH1D* h1, TH1D* h2, TF1* poly);
-void SliceAndProjectHistogram_AroundMean(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMean, std::string xAxisName, std::string yAxisName, std::string type);
-
-
-void coin_stability_slices(){ // main
+void coin_stability_slices(TString KineString="sbs4_30p", TString VarString = "coin", int PolyOrder_input=2){ // main
   // bit of a test for now. Will need to make this more sophisticated in the future. 
 
   gStyle->SetNumberContours(255); 
   gStyle->SetOptStat(0110);
   
-
-
-  //TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_test.root"); // data
-  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
-
-  //TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_test_mc_p.root"); //proton
-  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); //proton
-
-  //TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_test_mc_n.root"); //neutron
-  TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); //neutron
-
-
+  FileNames fileNamesHandler;
 
  
+  //std::vector<int> color_vector = {kRed,kBlue,kGreen,kMagenta,kCyan,kYellow};
+  std::vector<int> color_vector = {kRed,kRed};
 
-  // set location and name for output file 
-  // TString outputfilename = "../output/" + configfileinput + ".root";
-  TString outputfilename = "../output/coin_stability_slices_test.root";
 
-  // Declare outfile
-  // TFile *fout = new TFile( Form("../output/sbs%d.root",kine), "RECREATE" );
-  //TFile *fout = new TFile("../output/sbs4_30p.root", "RECREATE" );
+  //// Histogram to store the Rsf distriubtion
+  TH1D *h_Rsf = new TH1D("h_Rsf","h_Rsf",300, 0.8,1.2);
+
+  /// Histogram for the pull distribution
+  TH1D *h_pull = new TH1D("h_pull","h_pull",10,-1,1);
+
+  Utility utilityHandler; // class that gives us access to various functions to use between programs.
+
+  if (VarString == "coin"){
+    HistogramName = "hcal_dx__hcal_sh_atime_diff";
+    AxisTitle ="hcal - sh time ";
+    xMin_xMax_string = xMin_xMax_string_coin;
+  }else if (VarString == "coin_range_left"){
+    HistogramName = "hcal_dx__hcal_sh_atime_diff";
+    AxisTitle ="hcal -  sh time (ns)";
+    xMin_xMax_string  = utilityHandler.incrementRangeStringStepsize(left_coin, right_coin,plus_or_minus_coin, 0,stepsize_coin, nDecimals_coin);
+  }else if (VarString == "coin_range_right"){
+    HistogramName = "hcal_dx__hcal_sh_atime_diff";
+    AxisTitle ="hcal - sh time (ns)";
+    xMin_xMax_string = utilityHandler.incrementRangeStringStepsize(left_coin,right_coin,0, plus_or_minus_coin,stepsize_coin, nDecimals_coin);
+  }else {
+    std::cout<<"Error in the Varibale String "<<std::endl;
+    return;
+  }
+
+  if (KineString == "sbs4_30p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs4_30p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs4_30p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs4_30p;
+    xmin = fileNamesHandler.xmin_sbs4_30p;
+    xmax = fileNamesHandler.xmax_sbs4_30p;
+    //PolyOrder = PolyOrder_sbs4_30p;
+  }else if (KineString == "sbs4_50p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs4_50p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs4_50p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs4_50p;
+    xmin = fileNamesHandler.xmin_sbs4_50p;
+    xmax = fileNamesHandler.xmax_sbs4_50p;
+    //PolyOrder = PolyOrder_sbs4_50p;
+  }else if (KineString == "sbs8_70p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs8_70p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs8_70p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs8_70p;
+    xmin = fileNamesHandler.xmin_sbs8_70p;
+    xmax = fileNamesHandler.xmax_sbs8_70p;
+    //PolyOrder = PolyOrder_sbs8_70p;
+  }else if (KineString == "sbs8_50p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs8_50p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs8_50p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs8_50p;
+    xmin = fileNamesHandler.xmin_sbs8_50p;
+    xmax = fileNamesHandler.xmax_sbs8_50p;
+    //PolyOrder = PolyOrder_sbs8_50p;
+  }else if (KineString == "sbs8_100p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs8_100p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs8_100p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs8_100p;
+    xmin = fileNamesHandler.xmin_sbs8_100p;
+    xmax = fileNamesHandler.xmax_sbs8_100p;
+    //PolyOrder = PolyOrder_sbs8_100p;
+  }else if (KineString == "sbs9_70p"){
+    DataFileString = fileNamesHandler.DataFileString_sbs9_70p;
+    ProtonFileString =fileNamesHandler.ProtonFileString_sbs9_70p;
+    NeutronFileString = fileNamesHandler.NeutronFileString_sbs9_70p;
+    xmin = fileNamesHandler.xmin_sbs9_70p;
+    xmax = fileNamesHandler.xmax_sbs9_70p;
+    // PolyOrder = PolyOrder_sbs9_70p;
+  }  else {
+    std::cout<<"Error with kinematic setting"<<std::endl;
+    return;
+  }
+
+  if((PolyOrder_input < 0) && PolyOrder_input > 6){
+    cout<<"error with poly order input. Setting to 2."<<endl;
+    PolyOrder = 2;
+  }else PolyOrder=PolyOrder_input;
+
+  cout<<"What we're running: "<<KineString<< ", "<<VarString<<endl;
+  cout<<DataFileString<<endl;
+  cout<<ProtonFileString<<endl;
+  cout<<NeutronFileString<<endl;
+  cout<<xmin<< ", "<<xmax<<endl;
+  cout<<HistogramName<<endl;
+  cout<<AxisTitle<<endl;
+  cout<<"poly order: "<<PolyOrder <<endl;
+  // cout<<xMin_xMax_string<<endl;
+
+  TFile *f1 = TFile::Open(DataFileString); // data
+  TFile *f2 = TFile::Open(ProtonFileString); //proton
+  TFile *f3 = TFile::Open(NeutronFileString); //neutron
+
+  
+
+
+  //// set location and name for root output file 
+  TString outputfilelocation="../output/stability/"+KineString+"/"+VarString;
+  TString outputfilename = outputfilelocation +"/"+ KineString+ "_" +VarString+".root";
+  
+
+  
   TFile *fout = new TFile(outputfilename,"RECREATE");
   cout<<"writing to file: "<< outputfilename <<endl;
 
 
   // Load Histograms
-  TH2D *hist_data_orig = (TH2D*)f1->Get("hcal_dx__hcal_sh_atime_diff");
+  TH2D *hist_data_orig = (TH2D*)f1->Get(HistogramName);
   TH1D *hist_proton_orig_1d  = (TH1D*)f2->Get("hcal_dx_1d_allcuts");
   TH1D *hist_neutron_orig_1d  =  (TH1D*)f3->Get("hcal_dx_1d_allcuts");
 
   // Make clones of the histograms
   TH2D *hist_2D_data = (TH2D*)hist_data_orig->Clone("hist_2D_data");
-  hist_p = (TH1D*)hist_proton_orig_1d->Clone("hist_p"); // global histogram
-  hist_n = (TH1D*)hist_neutron_orig_1d->Clone("hist_n"); // global histogram
+  TH1D* hist_p = (TH1D*)hist_proton_orig_1d->Clone("hist_p"); // global histogram
+  TH1D* hist_n = (TH1D*)hist_neutron_orig_1d->Clone("hist_n"); // global histogram
 
  
 
- // Set up the slices for the Y projections. 
-  std::vector<double> xSlices = {-8,-5,-3,-2.5,-2,-1.5,-1,-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3,5,8};
+  // Set up the slices for the Y projections. 
+  // std::vector<double> xSlices = {-8,-5,-3,-2.5,-2,-1.5,-1,-0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3,5,8};
 
 
-  double mean = 0;
-  int nSlices = xSlices.size()-1;
+  std::vector<double> xMinSlices;
+ std:vector<double> xMaxSlices;
+  utilityHandler.parseStringToVectors(xMin_xMax_string, xMinSlices, xMaxSlices);
+  
+  cout<<endl;
+  cout<< "nSlices: "<<xMinSlices.size()<<endl;
+  cout<<endl;
 
-  //// Vectors to store the sliced histograms in. 
-  std::vector<TH1D*> hist_vector_data; 
-  std::vector<TH1D*> hist_vector_p; 
-  std::vector<TH1D*> hist_vector_n; 
+  if (xMinSlices.size() != xMaxSlices.size())
+    {
+      std::cout<<"Error: max and min are different sizes"<<std::endl;
+      return;
+    }
 
- // use the function to make the slices and projections
-  SliceAndProjectHistogram_slices(hist_2D_data, xSlices, hist_vector_data, "coin time","dx","data");
+  std::cout<<"Slices:"<<std::endl;
+  for (int i = 0;i<xMinSlices.size();i++)
+    {
+      std::cout<<"("<<xMinSlices[i]<<", "<<xMaxSlices[i]<<")"<<", ";
+    }
+  std::cout<<std::endl;
 
-  //   double initialParameters[9] = {1,1,0,0,1,1,1,1,1};
-  //    TF1 *overall_fit = new TF1("overall_fit", mc_p_n_poly4_slice_fit, xmin, xmax, 9); //
+  
+  std::vector<FitHistogram> fitHandler_vector; // vector of objects fo the FitHistogram class that will help us do data-mc comparion.
 
-  //    TH1D *hist_1d_test_data = hist_vector_data[9];
-  //    //// global histograms that the fit function will use. Need to be set up properly before fit function is called. 
-  //    hist_p = hist_vector_p[9];
-  //    hist_n = hist_vector_n[9];
+ 
 
-  //   // Set initial parameters for the fit function
-  //      overall_fit->SetParameters(initialParameters); // Define initial parameters
-  //      overall_fit->SetNpx(500);
-    
-  // // // Fit combined histogram with custom fit function
-  //      hist_1d_test_data->GetXaxis() ->SetRangUser(xmin, xmax);
-  //      hist_1d_test_data->Fit(overall_fit,"Q");
+  cout<<endl<<"Slicing Data"<<endl;
+  utilityHandler.SliceAndProjectHistogram_xMinxMax_inclusiveMin(hist_2D_data, xMinSlices,xMaxSlices, hist_vector_data, AxisTitle,"dx","data");
 
   std::vector<TF1*> fit_vector;
 
@@ -206,82 +293,81 @@ void coin_stability_slices(){ // main
   poly_result_vector_of_vectors.clear();
   poly_result_err_vector_of_vectors.clear();
 
-  double initialParameters[9]={1,1,0,0,1,1,1,1,1};
-  // initialParameters = {0};
+ 
+  double initialParameters[7]={1,1,0,0,1,1,-1};
+
       
-  TH1D *hist_data;
+  
   /// Fit each slice 
-  for (int sliceid = 0 ; sliceid < nSlices ; sliceid++)
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
     {
       /// set up the global histograms that the fit function is going to use
       // this uses clones of the histograms
-      hist_data  =(TH1D*)hist_vector_data[sliceid]->Clone("hist_data");
+      TH1D *hist_data_dont_draw  =(TH1D*)hist_vector_data[sliceid]->Clone("hist_data_dont_draw");
+      TH1D *hist_data  =(TH1D*)hist_vector_data[sliceid]->Clone("hist_data");
 
-      //// this uses the histograms themselves: you can't uncouple the fit from them easily
-      //  hist_p  =hist_vector_p[sliceid];
-      //  hist_n  =hist_vector_n[sliceid];
-      // hist_data  =hist_vector_data[sliceid];
+      if (!hist_data_dont_draw || !hist_data) {
+	std::cerr << "Error: One of the histograms is null!" << std::endl;
+	return;
+      }
 
-	 
-      TF1 *Fit = new TF1(Form("overall_fit_%i_",sliceid),mc_p_n_poly4_slice_fit, xmin, xmax, 9);
-      Fit->SetParameters(initialParameters); 
-      // set parameter limits. SetParLimits -> (par#, min, max)
-      Fit->SetParLimits(0, 0, 2000); // scale_p greater than 0
-      Fit->SetParLimits(1, 0,2000); // scale_n greater than 0
-      Fit->SetParLimits(2, -0.02,0.02); // shift_p less than +- 10cm
-      Fit->SetParLimits(3, -0.02,0.02); // shift_n less than +- 10cm
-      Fit->SetNpx(500);
-      hist_data->GetXaxis() ->SetRangeUser(xmin, xmax);
-      hist_data->Fit(Fit,"Q");
+      FitHistogram fitHandler(hist_p,hist_n,xmin,xmax);
 
-      // retrieve fit results 
-      double scale_p  = Fit ->GetParameter(0);
-      double scale_p_err = Fit ->GetParError(0);
-      double scale_n  = Fit ->GetParameter(1);
-      double scale_n_err = Fit ->GetParError(1);
+      fitHandler.setPolyOrder(PolyOrder);// setting the order for the polynomial background
+      
+      fitHandler.fitDataPoly(hist_data_dont_draw);
 
-      double shift_p= Fit ->GetParameter(2); 
-      double shift_n = Fit ->GetParameter(3);
-      double shift_p_err= Fit ->GetParError(2); 
-      double shift_n_err = Fit ->GetParError(3);
-	  
-      double ChiSq= Fit->GetChisquare();
-      double ndf = Fit->GetNDF();
+      TF1 *fit_result = (TF1*)fitHandler.fitFunc->Clone("fit_result");// bug in here that corrupts it and crashes if you try and draw
+
+      double scale_p = fitHandler.scale_p;
+      double scale_n=  fitHandler.scale_n;
+      double scale_p_err = fitHandler.scale_p_err;
+      double scale_n_err = fitHandler.scale_n_err;
+      double Rsf= fitHandler.R;
+      double Rsf_err= fitHandler.R_err;
+      double shift_p = fitHandler.shift_p;
+      double shift_p_err = fitHandler.shift_p_err;
+      double shift_n = fitHandler.shift_n;
+      double shift_n_err = fitHandler.shift_n_err;
+      double ChiSq = fitHandler.ChiSq;
+      double ndf = fitHandler.NDF;
+     
 
       std::vector<double> poly_result;
       std::vector<double> poly_result_err;
-      for (int i =0 ; i < 5; i++)
+      for (int i =0 ; i <=PolyOrder; i++)
 	{
-	  poly_result.push_back( Fit->GetParameter(4+i) );
-	  poly_result_err.push_back(Fit->GetParError(4+i) );
+	  poly_result.push_back(fitHandler.poly_result[i]);
+	  poly_result_err.push_back(fitHandler.poly_result_err[i]);
 	}
 
-      //compute results
-      double Rsf = scale_n/scale_p;
-      double Rsf_err = Rsf * sqrt( pow( (scale_n_err / scale_n), 2) + pow( (scale_p_err / scale_p),2) ); //just adding the uncert from the fit parameters in quadrature for now. 
+      h_Rsf->Fill(Rsf);
 
-      cout<<"sliceid: "<<sliceid<< " ratio: scale_n / scale_p = "<< scale_n <<" / " <<scale_p <<" = "<< Rsf <<" +/- "<< Rsf_err<<endl;
-      cout<<"sliceid: "<<sliceid<<" shift p: "<<shift_p<<" +/- "<<shift_p_err<<" shift_n: "<<shift_n<<"+/-"<<shift_n_err<<endl;
-      cout<<endl;
+      //cout<<"sliceid: "<<sliceid<<endl;
+      // cout<<"scale_p = "<< scale_p <<endl;
+      // cout<<"Rsf = "<< Rsf <<" +/- "<< Rsf_err<<endl;
+      // cout<<"shift p: "<<shift_p<<" +/- "<<shift_p_err<<", shift_n: "<<shift_n<<"+/-"<<shift_n_err<<endl;
+      // cout<<endl;
+
+
       //// save results into the vectors 
-      //fit_vector.push_back(Fit);
+      fit_vector.push_back(fit_result);
       scale_p_vector.push_back(scale_p);
       scale_n_vector.push_back(scale_n);
       scale_p_err_vector.push_back(scale_p_err);
       scale_n_err_vector.push_back(scale_n_err);
       shift_p_vector.push_back(shift_p);
       shift_n_vector.push_back(shift_n);
-      shift_p_vector.push_back(shift_p);
-      shift_n_vector.push_back(shift_n);
+      shift_p_err_vector.push_back(shift_p_err);
+      shift_n_err_vector.push_back(shift_n_err);
       ChiSq_vector.push_back(ChiSq);
       ndf_vector.push_back(ndf);
       Rsf_vector.push_back(Rsf);
       Rsf_err_vector.push_back(Rsf_err);
-      // poly_result_vector_of_arrays.push_back(poly_result);
+   
       poly_result_vector_of_vectors.push_back(poly_result);
       poly_result_err_vector_of_vectors.push_back(poly_result_err);
 	  
-      delete Fit; //
     }// end loop over slices
 
 
@@ -293,20 +379,34 @@ void coin_stability_slices(){ // main
      //   std::cout << std::endl;
      // }
 
-
+  cout<<"---------------------------------------------------------------------------------------------"<<endl;
+  double Rsf_mean = utilityHandler.CalculateMean(Rsf_vector);
+  double Rsf_stdev = utilityHandler.CalculateStDev(Rsf_vector);
+  double Rsf_mean_w = utilityHandler.CalculateWeightedMean(Rsf_vector,Rsf_err_vector);
+  double Rsf_stdev_w = utilityHandler.CalculateWeightedStDev(Rsf_vector,Rsf_err_vector);
+  cout<<"Rsf mean = " << Rsf_mean<<endl;
+  cout<<"Rsf StDev = " << Rsf_stdev<<endl;
+  cout<<"weighted Rsf mean = "<<Rsf_mean_w<<endl;
+  cout<<"weighted Rsf StDev = "<<Rsf_stdev_w<<endl;
+  cout<<"---------------------------------------------------------------------------------------------"<<endl;
+  cout<<endl;
+  
+  
+  // calculate the Pull for each point and put in the histogram 
+  for (int i = 0; i < Rsf_vector.size();i++)
+    {
+      double pull = (Rsf_mean - Rsf_vector[i]) / Rsf_err_vector[i];
+      h_pull ->Fill(pull);
+    }
   TH1D *hist_temp_p;
   TH1D *hist_temp_n;
 
   // loop over the slices to create shifted and scaled versions of the mc histograms to plot
-  for (int sliceid = 0 ; sliceid < nSlices ; sliceid++)
-    {	
-      /// shift the histograms. Function returns a clone. 
-      hist_temp_p = shiftHistogramX(hist_p, shift_p_vector[sliceid] );
-      hist_temp_n = shiftHistogramX(hist_n, shift_n_vector[sliceid] );
-
-      /// scale the histograms 
-      hist_temp_p -> Scale(scale_p_vector[sliceid]);
-      hist_temp_n -> Scale(scale_n_vector[sliceid]);
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
+    {	    
+      // utility function that scales and shifts the provided histogram and returns a new histogram 
+      hist_temp_p = utilityHandler.ScaleAndShiftHistogram(hist_p, scale_p_vector[sliceid], shift_p_vector[sliceid]);
+      hist_temp_n = utilityHandler.ScaleAndShiftHistogram(hist_n, scale_n_vector[sliceid], shift_n_vector[sliceid]);
 	 
       // save histograms to the global vectors 
       hist_result_vector_p.push_back(hist_temp_p);
@@ -314,9 +414,10 @@ void coin_stability_slices(){ // main
     }// end loop over slices
 
 
+
   std::vector<TF1*> poly_fit_result;
   // loop over slices and make fits to plot the polynomial background result
-  for (int sliceid = 0 ; sliceid < nSlices ; sliceid++)
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
     {
       // get the fit results from the vector of vectors
       std::vector<double> poly_params_vector;
@@ -326,41 +427,232 @@ void coin_stability_slices(){ // main
       int size = poly_params_vector.size();
       double poly_params_array[size]; 
       for (int i  = 0 ; i < size; i++){
-  	poly_params_array[i] = poly_params_vector[i];
+	poly_params_array[i] = poly_params_vector[i];
       }
 
-      TF1 *fit = new TF1(Form("poly4_%i_",sliceid),poly4, xmin, xmax, 5);
-      fit->SetParameters(poly_params_array); 
+      TF1 *fit = new TF1(Form("poly_%i_",sliceid),Form("pol%i",PolyOrder), xmin, xmax);
+      fit->SetParameters(poly_params_array);
       fit->SetNpx(500);
       poly_fit_result.push_back(fit);
+      
+      if (utilityHandler.doesFunctionGoBelowZero(fit,xmin,xmax))
+	{
+	  // background function went below zero, which isn't physical
+	  std::cout<<"On slice ID: "<<sliceid<<std::endl;
+	  std::cout<<"---------------------------"<<std::endl;
+	}
+
     }// end loop over slices
+
 
 
      //// Plot Rsf
      //// Make arrays that TGraphErrors can use 
-  double x[nSlices];
-  double y[nSlices];
-  double x_err[nSlices];
-  double y_err[nSlices];
-  for (int sliceid = 0 ; sliceid < nSlices ; sliceid++)
+  double x[xMinSlices.size()];
+  double y[xMinSlices.size()];
+  double x_err[xMinSlices.size()];
+  double y_err[xMinSlices.size()];
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
     {
-      x[sliceid] = xSlices[sliceid];
+      double xCenter = (xMaxSlices[sliceid] + xMinSlices[sliceid] )/2;
+      double xWidth = xMaxSlices[sliceid] - xMinSlices[sliceid];
+     
+      x[sliceid] = xCenter;
       y[sliceid] = Rsf_vector[sliceid];
-      x_err[sliceid] = 0;
+      x_err[sliceid] = xWidth/2;
       y_err[sliceid] = Rsf_err_vector[sliceid];
+
+      //cout<< "sliceid = "<<sliceid<<", xCenter = "<<x[sliceid]<<", x= "<<x[sliceid]<<", y = "<<y[sliceid]<<", x_err= "<<x_err[sliceid]<<", y_err = "<<y_err[sliceid]<<endl;
     }    
-  TGraphErrors *Rsf_graph = new TGraphErrors(nSlices, x, y, x_err, y_err);
-  customizeGraph(Rsf_graph, 33, kBlue, 3,"","coin time","Rsf");
-  void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markerSize, 
-  		      const char* graphTitle, const char* xAxisLabel, const char* yAxisLabel);
+  TGraphErrors *Rsf_graph = new TGraphErrors(xMinSlices.size(), x, y, x_err, y_err);
+  utilityHandler.customizeGraphMore(Rsf_graph, 33, kBlue, 3,"",AxisTitle,"Rsf");
+
+  // Fit a straight line to the graph
+  TF1* fit_Rsf_graph = new TF1("fit_Rsf_graph", "[0]",Rsf_graph ->GetX()[0], Rsf_graph->GetX()[Rsf_graph->GetN()-1]);
+  Rsf_graph->Fit(fit_Rsf_graph, "Q R");
+  
+  //// canvas
+  TCanvas *graphcanvas = new TCanvas("graphcanvas","graphcanvas",800,600);
+  graphcanvas->SetGrid();
+  utilityHandler.adjustCanvas(graphcanvas);
+  Rsf_graph->Draw("AP");
+
+  // Get fit parameters
+  double constant = fit_Rsf_graph->GetParameter(0);       // The constant value
+  double constantError = fit_Rsf_graph->GetParError(0);    // The error on the constant
+  double chi2 = fit_Rsf_graph->GetChisquare();             // The chi-squared value
+  int ndf = fit_Rsf_graph->GetNDF();                       // The number of degrees of freedom
+  double chi2_ndf = chi2 / ndf;                          // chi2/ndf
+
+  // Draw the graph with the fit result again
+  Rsf_graph->Draw("AP");
+
+  // Use TLatex to add the fit result and chi²/ndf to the canvas
+  TLatex latex;
+  latex.SetNDC();  // Use normalized coordinates (0 to 1)
+  latex.SetTextSize(0.04);
+  latex.DrawLatex(0.2, 0.85, Form("Fit: y = %.5f #pm %.5f", constant, constantError));
+  latex.DrawLatex(0.2, 0.80, Form("#chi^{2}/ndf = %.2f/%i = %.2f", chi2,ndf,chi2_ndf));
+  latex.DrawLatex(0.8, 0.2, Form("Rsf Mean = %.5f #pm StDev = %.5f", Rsf_mean, Rsf_stdev));
+  
+  graphcanvas->Update();
+  graphcanvas->SaveAs(Form("%s/Rsf_xCenter.pdf",outputfilelocation.Data() ) );
+
+  //// Plot Chi2/ndf
+  //// Make arrays that TGraphErrors can use
+  
+  double x_ch[xMinSlices.size()];
+  double y_ch[xMinSlices.size()];
+  double x_ch_err[xMinSlices.size()];
+  double y_ch_err[xMinSlices.size()];
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
+    {
+      double xCenter = (xMaxSlices[sliceid] + xMinSlices[sliceid] )/2;
+      double xWidth = xMaxSlices[sliceid] - xMinSlices[sliceid];
+      
+      x_ch[sliceid] = xCenter;
+      y_ch[sliceid] = ChiSq_vector[sliceid] /ndf_vector[sliceid];
+      x_ch_err[sliceid] = xWidth;
+      y_ch_err[sliceid] = 0;
+    }    
+  TGraphErrors *Chi2_ndf_graph = new TGraphErrors(xMinSlices.size(), x_ch, y_ch, x_ch_err, y_ch_err);
+  utilityHandler.customizeGraphMore(Chi2_ndf_graph, 33, kBlue, 3,"","xMax","Chi^{2}/ndf");
+
 
   //// canvas
-  TCanvas *graphcanvas = new TCanvas("graphcanvas","graphcanvas",800,600);  
-  adjustCanvas(graphcanvas);
-  Rsf_graph->Draw("AP");
-  graphcanvas->Update();
-  graphcanvas->SaveAs(Form("%s/Rsf.pdf",output_dir.c_str() ));
+  TCanvas *chi2_ndf_canvas = new TCanvas("chi2_ndf_canvas","chi2_ndf_canvas",800,600);  
+  utilityHandler.adjustCanvas(chi2_ndf_canvas);
+  Chi2_ndf_graph ->Draw("AP");
+  chi2_ndf_canvas->Update();
+  chi2_ndf_canvas->SaveAs(Form("%s/Chi2_ndf.pdf",outputfilelocation.Data()));
+  
+  TCanvas *Rsf_hist_canvas = new TCanvas("Rsf_hist_canvas","Rsf_hist_canvas",800,600);
+  Rsf_hist_canvas->SetGrid();
+  utilityHandler.adjustCanvas(Rsf_hist_canvas);
+  h_Rsf->Draw("hist");
 
+  TCanvas *pull_canvas = new TCanvas("pull_canvas","pull_canvas",800,600);
+  pull_canvas->SetGrid();
+  utilityHandler.adjustCanvas(pull_canvas);
+  h_pull->Draw("hist");
+
+  //// Plot nEntries
+  //// Make arrays that TGraphErrors can use 
+  double x_n[xMinSlices.size()];
+  double y_n[xMinSlices.size()];
+  double x_n_err[xMinSlices.size()];
+  double y_n_err[xMinSlices.size()];
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
+    {
+      double xCenter_n = (xMaxSlices[sliceid] + xMinSlices[sliceid] )/2;
+      double xWidth_n = (xMaxSlices[sliceid] - xMinSlices[sliceid]);
+     
+      x_n[sliceid] = xCenter_n;
+      y_n[sliceid] = hist_vector_data[sliceid]->GetEntries();
+      x_n_err[sliceid] = xWidth_n/2;
+      y_n_err[sliceid] = 0;
+    }    
+  TGraphErrors *nEntries_graph = new TGraphErrors(xMinSlices.size(), x_n, y_n, x_n_err, y_n_err);
+  utilityHandler.customizeGraphMore(nEntries_graph, 33, kBlue, 3,"",AxisTitle,"nEntries");
+  //// canvas
+  TCanvas *nEntriesCanvas = new TCanvas("nEntriesCanvas","nEntriesCanvas",800,600);  nEntriesCanvas->SetGrid();
+  utilityHandler.adjustCanvas(nEntriesCanvas);
+  nEntries_graph->Draw("AP");
+  nEntriesCanvas->Update();
+  nEntriesCanvas->SaveAs(Form("%s/nEntries.pdf",outputfilelocation.Data()));
+
+
+  double x_max[xMinSlices.size()];
+  double y_max[xMinSlices.size()];
+  double x_max_err[xMinSlices.size()];
+  double y_max_err[xMinSlices.size()];
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
+    {
+      x_max[sliceid] = xMaxSlices[sliceid];
+      y_max[sliceid] = Rsf_vector[sliceid];
+      x_max_err[sliceid] = 0;
+      y_max_err[sliceid] = Rsf_err_vector[sliceid];
+    }    
+  TGraphErrors *Rsf_xMax_graph = new TGraphErrors(xMinSlices.size(), x_max, y_max, x_max_err, y_max_err);
+  utilityHandler.customizeGraphMore(Rsf_xMax_graph, 33, kBlue, 3,"",AxisTitle,"Rsf");
+  
+  // Fit a straight line to the graph
+  TF1* fit_Rsf_xMax_graph = new TF1("fit_Rsf_xMax_graph", "[0]",Rsf_xMax_graph ->GetX()[0], Rsf_xMax_graph->GetX()[Rsf_xMax_graph->GetN()-1]);
+  Rsf_xMax_graph->Fit(fit_Rsf_xMax_graph, "Q R");
+  
+  //// canvas
+  TCanvas *Rsf_xMaxCanvas = new TCanvas("Rsf_xMaxCanvas","Rsf_xMaxCanvas",800,600);
+  Rsf_xMaxCanvas->SetGrid();
+  utilityHandler.adjustCanvas(Rsf_xMaxCanvas);
+  Rsf_xMax_graph->Draw("AP");
+  Rsf_xMaxCanvas->Update();
+
+  // Get fit parameters
+  double constant_xMax = fit_Rsf_xMax_graph->GetParameter(0);       // The constant value
+  double constantError_xMax = fit_Rsf_xMax_graph->GetParError(0);    // The error on the constant
+  double chi2_xMax = fit_Rsf_xMax_graph->GetChisquare();             // The chi-squared value
+  int ndf_xMax = fit_Rsf_xMax_graph->GetNDF();                       // The number of degrees of freedom
+  double chi2_ndf_xMax = chi2 / ndf;                          // chi2/ndf
+
+  // Draw the graph with the fit result again
+  Rsf_xMax_graph->Draw("AP");
+
+  // Use TLatex to add the fit result and chi²/ndf to the canvas
+  TLatex latex_xMax;
+  latex_xMax.SetNDC();  // Use normalized coordinates (0 to 1)
+  latex_xMax.SetTextSize(0.04);
+  latex_xMax.DrawLatex(0.2, 0.85, Form("Fit: y = %.5f #pm %.5f", constant_xMax, constantError_xMax));
+  latex_xMax.DrawLatex(0.2, 0.80, Form("#chi^{2}/ndf = %.2f/%i = %.2f", chi2_xMax,ndf_xMax,chi2_ndf_xMax));
+  latex_xMax.DrawLatex(0.2, 0.2, Form("Rsf Mean = %.5f #pm StDev = %.5f", Rsf_mean, Rsf_stdev));
+
+  // Update the canvas
+  Rsf_xMaxCanvas ->Update();
+  Rsf_xMaxCanvas->SaveAs(Form("%s/Rsf_xMax.pdf",outputfilelocation.Data()));
+  
+
+  double x_m[xMinSlices.size()];
+  double y_m[xMinSlices.size()];
+  double x_m_err[xMinSlices.size()];
+  double y_m_err[xMinSlices.size()];
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
+    {
+      x_m[sliceid] = xMinSlices[sliceid];
+      y_m[sliceid] = Rsf_vector[sliceid];
+      x_m_err[sliceid] = 0;
+      y_m_err[sliceid] = Rsf_err_vector[sliceid];
+    }    
+  TGraphErrors *Rsf_xMin_graph = new TGraphErrors(xMinSlices.size(), x_m, y_m, x_m_err, y_m_err);
+  utilityHandler.customizeGraphMore(Rsf_xMin_graph, 33, kBlue, 3,"",AxisTitle,"Rsf");
+
+  // Fit a straight line to the graph
+  TF1* fit_Rsf_xMin_graph = new TF1("fit_Rsf_xMin_graph", "[0]",Rsf_xMin_graph ->GetX()[0], Rsf_xMin_graph->GetX()[Rsf_xMin_graph->GetN()-1]);
+  Rsf_xMin_graph->Fit(fit_Rsf_xMin_graph, "Q R");
+  
+  //// canvas
+  TCanvas *Rsf_xMinCanvas = new TCanvas("Rsf_xMinCanvas","Rsf_xMinCanvas",800,600);
+  Rsf_xMinCanvas->SetGrid();
+  utilityHandler.adjustCanvas(Rsf_xMinCanvas);
+  Rsf_xMin_graph->Draw("AP");
+  Rsf_xMinCanvas->Update();
+  Rsf_xMinCanvas->SaveAs(Form("%s/Rsf_xMin.pdf",outputfilelocation.Data()));
+  // Get fit parameters
+  double constant_xMin = fit_Rsf_xMin_graph->GetParameter(0);       // The constant value
+  double constantError_xMin = fit_Rsf_xMin_graph->GetParError(0);    // The error on the constant
+  double chi2_xMin = fit_Rsf_xMin_graph->GetChisquare();             // The chi-squared value
+  int ndf_xMin = fit_Rsf_xMin_graph->GetNDF();                       // The number of degrees of freedom
+  double chi2_ndf_xMin = chi2 / ndf;                          // chi2/ndf
+
+  // Draw the graph with the fit result again
+  Rsf_xMin_graph->Draw("AP");
+
+  // Use TLatex to add the fit result and chi²/ndf to the canvas
+  TLatex latex_xMin;
+  latex_xMin.SetNDC();  // Use normalized coordinates (0 to 1)
+  latex_xMin.SetTextSize(0.04);
+  latex_xMin.DrawLatex(0.2, 0.85, Form("Fit: y = %.5f #pm %.5f", constant_xMin, constantError_xMin));
+  latex_xMin.DrawLatex(0.2, 0.80, Form("#chi^{2}/ndf = %.2f/%i = %.2f", chi2_xMin,ndf_xMin,chi2_ndf_xMin));
+  latex_xMin.DrawLatex(0.2, 0.2, Form("Rsf Mean = %.5f #pm StDev = %.5f", Rsf_mean, Rsf_stdev));
+  
 
   int nHist = hist_vector_data.size();
   int nCols = 4;
@@ -370,24 +662,36 @@ void coin_stability_slices(){ // main
   std::vector<TH1D*> overall_fit_as_histogram;
 
   TCanvas* fits_canvas = new TCanvas("fits_canvas", "fits_canvas", 1000, 600);
-  fits_canvas->Divide(nCols, nRows); 
+  if (hist_vector_data.size()!=1)
+    {
+      fits_canvas->Divide(nCols, nRows);
+    }
   for (int i = 0; i < nHist; ++i) {
     fits_canvas->cd(i + 1);
+    fits_canvas->SetGrid();
     hist_vector_data[i]->GetXaxis() ->SetRangeUser(xmin, xmax);
     hist_vector_data[i]->Draw();
-      
 
+    int nEntries = hist_vector_data[i]->GetEntries();
     //// make a histogram that is the sum of the poly fit and the scaled mc histograms. 
-    TH1D* sum_histo = sumHistogramsWithPolynomial(hist_result_vector_p[i],hist_result_vector_n[i] , poly_fit_result[i]);
+    TH1D* sum_histo = utilityHandler.sumHistogramsWithPolynomial(hist_result_vector_p[i],hist_result_vector_n[i] , poly_fit_result[i]);
     overall_fit_as_histogram.push_back(sum_histo);
 
+    double padHeight = fits_canvas->GetWh() / nRows;
+    double legendTextSize = 0.015 * (600.0 / padHeight);  // Adjust based on canvas height
+
     // // Create and customize the legend
-    TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    TLegend* legend = new TLegend(0.5, 0.5, 0.9, 0.9);
+    legend->SetTextSize(legendTextSize);  // Adjust size dynamically
+    legend->SetMargin(0.10);  // Adjust margin to reduce space (default is around 0.25)
     // legend->AddEntry(hist_vector_data[i], hist_vector_data[i]->GetName(), "l");
     legend->AddEntry("", Form("R= %.4f +/- %.4f ", Rsf_vector[i],Rsf_err_vector[i]), "");
     legend->AddEntry("", Form("#chi^{2}/ndf = %.2f / %.0f  ", ChiSq_vector[i] ,ndf_vector[i]), "");
+    legend->AddEntry("", Form("Entries: %i", nEntries ), "");
     legend->Draw();
 
+    poly_fit_result[i]->SetLineColor(kCyan);
+    poly_fit_result[i]->Draw("same");
     hist_result_vector_p[i] ->SetLineColor(kGreen);
     hist_result_vector_p[i]->Draw("same");
     hist_result_vector_n[i] ->SetLineColor(kMagenta);
@@ -397,14 +701,14 @@ void coin_stability_slices(){ // main
      
   }// end loop over slices
   fits_canvas->Update();
-  fits_canvas->SaveAs(Form("%s/fitted_slices.pdf",output_dir.c_str() ));
+  fits_canvas->SaveAs(Form("%s/fitted_slices.pdf",outputfilelocation.Data()));
   
 
   std::vector<TH1D*> hist_residual_vector;
  
-  for (int sliceid = 0 ; sliceid < nSlices ; sliceid++)
+  for (int sliceid = 0 ; sliceid < xMinSlices.size() ; sliceid++)
     {
-      TH1D* hist_residual = (TH1D*)hist_vector_data[sliceid]->Clone("hist_residual");  
+      TH1D* hist_residual = (TH1D*)hist_vector_data[sliceid]->Clone(Form("hist_residual_%d",sliceid));  
       hist_residual  ->Add(overall_fit_as_histogram[sliceid], -1);
       hist_residual->GetXaxis() ->SetRangeUser(xmin, xmax);
       hist_residual_vector.push_back(hist_residual);
@@ -412,13 +716,17 @@ void coin_stability_slices(){ // main
 
    
   TCanvas* resid_canvas = new TCanvas("resid_canvas", "resid_canvas", 1000, 600);
-  resid_canvas->Divide(nCols, nRows);
+  if (hist_vector_data.size()!=1)
+    {
+      resid_canvas->Divide(nCols, nRows);
+    }
   for (int i = 0; i < nHist; ++i) {
     resid_canvas->cd(i + 1);
-    hist_residual_vector[i]->Draw();
+    resid_canvas->SetGrid();
+    hist_residual_vector[i]->Draw("E sames");
   }
   resid_canvas->Update();
-  resid_canvas->SaveAs(Form("%s/residuals.pdf",output_dir.c_str() ));
+  resid_canvas->SaveAs(Form("%s/residuals.pdf",outputfilelocation.Data() ));
 
      
   // Create a canvas to draw the histogram
@@ -428,409 +736,76 @@ void coin_stability_slices(){ // main
   hist_2D_data->Draw("COLZ");
 
   // Draw vertical lines at each x value in xSlices
-  for (size_t i = 0; i < nSlices+1; ++i) {
-    double x = xSlices[i];
-    TLine* line = new TLine(x, hist_2D_data->GetYaxis()->GetXmin(), x, hist_2D_data->GetYaxis()->GetXmax());
-    line->SetLineColor(kRed);  // Set line color 
-    line->SetLineWidth(2);     // Set line width
-    line->Draw("SAME");
+  for (size_t i = 0; i < xMinSlices.size(); ++i) {
+    int color = color_vector[i%(color_vector.size()-1)];
+    // cout<<" color vec index ="<<i%(color_vector.size()-1)<<endl;
+    double xLeft = xMinSlices[i];
+    double xRight = xMaxSlices[i];
+    TLine* lineLeft = new TLine(xLeft, hist_2D_data->GetYaxis()->GetXmin(), xLeft, hist_2D_data->GetYaxis()->GetXmax());
+    TLine* lineRight = new TLine(xRight, hist_2D_data->GetYaxis()->GetXmin(),xRight, hist_2D_data->GetYaxis()->GetXmax());
+    lineLeft->SetLineColor(color);  // Set line color 
+    lineLeft->SetLineWidth(2);     // Set line width
+    lineLeft->Draw("SAME");
+    lineRight->SetLineColor(color);  // Set line color 
+    lineRight->SetLineWidth(2);     // Set line width
+    lineRight->Draw("SAME");
+    //cout<<"sliceid = "<<i<<" xLeft = "<<xLeft<<" xRight = "<<xRight <<" color = "<<color<<endl;
   }
 
-  // Save the canvas to a file or display it
-  cutcanvas->SaveAs(Form("%s/visulaized_cuts.pdf",output_dir.c_str() ));
+  // // Save the canvas to a file or display it
+  cutcanvas->SaveAs(Form("%s/visualized_cuts.pdf",outputfilelocation.Data() ));
 
+
+  
   // Create a projection of the TH2D histogram onto the x-axis
   TH1D* hist1D_data = hist_2D_data->ProjectionX("dataProjX");
-  //TH1D* hist1D_p = hist_2D_proton->ProjectionX("protonProjX");
-  //TH1D* hist1D_n = hist_2D_neutron->ProjectionX("neutronProjX");
-
+ 
+  
 
   // Create a canvas to draw the histogram
-  TCanvas* cutcanvas1D = new TCanvas("cutcanvas1D", "X Projection with Vertical Lines", 800, 600);
- 
-  // Draw the TH1D histogram
-  cutcanvas1D->cd(1);
-  //hist1D_data->GetXaxis() ->SetRangeUser(0, 0.1);
-  hist1D_data->SetLineWidth(2);
+  TCanvas* datacanvas1d = new TCanvas("datacanvas1d", "datacanvas1d", 800, 600);
   hist1D_data->Draw();
   // Draw vertical lines at each x value in xSlices
-  for (size_t i = 0; i < nSlices+1; ++i) {
-    double x = xSlices[i];
-    TLine* line = new TLine(x, hist1D_data->GetMinimum(), x, hist1D_data->GetMaximum());
-    line->SetLineColor(kRed);  // Set line color (e.g., red)
-    line->SetLineWidth(2);     // Set line width
-    line->Draw("SAME");
+  for (size_t i = 0; i < xMinSlices.size(); ++i) {
+    int color = color_vector[i%(color_vector.size()-1)];
+    double xLeft = xMinSlices[i];
+    double xRight = xMaxSlices[i];
+    TLine* lineLeft = new TLine(xLeft, hist1D_data->GetMinimum(), xLeft, hist1D_data->GetMaximum());
+    TLine* lineRight = new TLine(xRight, hist1D_data->GetMinimum(), xRight, hist1D_data->GetMaximum());
+    lineLeft->SetLineColor(color);  // Set line color (e.g., red)
+    lineLeft->SetLineWidth(2);     // Set line width
+    lineLeft->Draw("SAME");
+    lineRight->SetLineColor(color);  // Set line color (e.g., red)
+    lineRight->SetLineWidth(2);     // Set line width
+    lineRight->Draw("SAME");
   }
 
-  
-
-  cutcanvas1D->SaveAs(Form("%s/visulaized_cuts_1D.pdf",output_dir.c_str() ));
+  datacanvas1d ->SaveAs(Form("%s/visulaized_cuts_1D_data.pdf",outputfilelocation.Data() ));
  
+  // //// extract the histogram title and print it
+  std::string title = hist_2D_data->GetTitle();
+  cout<<"data title"<<endl;
+  utilityHandler.printParsedTitle(title,outputfilelocation,"data");
+  std::string proton_title = hist_p->GetTitle();
+  cout<<"proton title: "<<endl;
+  cout<< proton_title<<endl;
+  std::string neutron_title =hist_n->GetTitle();
+  cout<<"neutron title: "<<endl;
+  cout<< neutron_title<<endl;
 
-  // TCanvas* testcanvas1  = new TCanvas("testcanvas1", "testcanvas1", 800, 600);
-  // TH1D* sumHistoTest = sumHistogramsWithPolynomial(hist_result_vector_p[0],hist_result_vector_n[0] , poly_fit_result[0]);
-  // hist_vector_data[0]->Draw();
-  // sumHistoTest ->Draw("same");
 
+  /// Make a canvas called c1 to overwrite the default canvas and avoid crashes
+  TCanvas *c1 = new TCanvas("c1", "c1", 800, 600);
+  hist_2D_data->Draw("colz");
   
- 
-  //// extract the histogram title and print it 
-  printParsedTitle(hist_2D_data,"data");
-
-  fout->Write();
+  
+  
+  fout->Write(); 
 
   f1->Close();
   f2->Close();
   f3->Close();
-
+  
 }// End Main
 
 
-
-TH1D* sumHistogramsWithPolynomial(TH1D* h1, TH1D* h2, TF1* poly) {
-    if (h1->GetNbinsX() != h2->GetNbinsX() || 
-        h1->GetXaxis()->GetXmin() != h2->GetXaxis()->GetXmin() ||
-        h1->GetXaxis()->GetXmax() != h2->GetXaxis()->GetXmax()) {
-        std::cerr << "Histograms must have the same binning and range!" << std::endl;
-        return nullptr;
-    }
-
-    // Create a new histogram for the sum
-    TH1D *h_sum = (TH1D*)h1->Clone("h_sum");
-    h_sum->SetTitle("Sum of Histograms and Polynomial");
-    h_sum->Reset();
-
-
-    // Loop over bins and add the content of h1, h2, and the polynomial
-    for (int i = 1; i <= h_sum->GetNbinsX(); ++i) {
-        double bin_center = h_sum->GetBinCenter(i);
-        double content = h1->GetBinContent(i) + h2->GetBinContent(i) + poly->Eval(bin_center);
-        h_sum->SetBinContent(i, content);
-    }
-
-    return h_sum;
-}// end sumHistogramsWithPolynomial
-
-
-void SliceAndProjectHistogram_AroundMean(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMean, std::string xAxisName, std::string yAxisName, std::string type) {
-    // Clear the vector to ensure it's empty before filling
-    histVector.clear();
-  
-    // loop over the slices 
-    for (size_t i = 0; i < xSlices.size() ; ++i) { //-1
-      double xMin = xMean - xSlices[i];
-      int binMin = hist2D ->GetXaxis()->FindBin(xMin);
-
-      double xMax = xMean + xSlices[i];
-      int binMax = hist2D ->GetXaxis()->FindBin(xMax);
-
-      // Define the name and title for the TH1D histogram
-      // Format the histogram name to display only two decimal places
-      std::ostringstream stream;
-      stream << std::fixed << std::setprecision(4) << "_"<<xMin << "_to_" << xMax;
-      std::string histName = yAxisName+"__"+xAxisName + stream.str() + "_" +type;
-      TH1D *projY = hist2D->ProjectionY(histName.c_str(), binMin, binMax);
-      histVector.push_back(projY); // 
-
-    }// end loop over slices
-}// end SliceAndProjectHistogram_AroundMean
-
-
-
-void SliceAndProjectHistogram_xMaxFixed(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, double xMax, std::string xAxisName, std::string yAxisName, std::string type) {
-    // Clear the vector to ensure it's empty before filling
-    histVector.clear();
-    // Find the bin number of the x endpoint 
-    int binMax = hist2D->GetXaxis()->FindBin(xMax);
-
-    // loop over the slices 
-    for (size_t i = 0; i < xSlices.size() ; ++i) { //-1
-      double xMin = xSlices[i];
-      int binMin = hist2D ->GetXaxis()->FindBin(xMin);
-
-      // Define the name and title for the TH1D histogram
-      // Format the histogram name to display only two decimal places
-      std::ostringstream stream;
-      stream << std::fixed << std::setprecision(4) << "_"<<xMin << "_to_" << xMax;
-      std::string histName = yAxisName+"__"+xAxisName + stream.str() + "_" +type;
-      TH1D *projY = hist2D->ProjectionY(histName.c_str(), binMin, binMax);
-      histVector.push_back(projY); // 
-
-    }// end loop over slices
-}// end SliceAndProjectHistogram_xMaxFixed
-
-
-void SliceAndProjectHistogram_slices(TH2D* hist2D, const std::vector<double>& xSlices, std::vector<TH1D*>& histVector, std::string xAxisName, std::string yAxisName, std::string type) {
-    // Clear the vector to ensure it's empty before filling
-    histVector.clear();
-
-    // loop over the slices 
-    for (size_t i = 0; i < xSlices.size()-1 ; ++i) { 
-      double xMin = xSlices[i];
-      int binMin = hist2D ->GetXaxis()->FindBin(xMin);
-
-      double xMax = xSlices[i+1];
-      int binMax = hist2D ->GetXaxis()->FindBin(xMax);
-
-      // Define the name and title for the TH1D histogram
-      // Format the histogram name to display only two decimal places
-      std::ostringstream stream;
-      stream << std::fixed << std::setprecision(4) << "_"<<xMin << "_to_" << xMax;
-      std::string histName = yAxisName+"__"+xAxisName + stream.str() + "_" +type;
-      TH1D *projY = hist2D->ProjectionY(histName.c_str(), binMin, binMax);
-      histVector.push_back(projY); // 
-
-    }// end loop over slices
-}// end SliceAndProjectHistogram_slices
-
-
-
-// Fit that is a combination of the scaled proton mc, scaled neutron mc, and 4th order polynomial. 
-//// hist_p and hist_n are globals that need to be set to the proper histograms right before you call the fit function. 
-Double_t mc_p_n_poly4_slice_fit(Double_t *x, Double_t *par) {
-    
-    Double_t val = 0.0;
-
-    // Get x value
-    Double_t xx = x[0];
-
-    // Retrieve parameters
-    Double_t scale_p = par[0];
-    Double_t scale_n = par[1];
-    Double_t shift_p = par[2];
-    Double_t shift_n = par[3];
-
-    Double_t polyCoefficients[5]; 
-    
-    // Fill polynomial coefficients 
-    for (Int_t i = 0; i <=4; ++i) {
-        polyCoefficients[i] = par[i + 4];
-    }
-
-    //// hist_p and hist_n are globals that need to be set to the proper histograms right before you call the fit function. 
-
-    // Calculate value using combination of histograms and polynomial background
-    val = scale_p *hist_p ->Interpolate(xx-shift_p) + scale_n *hist_n ->Interpolate(xx-shift_n);
-
-    // Add polynomial background
-    for (Int_t i = 0; i <= 4; ++i) {
-        val += polyCoefficients[i] * TMath::Power(xx, i);
-    }
-
-    return val;
-}
-
-
-// Utility function to shift every bin of a TH1D along the x-axis
-  TH1D* shiftHistogramX(TH1D* originalHist, double shiftValue) {
-    if (!originalHist) return nullptr;
-    // Preserve the total number of entries in the histogram for further analysis
-    double totalEntries = originalHist->GetEntries();
-    // Create a new histogram with the same binning as the original
-    TH1D *shiftedHist = (TH1D*)(originalHist->Clone("shiftedHist"));
-    // Clear the contents of the cloned histogram
-    shiftedHist->Reset();
-    // Shift each bin
-    for (int i = 1; i <= originalHist->GetNbinsX(); ++i) {
-      // Calculate new bin center
-      double oldBinCenter = originalHist->GetBinCenter(i);
-      double oldBinContent = originalHist->GetBinContent(i);
-      double oldBinError = originalHist->GetBinError(i);
-      // Find the bin in the new histogram that corresponds to the new bin center
-      int newBin = shiftedHist->FindBin(oldBinCenter + shiftValue);
-      // Add the content and error to the new bin
-      // Note: If multiple old bins shift into the same new bin, their contents and errors are added
-      double newBinContent = shiftedHist->GetBinContent(newBin) + oldBinContent;
-      double newBinError = sqrt(pow(shiftedHist->GetBinError(newBin), 2) + pow(oldBinError, 2));
-      shiftedHist->SetBinContent(newBin, newBinContent);
-      shiftedHist->SetBinError(newBin, newBinError);
-    }
-    // Restore the total number of entries
-    shiftedHist->SetEntries(totalEntries);
-    return shiftedHist;
-  }
-
-
-Double_t poly4(Double_t *x, Double_t *par)
-{
-  Double_t fit = par[0] + par[1] * x[0] + par[2] * pow(x[0],2) + par[3] * pow(x[0],3) + par[4] * pow(x[0],4) ;
-  return fit;
-}
-
-
-TH1D* GetResidualHistogram(TH1D* hist, TF1* fit) {
- // Create a new histogram with the same binning as the original
-  TH1D *h_residual = (TH1D*)(hist->Clone(Form("%s_residual",hist->GetName())));
-  TF1 *fit_clone = (TF1*)(fit->Clone(Form("%s_clone",fit->GetName())));
-
-  // Loop over bins and calculate residuals
-  for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-    double binCenter = hist->GetBinCenter(i);
-    double binContent = hist->GetBinContent(i);
-    double fitValue = fit_clone->Eval(binCenter);
-    double residual = binContent - fitValue;
-    h_residual->SetBinContent(i, residual);
-    h_residual->SetBinError(i, sqrt(binContent));
-  }
-  return h_residual;
-}
-
-
-TGraphErrors*  histogramToGraphErrors(TH1D *hist) {
-    int numBins = hist->GetNbinsX();
-
-    double x[numBins];
-    double y[numBins];
-    double ex[numBins]; // No x errors 
-    double ey[numBins];
-
-    // Fill arrays with histogram data
-    for (int i = 0; i < numBins; ++i) {
-        x[i] = hist->GetBinCenter(i + 1);
-        y[i] = hist->GetBinContent(i + 1);
-        ex[i] = 0; // No x errors for simplicity
-        ey[i] = hist->GetBinError(i + 1);
-    }
-
-    // Create a TGraphErrors
-    TGraphErrors *graph = new TGraphErrors(numBins, x, y, ex, ey);
-
-
-    graph->SetTitle("");
-    return graph;
-}
-
-void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markerSize, 
-                    const char* graphTitle ="", const char* xAxisLabel="", const char* yAxisLabel="",
-		    double TitleOffsetX = 1.4, double TitleOffsetY = 2, 
-		    double LabelOffsetX = 0.01, double LabelOffsetY = 0.01) {
-  // Set marker style, color, and size
-  graph->SetMarkerStyle(markerStyle);
-  graph->SetMarkerColor(markerColor);
-  graph->SetMarkerSize(markerSize);
-
-  // Set graph title and axis labels
-  graph->SetTitle(graphTitle);
-  graph->GetXaxis()->SetTitle(xAxisLabel);
-  graph->GetYaxis()->SetTitle(yAxisLabel);
-
-// Adjust axis title offsets to provide more space
-  graph->GetXaxis()->SetTitleOffset(TitleOffsetX); // Adjust as needed
-  graph->GetYaxis()->SetTitleOffset(TitleOffsetY); // Adjust as needed
-
-
-// Adjust axis label offsets to provide more space
-  graph->GetXaxis()->SetLabelOffset(LabelOffsetX); // Adjust as needed
-  graph->GetYaxis()->SetLabelOffset(LabelOffsetY); // Adjust as needed
-}
-
-
-
-TGraphErrors* createGraphFromFit(TH1D* hist, TF1* fitFunc) {
-    int numBins = hist->GetNbinsX();
-
-    double x[numBins];
-    double y[numBins];
-    double ex[numBins]; // No x errors for simplicity
-    double ey[numBins];
-
-    // Fill arrays with fit function data
-    for (int i = 0; i < numBins; ++i) {
-        double binCenter = hist->GetBinCenter(i + 1);
-        x[i] = binCenter;
-        y[i] = fitFunc->Eval(binCenter);
-        ex[i] = 0; // No x errors for simplicity
-        ey[i] = 0; // No y errors for simplicity
-    }
-
-    // Create and return a TGraphErrors
-    TGraphErrors* graph = new TGraphErrors(numBins, x, y, ex, ey);
-    graph->SetTitle("");
-    return graph;
-}
-
-
-void adjustCanvas(TCanvas* canvas,
-                  double leftMargin = 0.15, double rightMargin = 0.05, 
-                  double bottomMargin = 0.15, double topMargin = 0.10) {
-  // cout<<"left "<< leftMargin<<endl;
-  // cout<<"right "<< rightMargin<<endl;
-  // cout<<"bottom "<< bottomMargin<<endl;
-  // cout<<"top "<< bottomMargin<<endl;
-    // Set canvas margins
-    canvas->SetLeftMargin(leftMargin);
-    canvas->SetRightMargin(rightMargin);
-    canvas->SetBottomMargin(bottomMargin);
-    canvas->SetTopMargin(topMargin);
-}
-
-
-//// Get the title from the histogram and display it on a canvas. 
-/// This expects the title to be in the form:
-///  y_axis:x_axis {cut1&&cut2&&cut3....}
-void printParsedTitle(TH2D* hist,  const char* outputname="") {
-    // Get the histogram title
-    std::string title = hist->GetTitle();
-
-    cout<<title<<endl;
-  
-    // // Find the position of the first '{' character
-  //   size_t pos = title.find('{');
-    
-  //   // Extract the y_axis:x_axis part
-  // std::string axes = title.substr(0, pos);
-  // //cout<<"axis = "<<axes<<endl;
-    
-  // // Extract the cuts part and remove '{' and '}'
-  // std::string cuts = title.substr(pos + 1, title.size() - pos - 2);
-  // //cout<<"cuts = "<<cuts<<endl;
-   
-  // //cout<<"broken up cuts"<<endl;
-
-  // // Split the cuts into individual cut expressions
-  // std::vector<std::string> cutList;
-  // std::stringstream ss(cuts);
-  // std::string cut;
-  // while (std::getline(ss, cut, '&')) {
-  //   // Remove leading and trailing whitespace
-  //   cut.erase(0, cut.find_first_not_of(" \t"));
-  //   cut.erase(cut.find_last_not_of(" \t") + 1);
-        
-  //   // Ensure the cut is not empty before processing
-  //   if (!cut.empty() && cut.front() == '&') {
-  //     cut.erase(cut.begin());
-  //   }
-        
-  //   if (!cut.empty()) {
-  //     cutList.push_back(cut);
-  //     // cout<<cut<<endl;
-  //   }
-  // }
-
-    
-  // // Create a new canvas
-  // TCanvas* cuts_canvas = new TCanvas("cuts_canvas", "Parsed Histogram Title", 1000, 600);
-    
-  // // Create a TLatex object to draw the text
-  // TLatex latex;
-  // latex.SetTextSize(0.03);  // Adjust text size
-  // latex.SetTextAlign(13);   // Align text to top left
-    
-  // // Draw the axes part
-  // latex.DrawLatex(0.1, 0.9, axes.c_str());
-    
-  // // Draw each cut expression on a new line
-  // double yPos = 0.8;  // Start position for the first cut
-  // for (const auto& cut : cutList) {
-  //   latex.DrawLatex(0.1, yPos, cut.c_str());
-  //   yPos -= 0.03;  // Move down for the next cut
-  // }
-
-
-    
-  //   // Update the canvas
-  //  cuts_canvas->Update();
-    
-  //   // Optionally, save the canvas as an image
-  //   cuts_canvas->SaveAs(Form("%s/global_cuts_%s.pdf", output_dir.c_str(),outputname));
-}

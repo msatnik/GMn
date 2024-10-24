@@ -76,6 +76,8 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   std::string e_over_p_CutString = "abs(e_over_p - 1)<0.5";
   std::string HCal_Shower_atime_CutString= "abs(hcal_sh_atime_diff)<10";
   std::string HCal_Energy_CutString = "hcal_e>0.01";
+  std::string ProtonSpot_CutString ="pow((hcal_dx+0.71)/0.21,2)+pow(hcal_dy/0.3,2)<=1";
+  std::string NeutronSpot_CutString="pow(hcal_dx/0.20,2)+pow(hcal_dy/0.3,2)<=1";
   std::string Optics_CutString = "abs(bb_tr_r_x-bb_tr_r_th*0.9)<0.3";
   // data vs sim
   std::string is_data_CutString = "is_hydrogen==1||is_deuterium==1";
@@ -165,6 +167,16 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
 	Optics_CutString= sval.Data();
 	cout << "Loading Optics_CutString: " << Optics_CutString<< endl;
+      }
+      if( skey == "ProtonSpot_CutString" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	ProtonSpot_CutString= sval.Data();
+	cout << "Loading ProtonSpot_Cutstring: " << ProtonSpot_CutString<< endl;
+      }
+      if( skey == "NeutronSpot_CutString" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+	NeutronSpot_CutString= sval.Data();
+	cout << "Loading NeutronSpot_Cutstring: " << NeutronSpot_CutString<< endl;
       }
 
 
@@ -261,9 +273,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   //// testing out using Draw instead of looping through. 
 
   // preshower energy  vs dx study
-  std::string ps_e_study_string = TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString;
+  std::string ps_e_study_string = TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_ps_e>>hcal_dx__ps_e(200, 0, 2, 800, -4, 4)", Form("corrected_weight*(%s)",ps_e_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:bb_ps_e>>hcal_dx__ps_e(200, 0, 2, 400, -4, 4)", Form("corrected_weight*(%s)",ps_e_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__ps_e = (TH2D*)gDirectory->Get("hcal_dx__ps_e");
   if (hcal_dx__ps_e) {
@@ -272,7 +284,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   // preshower vs W2 study
-  std::string ps_e_W2_study_string =  TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" + dyCutString; 
+  std::string ps_e_W2_study_string =  TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" + dyCutString+ "&&" +Optics_CutString; 
   //// Draw the 2D histogram
   C->Draw("W2:bb_ps_e>>W2__ps_e(200, 0, 2, 300, 0, 3)",  Form("corrected_weight*(%s)",ps_e_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -283,9 +295,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   //// target vertext vs dx study
-  std::string target_vertex_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString;
+  std::string target_vertex_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_vz>>hcal_dx__tr_vz(200, -0.1, 0.1, 800, -4, 4)", Form("corrected_weight*(%s)",target_vertex_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:bb_tr_vz>>hcal_dx__tr_vz(200, -0.1, 0.1, 400, -4, 4)", Form("corrected_weight*(%s)",target_vertex_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__tr_vz = (TH2D*)gDirectory->Get("hcal_dx__tr_vz");
   if (hcal_dx__tr_vz) {
@@ -295,7 +307,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
   /// target vertex vs W2 study
-  std::string target_vertex_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString +  "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString;
+  std::string target_vertex_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString +  "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
   C->Draw("W2:bb_tr_vz>>W2__tr_vz(200, -0.1, 0.1, 300, 0, 3)", Form("corrected_weight*(%s)", target_vertex_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -307,9 +319,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
   /// W2 vs dx 
-  std::string W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString;
+  std::string W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:W2>>hcal_dx__W2(200, 0, 2, 800, -4, 4)", Form("corrected_weight*(%s)",W2_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:W2>>hcal_dx__W2(300, 0, 3, 400, -4, 4)", Form("corrected_weight*(%s)",W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__W2 = (TH2D*)gDirectory->Get("hcal_dx__W2");
   if (hcal_dx__W2) {
@@ -318,9 +330,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   //// fiducial x vs dx 
-  std::string FidX_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString;
+  std::string FidX_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:nsigx_fid>>hcal_dx__nsigx_fid(200, -10, 10, 800, -4, 4)", Form("corrected_weight*(%s)",FidX_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:nsigx_fid>>hcal_dx__nsigx_fid(200, -10, 10, 400, -4, 4)", Form("corrected_weight*(%s)",FidX_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__nsigx_fid= (TH2D*)gDirectory->Get("hcal_dx__nsigx_fid");
   if (hcal_dx__nsigx_fid) {
@@ -329,7 +341,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
   
   // fiducial x vs W2 
-  std::string FidX_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString; 
+  std::string FidX_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString+ "&&" +Optics_CutString; 
   //// Draw the 2D histogram
   C->Draw("W2:nsigx_fid>>W2__nsigx_fid(200, -10, 10, 300, 0, 3)",Form("corrected_weight*(%s)",FidX_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -340,9 +352,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   /// fiducial y vs dx 
-  std::string FidY_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString;
+  std::string FidY_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:nsigy_fid>>hcal_dx__nsigy_fid(50, -1, 4, 800, -4, 4)", Form("corrected_weight*(%s)",FidY_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:nsigy_fid>>hcal_dx__nsigy_fid(50, -1, 4, 400, -4, 4)", Form("corrected_weight*(%s)",FidY_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__nsigy_fid= (TH2D*)gDirectory->Get("hcal_dx__nsigy_fid");
   if (hcal_dx__nsigy_fid) {
@@ -351,7 +363,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   /// fiducial y vs W2
-  std::string FidY_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString;
+  std::string FidY_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString+ "&&" +Optics_CutString;
   //// Draw the 2D histogram
   C->Draw("W2:nsigy_fid>>W2__nsigy_fid(50, -1, 4, 300, 0, 3)",Form("corrected_weight*(%s)", FidY_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -362,10 +374,10 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
 
-// hcal_x vs dx 
+  // hcal_x vs dx 
   std::string hcal_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_x>>hcal_dx__hcal_x(450, -3, 1.5, 800, -4, 4)",Form("corrected_weight*(%s)",hcal_x_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_x>>hcal_dx__hcal_x(450, -3, 1.5, 400, -4, 4)",Form("corrected_weight*(%s)",hcal_x_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_x= (TH2D*)gDirectory->Get("hcal_dx__hcal_x");
   if (hcal_dx__hcal_x) {
@@ -384,10 +396,10 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     W2__hcal_x->SetYTitle("W2");
   }
 
-// hcal_x_exp vs dx 
+  // hcal_x_exp vs dx 
   std::string hcal_x_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_x_exp>>hcal_dx__hcal_x_exp(450, -2, 2.5, 800, -4, 4)",Form("corrected_weight*(%s)",hcal_x_exp_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_x_exp>>hcal_dx__hcal_x_exp(450, -2, 2.5, 400, -4, 4)",Form("corrected_weight*(%s)",hcal_x_exp_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_x_exp= (TH2D*)gDirectory->Get("hcal_dx__hcal_x_exp");
   if (hcal_dx__hcal_x_exp) {
@@ -408,9 +420,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
 
-// hcal_x_exp vs hcal_y_exp
+  // hcal_x_exp vs hcal_y_exp
   std::string hcal_x_exp_hcal_y_exp_study_string =TargetVertexCutString;
-    //= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" +  Optics_CutString ;
+  //= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" +  Optics_CutString ;
   //// Draw the 2D histogram
   C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp__hcal_y_exp(400, -2, 2, 600, -3, 3)" ,Form("corrected_weight*(%s)",hcal_x_exp_hcal_y_exp_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -420,13 +432,23 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     hcal_x_exp__hcal_y_exp->SetYTitle("hcal_x_exp");
   }
 
+  // hcal_x_exp vs hcal_y_exp
+  std::string hcal_x_exp_hcal_y_exp_study_string_allcuts = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +  "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_x_exp:hcal_y_exp>>hcal_x_exp__hcal_y_exp_allcuts(400, -2, 2, 600, -3, 3)" ,Form("corrected_weight*(%s)",hcal_x_exp_hcal_y_exp_study_string_allcuts.c_str()), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_x_exp__hcal_y_exp_allcuts= (TH2D*)gDirectory->Get("hcal_x_exp__hcal_y_exp_allcuts");
+  if (hcal_x_exp__hcal_y_exp_allcuts) {
+    hcal_x_exp__hcal_y_exp_allcuts->SetXTitle("hcal_y_exp");
+    hcal_x_exp__hcal_y_exp_allcuts->SetYTitle("hcal_x_exp");
+  }
 
 
 
-// hcal_y vs dx 
+  // hcal_y vs dx 
   std::string hcal_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_y>>hcal_dx__hcal_y(200, -1, 1, 800, -4, 4)",Form("corrected_weight*(%s)",hcal_x_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_y>>hcal_dx__hcal_y(200, -1, 1, 400, -4, 4)",Form("corrected_weight*(%s)",hcal_x_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_y= (TH2D*)gDirectory->Get("hcal_dx__hcal_y");
   if (hcal_dx__hcal_y) {
@@ -445,10 +467,10 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     W2__hcal_y->SetYTitle("W2");
   }
 
-// hcal_y_exp vs dx 
-  std::string hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
+  // hcal_y_exp vs dx 
+  std::string hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_y_exp>>hcal_dx__hcal_y_exp(200, -1, 1, 800, -4, 4)",Form("corrected_weight*(%s)", hcal_y_exp_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_y_exp>>hcal_dx__hcal_y_exp(200, -1, 1, 400, -4, 4)",Form("corrected_weight*(%s)", hcal_y_exp_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_y_exp= (TH2D*)gDirectory->Get("hcal_dx__hcal_y_exp");
   if (hcal_dx__hcal_y_exp) {
@@ -467,9 +489,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   // e/p vs dx
-  std::string e_over_p_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString;
+  std::string e_over_p_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString + "&&"+ HCal_Energy_CutString+ "&&"+dyCutString + "&&"+ Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:e_over_p>>hcal_dx__e_over_p(400, -1, 3, 800, -4, 4)", Form("corrected_weight*(%s)",e_over_p_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:e_over_p>>hcal_dx__e_over_p(400, -1, 3, 400, -4, 4)", Form("corrected_weight*(%s)",e_over_p_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__e_over_p= (TH2D*)gDirectory->Get("hcal_dx__e_over_p");
   if (hcal_dx__e_over_p) {
@@ -478,7 +500,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   // e/p vs W2
-  std::string e_over_p_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString; 
+  std::string e_over_p_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString + "&&" +Optics_CutString; 
   //// Draw the 2D histogram
   C->Draw("W2:e_over_p>>W2__e_over_p(400, -1, 3, 300, 0, 3)",  Form("corrected_weight*(%s)",e_over_p_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -490,9 +512,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
   //// hcal energy vs dx study 
-  std::string hcal_e_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString+ "&&"+dyCutString;
+  std::string hcal_e_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString+ "&&"+dyCutString + "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_e>>hcal_dx__hcal_e(2000, 0, 2, 800, -4, 4)", Form("corrected_weight*(%s)",hcal_e_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_e>>hcal_dx__hcal_e(2000, 0, 2, 400, -4, 4)", Form("corrected_weight*(%s)",hcal_e_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_e= (TH2D*)gDirectory->Get("hcal_dx__hcal_e");
   if (hcal_dx__hcal_e) {
@@ -501,7 +523,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
   /// hcal energy vs W2
-  std::string hcal_e_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString; 
+  std::string hcal_e_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString+ "&&" +Optics_CutString ; 
   //// Draw the 2D histogram
   C->Draw("W2:hcal_e>>W2__hcal_e(2000, 0, 2, 300, 0, 3)", Form("corrected_weight*(%s)",hcal_e_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -514,9 +536,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     
 
   // dy study
-  std::string dy_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString;
+  std::string dy_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + "&&" +Optics_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy(100, -2, 2, 800, -4, 4)", Form("corrected_weight*(%s)",dy_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy(100, -2, 2, 400, -4, 4)", Form("corrected_weight*(%s)",dy_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_dy= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy");
   if (hcal_dx__hcal_dy) {
@@ -526,7 +548,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
   // dy in terms of the number of sigma 
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_dy/dysig>>hcal_dx__hcal_nsigdy(100, -5, 5, 800, -4, 4)", Form("corrected_weight*(%s)",dy_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:hcal_dy/dysig>>hcal_dx__hcal_nsigdy(100, -5, 5, 400, -4, 4)", Form("corrected_weight*(%s)",dy_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_nsigdy= (TH2D*)gDirectory->Get("hcal_dx__hcal_nsigdy");
   if (hcal_dx__hcal_nsigdy) {
@@ -536,9 +558,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
 
   // dy vs W2 study
-  std::string dy_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString;
+  std::string dy_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+ "&&" +Optics_CutString ;
   //// Draw the 2D histogram
-  C->Draw("W2:hcal_dy>>W2__hcal_dy(100, -2, 2, 200, 0, 2)", Form("corrected_weight*(%s)",dy_W2_study_string.c_str()), "COLZ");
+  C->Draw("W2:hcal_dy>>W2__hcal_dy(100, -2, 2, 300, 0, 3)", Form("corrected_weight*(%s)",dy_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *W2__hcal_dy= (TH2D*)gDirectory->Get("W2__hcal_dy");
   if (W2__hcal_dy) {
@@ -548,7 +570,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
   // dy in terms of the number of sigma 
   //// Draw the 2D histogram
-  C->Draw("W2:hcal_dy/dysig>>W2__hcal_nsigdy(100, -5, 5, 200, 0, 2)", Form("corrected_weight*(%s)",dy_W2_study_string.c_str()), "COLZ");
+  C->Draw("W2:hcal_dy/dysig>>W2__hcal_nsigdy(100, -5, 5, 300, 0, 3)", Form("corrected_weight*(%s)",dy_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *W2__hcal_nsigdy= (TH2D*)gDirectory->Get("W2__hcal_nsigdy");
   if (W2__hcal_nsigdy) {
@@ -556,11 +578,11 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     W2__hcal_nsigdy->SetYTitle("W2");
   }
 
- // optics x vs dx study
+  // optics x vs dx study
   std::string optics_x_study_string=TargetVertexCutString;
-    // std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
+  // std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_dx__optics_x(120, -0.6, 0.6, 800, -4, 4)", Form("corrected_weight*(%s)",optics_x_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_dx__optics_x(120, -0.6, 0.6, 400, -4, 4)", Form("corrected_weight*(%s)",optics_x_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__optics_x= (TH2D*)gDirectory->Get("hcal_dx__optics_x");
   if (hcal_dx__optics_x) {
@@ -568,9 +590,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     hcal_dx__optics_x->SetYTitle("hcal_dx");
   }
 
-// optics x vs W2 study
- std::string optics_x_W2_study_string=TargetVertexCutString;
- // std::string optics_x_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
+  // optics x vs W2 study
+  std::string optics_x_W2_study_string=TargetVertexCutString;
+  // std::string optics_x_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
   //// Draw the 2D histogram
   C->Draw("W2:bb_tr_r_x-0.9*bb_tr_r_th>>W2__optics_x(120, -0.6, 0.6, 300, 0, 3)", Form("corrected_weight*(%s)",optics_x_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -581,11 +603,11 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
 
 
-   // optics y vs dx study
- std::string optics_y_study_string=TargetVertexCutString;
- //std::string optics_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
+  // optics y vs dx study
+  std::string optics_y_study_string=TargetVertexCutString;
+  //std::string optics_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_dx__optics_y(150, -0.15, 0.15, 800, -4, 4)", Form("corrected_weight*(%s)",optics_y_study_string.c_str()), "COLZ");
+  C->Draw("hcal_dx:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_dx__optics_y(150, -0.15, 0.15, 400, -4, 4)", Form("corrected_weight*(%s)",optics_y_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__optics_y= (TH2D*)gDirectory->Get("hcal_dx__optics_y");
   if (hcal_dx__optics_y) {
@@ -593,9 +615,9 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     hcal_dx__optics_y->SetYTitle("hcal_dx");
   }
 
-// optics y vs W2 study
- std::string optics_y_W2_study_string=TargetVertexCutString;
- // std::string optics_y_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
+  // optics y vs W2 study
+  std::string optics_y_W2_study_string=TargetVertexCutString;
+  // std::string optics_y_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString;
   //// Draw the 2D histogram
   C->Draw("W2:bb_tr_r_y-0.9*bb_tr_r_ph>>W2__optics_y(130, -0.15, 0.15, 300, 0, 3)", Form("corrected_weight*(%s)",optics_y_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -606,7 +628,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   }
   
 
- /// 1d histo of dy
+  /// 1d histo of dy
   std::string allcuts_dy_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString +"&&" + Optics_CutString;
   C->Draw("hcal_dy>>hcal_dy_1d_allcuts(200, -2, 2)", Form("corrected_weight*(%s)", allcuts_dy_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -628,7 +650,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
   // make TH1D with all the cuts 
   // since this is mc data, we don't want to cut on adc time. But we need something with all the other cuts for us to compare and fit to when looking at adc time on data. 
-  std::string allcuts_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+ "&&"+dyCutString;
+  std::string allcuts_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+ "&&"+dyCutString+ "&&" +Optics_CutString ;
   //// Draw the 1D histogram
   C->Draw("hcal_dx>>hcal_dx_1d_allcuts(400, -4, 4)", Form("corrected_weight*(%s)", allcuts_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -639,7 +661,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
 
   // 1d histo of dx with no extra cuts 
   //// Draw the 1D histogram
-  C->Draw("hcal_dx>>hcal_dx_1d_no_extra_cuts(600, -4, 4)", "corrected_weight", "COLZ");
+  C->Draw("hcal_dx>>hcal_dx_1d_no_extra_cuts(400, -4, 4)", "corrected_weight", "COLZ");
   // Retrieve and customize histogram
   TH1D *hcal_dx_1d_no_extra_cuts= (TH1D*)gDirectory->Get("hcal_dx_1d_no_extra_cuts");
   if (hcal_dx_1d_no_extra_cuts) {
@@ -648,7 +670,7 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
   
 
   /// 1d histo of W2
-  std::string allcuts_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyCutString; 
+  std::string allcuts_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyCutString + "&&" +Optics_CutString; 
   //// Draw the 2D histogram
   C->Draw("W2>>W2_1d_allcuts(300, 0, 3)", Form("corrected_weight*(%s)", allcuts_W2_study_string.c_str()), "COLZ");
   // Retrieve and customize histogram
@@ -657,10 +679,38 @@ void Make2DHistosWithCuts_mc(TString configfileinput="sbs4_30p_test_mc"){ // mai
     W2_1d_allcuts->SetXTitle("W^{2}");
   }
 
+  /// 1d histo of Q2
+  std::string allcuts_Q2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+"&&" +W2CutString+ + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyCutString +"&&" + Optics_CutString;
+  //// Draw the 2D histogram
+  C->Draw("Q2>>Q2_1d_allcuts(1000, 0, 10)",  Form("corrected_weight*(%s)",allcuts_Q2_study_string.c_str() ), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *Q2_1d_allcuts= (TH1D*)gDirectory->Get("Q2_1d_allcuts");
+  if (Q2_1d_allcuts) {
+    Q2_1d_allcuts->SetXTitle("Q^{2}");
+  }
 
+  
+  // dy vs dx with proton  and neutron spot cuts 
+  std::string p_spot_string = ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy_protonspot(100, -2, 2, 400, -4, 4)", Form("corrected_weight*(%s)", p_spot_string.c_str()), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__hcal_dy_protonspot= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy_protonspot");
+  if (hcal_dx__hcal_dy_protonspot) {
+    hcal_dx__hcal_dy_protonspot->SetXTitle("hcal_dy");
+    hcal_dx__hcal_dy_protonspot->SetYTitle("hcal_dx");
+  }
 
-
-  //hcal_dx__hcal_e->Draw("colz");
+  // dy vs dx with proton  and neutron spot cuts 
+  std::string n_spot_string = NeutronSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy_neutronspot(100, -2, 2, 400, -4, 4)",  Form("corrected_weight*(%s)",n_spot_string.c_str()), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__hcal_dy_neutronspot= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy_neutronspot");
+  if (hcal_dx__hcal_dy_neutronspot) {
+    hcal_dx__hcal_dy_neutronspot->SetXTitle("hcal_dy");
+    hcal_dx__hcal_dy_neutronspot->SetYTitle("hcal_dx");
+  }
 
 
 

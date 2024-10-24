@@ -1,0 +1,34 @@
+#####################################
+#sseeds 2.28.23 - Setup file for  SBS8. Modified by msatnik.
+#####################################
+## scalesbsfield = 0.63797
+#/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_july15.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_1.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_2.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_3.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_4.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_5.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_6.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_7.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_8.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_9.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_sept3_10.root
+endlist
+#bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz[0])<0.08&&sbs.hcal.e>0.025&&bb.ps.e+bb.sh.e>1.7
+endcut
+EnergyCutString bb_ps_e>0.2
+GRINCH_CutString bb_grinch_clus_adc>20
+TrackQualityCutString bb_tr_n==1&&bb_gem_track_nhits>=3&&bb_gem_track_chi2ndf<30
+TargetVertexCutString abs(bb_tr_vz)<0.06
+W2CutString W2>0.66&&W2<1.10
+FidXCutString nsigx_fid>1.5
+FidYCutString nsigy_fid>1.5
+dyCutString abs(hcal_dy)<0.3
+e_over_p_CutString abs(e_over_p-0.98)<0.16
+HCal_Energy_CutString hcal_e>0.04
+GRINCH_CutString bb_grinch_clus_adc>20
+HCal_Shower_atime_CutString abs(hcal_sh_atime_diff)<10&&passed_atime_cuts==1
+Optics_CutString abs(bb_tr_r_x-bb_tr_r_th*0.9)<0.3&&abs(bb_tr_r_y-0.9*bb_tr_r_ph+0.005)<0.1
+ProtonSpot_CutString pow((hcal_dx+0.88)/0.23,2)+pow(hcal_dy/0.31,2)<=1
+NeutronSpot_CutString pow(hcal_dx/0.22,2)+pow(hcal_dy/0.31,2)<=1

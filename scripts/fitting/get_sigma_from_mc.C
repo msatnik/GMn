@@ -40,7 +40,7 @@ void get_sigma_from_mc(){//main
 
 
 
-   TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_cuts_deep_2Dhistos.root"); // 
+  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs8_70p_cuts_deep_2Dhistos.root"); // 
   
 
   TH1D *hist1 = (TH1D*)f1->Get("hcal_dx_1d_allcuts");

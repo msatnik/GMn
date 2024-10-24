@@ -48,62 +48,62 @@ const int maxEvents = 5e6; //5M
 Long64_t maxFileSize = 8e9; //8 GB
 
 
- // HCAL 
-  // Dimensions
-  static const Int_t hcalchan = 288;
-  static const Int_t hcalcol = 12;
-  static const Int_t hcalrow = 24;
-  static const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
-  static const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
-  static const Double_t hcaladc_binw = 4.;        //ns, width of each ADC bin
-  static const Double_t hcalblk_w_p0 = 0.15;      //m, width of a HCAL block, pass0/1
-  static const Double_t hcalblk_h_p0 = 0.15;      //m, height of a HCAL block, pass0/1 
-  static const Double_t hcalblk_w = 0.1524;       //m, width of a HCAL block
-  static const Double_t hcalblk_h = 0.1524;       //m, height of a HCAL block
-  static const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
-  static const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
-  static const Double_t hcalblk_div_hyp = 0.15875;//m, division corner-to-cornter dist.
-  static const Double_t hcalblk_gap_h = 0.00254;  //m, horiz. gap bet. two blocks
-  static const Double_t hcalblk_gap_v = 0.00635;  //m, vert. gap bet. two blocks
-  // Positions (mc)
-  static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
-  static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
-  static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
-  static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
-  // Pass0/1 (no block spacing)
-  static const Double_t hcalposXi_p0 = -2.16014;  //m, distance from beam center to top of HCal w/75cm offset
-  static const Double_t hcalposXf_p0 = 1.43826;   //m, distance from beam center to bottom of HCal w/75cm offset
-  static const Double_t hcalposYi_p0 = -0.9;      //m, distance from beam center to opposite-beam side of HCal
-  static const Double_t hcalposYf_p0 = 0.9;       //m, distance from beam center to beam side of HCal
-  // Positions (data fits)
-  static const Double_t hcalposXi = -2.268095;    //m, distance from beam center to top of HCal (obsolete)
-  static const Double_t hcalposXf = 1.538095;     //m, distance from beam center to bottom of HCal (obsolete)
-  static const Double_t hcalposYi = -0.931545;    //m, distance from beam center to opposite-beam side of HCal (obsolete)
-  static const Double_t hcalposYf = 0.931545;     //m, distance from beam center to beam side of HCal (obsolete)
-  // Global
-  //static const Double_t hcalvoff = -0.2897;       //m, height of the center of hcal above beam (m)
-  //static const Double_t hcalvoff = -0.3735;       //m, height of the center of hcal above beam (m) (sbs8)
-  //static const Double_t hcalvoff = -0.75;       //m, height of the center of hcal above beam (m)
-  //static const Double_t hcalvoff = 0.0;         //m, height of the center of hcal above beam (m) after pass2 corr
+// HCAL 
+// Dimensions
+static const Int_t hcalchan = 288;
+static const Int_t hcalcol = 12;
+static const Int_t hcalrow = 24;
+static const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
+static const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
+static const Double_t hcaladc_binw = 4.;        //ns, width of each ADC bin
+static const Double_t hcalblk_w_p0 = 0.15;      //m, width of a HCAL block, pass0/1
+static const Double_t hcalblk_h_p0 = 0.15;      //m, height of a HCAL block, pass0/1 
+static const Double_t hcalblk_w = 0.1524;       //m, width of a HCAL block
+static const Double_t hcalblk_h = 0.1524;       //m, height of a HCAL block
+static const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
+static const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
+static const Double_t hcalblk_div_hyp = 0.15875;//m, division corner-to-cornter dist.
+static const Double_t hcalblk_gap_h = 0.00254;  //m, horiz. gap bet. two blocks
+static const Double_t hcalblk_gap_v = 0.00635;  //m, vert. gap bet. two blocks
+// Positions (mc)
+static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
+static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
+static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
+static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
+// Pass0/1 (no block spacing)
+static const Double_t hcalposXi_p0 = -2.16014;  //m, distance from beam center to top of HCal w/75cm offset
+static const Double_t hcalposXf_p0 = 1.43826;   //m, distance from beam center to bottom of HCal w/75cm offset
+static const Double_t hcalposYi_p0 = -0.9;      //m, distance from beam center to opposite-beam side of HCal
+static const Double_t hcalposYf_p0 = 0.9;       //m, distance from beam center to beam side of HCal
+// Positions (data fits)
+static const Double_t hcalposXi = -2.268095;    //m, distance from beam center to top of HCal (obsolete)
+static const Double_t hcalposXf = 1.538095;     //m, distance from beam center to bottom of HCal (obsolete)
+static const Double_t hcalposYi = -0.931545;    //m, distance from beam center to opposite-beam side of HCal (obsolete)
+static const Double_t hcalposYf = 0.931545;     //m, distance from beam center to beam side of HCal (obsolete)
+// Global
+//static const Double_t hcalvoff = -0.2897;       //m, height of the center of hcal above beam (m)
+//static const Double_t hcalvoff = -0.3735;       //m, height of the center of hcal above beam (m) (sbs8)
+//static const Double_t hcalvoff = -0.75;       //m, height of the center of hcal above beam (m)
+//static const Double_t hcalvoff = 0.0;         //m, height of the center of hcal above beam (m) after pass2 corr
 
- // target
-  static const Double_t l_tgt = 0.15;  //m 
-  static const Double_t celldiameter = 1.6*2.54; //cm, 
+// target
+static const Double_t l_tgt = 0.15;  //m 
+static const Double_t celldiameter = 1.6*2.54; //cm, 
 // shielding
-  static const Double_t rho_al = 2.7; //g/cc
-  static const Double_t aldEdx = 0.0021; //According to NIST ESTAR, the collisional stopping power of Aluminum is about 2.1 MeV*cm2/g between 1-4 GeV
+static const Double_t rho_al = 2.7; //g/cc
+static const Double_t aldEdx = 0.0021; //According to NIST ESTAR, the collisional stopping power of Aluminum is about 2.1 MeV*cm2/g between 1-4 GeV
 
-  // LH2
-  static const Double_t lh2tarrho = 0.0723;     //g/cc, target density
-  static const Double_t lh2cthick = 0.02;       //cm, target cell thickness
-  static const Double_t lh2uwallthick = 0.0145; //cm, upstream wall thickness
-  static const Double_t lh2dwallthick = 0.015;  //cm, downstream wall thickness
-  static const Double_t lh2dEdx = 0.00574; //According to NIST ESTAR, the collisional stopping power of hydrogen is about 5.74 MeV*cm2/g at 2 GeV energy. On the other hand, target group -> 0.00480
-  // LD2
-  static const Double_t ld2tarrho = 0.169;      //g/cc, target density
-  static const Double_t ld2dEdx = 0.00581;      //According to https://open.library.ubc.ca/media/stream/pdf/831/1.0085416/1, pick up a factor of 1.012. On the other hand, target group -> 0.00240
-  static const Double_t ld2uwallthick = 0.0145; //cm, assume same as hydrogen for now
-  static const Double_t ld2dwallthick = 0.015;  //cm, assume same as hydrogen for now
+// LH2
+static const Double_t lh2tarrho = 0.0723;     //g/cc, target density
+static const Double_t lh2cthick = 0.02;       //cm, target cell thickness
+static const Double_t lh2uwallthick = 0.0145; //cm, upstream wall thickness
+static const Double_t lh2dwallthick = 0.015;  //cm, downstream wall thickness
+static const Double_t lh2dEdx = 0.00574; //According to NIST ESTAR, the collisional stopping power of hydrogen is about 5.74 MeV*cm2/g at 2 GeV energy. On the other hand, target group -> 0.00480
+// LD2
+static const Double_t ld2tarrho = 0.169;      //g/cc, target density
+static const Double_t ld2dEdx = 0.00581;      //According to https://open.library.ubc.ca/media/stream/pdf/831/1.0085416/1, pick up a factor of 1.012. On the other hand, target group -> 0.00240
+static const Double_t ld2uwallthick = 0.0145; //cm, assume same as hydrogen for now
+static const Double_t ld2dwallthick = 0.015;  //cm, assume same as hydrogen for now
 
 
 
@@ -131,7 +131,7 @@ struct JobSummary {
 };
 
 
-void dxdy_g4sbs_v2(int entries_input = -1, TString configfileinput="sbs4_30p_inel"){//main
+void dxdy_g4sbs_v2(int entries_input = -1, TString configfileinput="sbs4_30p_g4sbs_inel"){//main
   
   gStyle->SetNumberContours(255); 
 
@@ -336,8 +336,8 @@ void dxdy_g4sbs_v2(int entries_input = -1, TString configfileinput="sbs4_30p_ine
     }
   else if (nucleon == "i")
     {
-       std::cout<<"doing inelastic"<<std::endl;
-       M_N = (M_n + M_p)/2;
+      std::cout<<"doing inelastic"<<std::endl;
+      M_N = (M_n + M_p)/2;
       is_neutron =0;
       is_proton =0;
     }
@@ -937,7 +937,7 @@ void dxdy_g4sbs_v2(int entries_input = -1, TString configfileinput="sbs4_30p_ine
 
   
 
-     double corrected_weight = mc_sigma * generation_volume * luminosity / Ntried_sum;
+    double corrected_weight = mc_sigma * generation_volume * luminosity / Ntried_sum;
 
 
     h_xy_HCAL ->Fill(HCALy, HCALx,corrected_weight);
@@ -1227,45 +1227,45 @@ void dxdy_g4sbs_v2(int entries_input = -1, TString configfileinput="sbs4_30p_ine
 
 
  // Establish hcal active area excluding N blks from edge, Pass0/1 DB
-  std::vector<Double_t> hcalaa_data(int exblkN_x=1, int exblkN_y=1) {
-    std::vector<Double_t> hcalaa;
-    Double_t hcalaaXi = hcalposXi + exblkN_x*hcalblk_w;
-    Double_t hcalaaXf = hcalposXf - exblkN_x*hcalblk_w;
-    Double_t hcalaaYi = hcalposYi + exblkN_y*hcalblk_h;
-    Double_t hcalaaYf = hcalposYf - exblkN_y*hcalblk_h;
-    hcalaa.push_back( hcalaaXi ); 
-    hcalaa.push_back( hcalaaXf );
-    hcalaa.push_back( hcalaaYi );
-    hcalaa.push_back( hcalaaYf );
-    return hcalaa;
-  }
+std::vector<Double_t> hcalaa_data(int exblkN_x=1, int exblkN_y=1) {
+  std::vector<Double_t> hcalaa;
+  Double_t hcalaaXi = hcalposXi + exblkN_x*hcalblk_w;
+  Double_t hcalaaXf = hcalposXf - exblkN_x*hcalblk_w;
+  Double_t hcalaaYi = hcalposYi + exblkN_y*hcalblk_h;
+  Double_t hcalaaYf = hcalposYf - exblkN_y*hcalblk_h;
+  hcalaa.push_back( hcalaaXi ); 
+  hcalaa.push_back( hcalaaXf );
+  hcalaa.push_back( hcalaaYi );
+  hcalaa.push_back( hcalaaYf );
+  return hcalaa;
+}
 
- // Check position per event against hcal active area (TRUE if detection on active area)
-  bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa) {
-    bool on = false;
-    // active area dimensions
-    Double_t hcalx_t = hcalaa[0];
-    Double_t hcalx_b = hcalaa[1];
-    Double_t hcaly_r = hcalaa[2];
-    Double_t hcaly_l = hcalaa[3];
-    on = hcaly>hcaly_r && hcaly<hcaly_l && hcalx>hcalx_t && hcalx<hcalx_b;
-    return on;
-  } 
+// Check position per event against hcal active area (TRUE if detection on active area)
+bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa) {
+  bool on = false;
+  // active area dimensions
+  Double_t hcalx_t = hcalaa[0];
+  Double_t hcalx_b = hcalaa[1];
+  Double_t hcaly_r = hcalaa[2];
+  Double_t hcaly_l = hcalaa[3];
+  on = hcaly>hcaly_r && hcaly<hcaly_l && hcalx>hcalx_t && hcalx<hcalx_b;
+  return on;
+} 
 
 
 // Overload for most cases where dy margin negligable and dx top/bottom configurable by p/n
-  std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa) {
-    std::vector<Double_t> fid;
-    Double_t hcalx_t = hcalaa[0] + dxsig_p;  // top margin (relevant for proton)
-    Double_t hcalx_b = hcalaa[1] - dxsig_n;  // bottom margin (relevant for neutron)
-    Double_t hcaly_r = hcalaa[2] + dysig;    // right margin
-    Double_t hcaly_l = hcalaa[3] - dysig;    // left margin
-    fid.push_back( hcalx_t ); 
-    fid.push_back( hcalx_b );
-    fid.push_back( hcaly_r );
-    fid.push_back( hcaly_l );
-    return fid;
-  }
+std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa) {
+  std::vector<Double_t> fid;
+  Double_t hcalx_t = hcalaa[0] + dxsig_p;  // top margin (relevant for proton)
+  Double_t hcalx_b = hcalaa[1] - dxsig_n;  // bottom margin (relevant for neutron)
+  Double_t hcaly_r = hcalaa[2] + dysig;    // right margin
+  Double_t hcaly_l = hcalaa[3] - dysig;    // left margin
+  fid.push_back( hcalx_t ); 
+  fid.push_back( hcalx_b );
+  fid.push_back( hcaly_r );
+  fid.push_back( hcaly_l );
+  return fid;
+}
 
 
 Double_t calculate_nsigma_fid_y(Double_t hcaly_exp,Double_t dysig, std::vector<Double_t> hcalaa)
@@ -1297,26 +1297,26 @@ Double_t calculate_nsigma_fid_x(Double_t hcalx_exp,Double_t dxsig_n, Double_t dx
   Double_t hcalaa_t = hcalaa[0]; // about -2.5 for 1 block aa cut
   Double_t hcalaa_b = hcalaa[1] ;// about 1.0 for 1 block aa cut 
   
-   Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
+  Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
 
-// goal: how many sigma away from each active area boundary is the expected value?
+  // goal: how many sigma away from each active area boundary is the expected value?
   // Also want to incorporate information on if it is on the wrong side of the boundary: ie allow for negative values. 
-   // example: say hcalx_exp = 0.1
-   Double_t distance_to_top_x_aa_n = hcalx_exp - hcalaa_t; // 0.1 - (-2.5) = 2.6. So it is 2.6 away from the top active area boundary.
-   Double_t distance_to_top_x_aa_p = hcalx_exp_p - hcalaa_t; // proton hypothesis 
-   Double_t nsigma_top_n = distance_to_top_x_aa_n / dxsig_p; // express in terms of how many dxsig_p that is. 
-   Double_t nsigma_top_p = distance_to_top_x_aa_p / dxsig_p;// proton hypotheis. 
-   /// what if outside the aa boundary? say hcalx_exp = -2.6:  -2.6 - (-2.5) = -0.1. The sign shows it's outside the boundary. 
+  // example: say hcalx_exp = 0.1
+  Double_t distance_to_top_x_aa_n = hcalx_exp - hcalaa_t; // 0.1 - (-2.5) = 2.6. So it is 2.6 away from the top active area boundary.
+  Double_t distance_to_top_x_aa_p = hcalx_exp_p - hcalaa_t; // proton hypothesis 
+  Double_t nsigma_top_n = distance_to_top_x_aa_n / dxsig_p; // express in terms of how many dxsig_p that is. 
+  Double_t nsigma_top_p = distance_to_top_x_aa_p / dxsig_p;// proton hypotheis. 
+  /// what if outside the aa boundary? say hcalx_exp = -2.6:  -2.6 - (-2.5) = -0.1. The sign shows it's outside the boundary. 
 
-   Double_t distance_to_bottom_x_aa_n = hcalaa_b - hcalx_exp; // 1.0 - 0.1 = 0.9. So it is 0.9 away from the bottom active area boundary.
-   Double_t distance_to_bottom_x_aa_p = hcalaa_b - hcalx_exp_p; // proton hypothesis.
-   Double_t nsigma_bottom_n = distance_to_bottom_x_aa_n / dxsig_n; // express in terms of how many dxsig_n that is. 
-   Double_t nsigma_bottom_p = distance_to_bottom_x_aa_p / dxsig_n;// proton hypotheis. 
-   /// what if outside the aa boundary? say hcalx_exp = 2.0:  1.0 - 2.0  = -1. The sign shows it's outside the boundary. 
+  Double_t distance_to_bottom_x_aa_n = hcalaa_b - hcalx_exp; // 1.0 - 0.1 = 0.9. So it is 0.9 away from the bottom active area boundary.
+  Double_t distance_to_bottom_x_aa_p = hcalaa_b - hcalx_exp_p; // proton hypothesis.
+  Double_t nsigma_bottom_n = distance_to_bottom_x_aa_n / dxsig_n; // express in terms of how many dxsig_n that is. 
+  Double_t nsigma_bottom_p = distance_to_bottom_x_aa_p / dxsig_n;// proton hypotheis. 
+  /// what if outside the aa boundary? say hcalx_exp = 2.0:  1.0 - 2.0  = -1. The sign shows it's outside the boundary. 
 
 
-   //cout<< "hcalaa_t = "<< hcalaa_t << " , hcalyaa_b = "<< hcalaa_b<< " , hcalx_exp = " <<hcalx_exp<<" , hcalx_exp_p = " <<hcalx_exp_p<<endl;
-   //cout << "nsigma_bottom_n= "<<nsigma_bottom_n<<" nsigma_bottom_p, = "<<nsigma_bottom_p << " nsigma_top_n = "<<nsigma_top_n<<" , nsigma_top_p = "<<nsigma_top_p<<endl;
+  //cout<< "hcalaa_t = "<< hcalaa_t << " , hcalyaa_b = "<< hcalaa_b<< " , hcalx_exp = " <<hcalx_exp<<" , hcalx_exp_p = " <<hcalx_exp_p<<endl;
+  //cout << "nsigma_bottom_n= "<<nsigma_bottom_n<<" nsigma_bottom_p, = "<<nsigma_bottom_p << " nsigma_top_n = "<<nsigma_top_n<<" , nsigma_top_p = "<<nsigma_top_p<<endl;
 
   return std::min({nsigma_bottom_n, nsigma_bottom_p ,nsigma_top_n,nsigma_top_p});
 }
@@ -1324,34 +1324,34 @@ Double_t calculate_nsigma_fid_x(Double_t hcalx_exp,Double_t dxsig_n, Double_t dx
 
 
 
-  // Check position by event and verify in hcal fiducial area
-  bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid) {
-    Double_t hcalx_t = fid[0];
-    Double_t hcalx_b = fid[1];
-    Double_t hcaly_r = fid[2];
-    Double_t hcaly_l = fid[3];
+// Check position by event and verify in hcal fiducial area
+bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid) {
+  Double_t hcalx_t = fid[0];
+  Double_t hcalx_b = fid[1];
+  Double_t hcaly_r = fid[2];
+  Double_t hcaly_l = fid[3];
 
-    Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
+  Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
 
-    bool infid = hcaly_exp>hcaly_r && hcaly_exp<hcaly_l &&      //dy same for protons and neutrons
-	         hcalx_exp>hcalx_t && hcalx_exp<hcalx_b &&      //dx for neutrons
-	         hcalx_exp_p>hcalx_t && hcalx_exp_p<hcalx_b;	//dx for protons							     
-    return infid;
-  } 
+  bool infid = hcaly_exp>hcaly_r && hcaly_exp<hcaly_l &&      //dy same for protons and neutrons
+					      hcalx_exp>hcalx_t && hcalx_exp<hcalx_b &&      //dx for neutrons
+									     hcalx_exp_p>hcalx_t && hcalx_exp_p<hcalx_b;	//dx for protons							     
+  return infid;
+} 
 
 
- // Establish hcal active area excluding N blks from edge, MC DB
-  std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1) {
-    std::vector<Double_t> hcalaa;
-    Double_t hcalaaXi = hcalposXi_mc + exblkN_x*hcalblk_div_v;
-    Double_t hcalaaXf = hcalposXf_mc - exblkN_x*hcalblk_div_v;
-    Double_t hcalaaYi = hcalposYi_mc + exblkN_y*hcalblk_div_h;
-    Double_t hcalaaYf = hcalposYf_mc - exblkN_y*hcalblk_div_h;
-    hcalaa.push_back( hcalaaXi ); 
-    hcalaa.push_back( hcalaaXf );
-    hcalaa.push_back( hcalaaYi );
-    hcalaa.push_back( hcalaaYf );
-    return hcalaa;
-  }
+// Establish hcal active area excluding N blks from edge, MC DB
+std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1) {
+  std::vector<Double_t> hcalaa;
+  Double_t hcalaaXi = hcalposXi_mc + exblkN_x*hcalblk_div_v;
+  Double_t hcalaaXf = hcalposXf_mc - exblkN_x*hcalblk_div_v;
+  Double_t hcalaaYi = hcalposYi_mc + exblkN_y*hcalblk_div_h;
+  Double_t hcalaaYf = hcalposYf_mc - exblkN_y*hcalblk_div_h;
+  hcalaa.push_back( hcalaaXi ); 
+  hcalaa.push_back( hcalaaXf );
+  hcalaa.push_back( hcalaaYi );
+  hcalaa.push_back( hcalaaYf );
+  return hcalaa;
+}
 
 

@@ -79,14 +79,19 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   std::string HCal_Shower_atime_CutString= "abs(hcal_sh_atime_diff)<10";
   std::string HCal_Shower_atime_anticut_CutString= "(abs(hcal_sh_atime_diff)>=10||passed_atime_cuts==0)";
   std::string HCal_Energy_CutString = "hcal_e>0.01";
+  std::string GRINCH_CutString = "bb_grinch_clus_size>=3";
   std::string Optics_CutString = "abs(bb_tr_r_x-bb_tr_r_th*0.9)<0.3";
   std::string ProtonSpot_CutString ="pow((hcal_dx+0.71)/0.21,2)+pow(hcal_dy/0.3,2)<=1";
   std::string NeutronSpot_CutString="pow(hcal_dx/0.20,2)+pow(hcal_dy/0.3,2)<=1";
+  std::string GRINCH_trackmatch = "bb_grinch_clus_trackindex ==0";
+  std::string GRINCH_antitrackmatch = "bb_grinch_clus_trackindex !=0";
+  std::string GRINCH_clus_size_cut = "bb_grinch_clus_size >1";
   // data vs sim
   std::string is_data_CutString = "is_hydrogen==1||is_deuterium==1";
   std::string is_simulation_CutString = "is_proton==1||is_neutron==1";
   std::string is_proton_CutString= "is_proton==1";
   std::string is_neutron_CutString= "is_neutron==1";
+  
 
 
   ifstream configfile(configfilename);
@@ -160,6 +165,11 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
         HCal_Energy_CutString= sval.Data();
 	cout << "Loading HCal_Energy_CutString: " << HCal_Energy_CutString<< endl;
+      }
+      if( skey == "GRINCH_CutString" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        GRINCH_CutString= sval.Data();
+	cout << "Loading GRINCH_CutString: " << GRINCH_CutString<< endl;
       }
       if( skey == "HCal_Shower_atime_CutString" ){
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
@@ -278,7 +288,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   /// preshower vs dx study
   std::string ps_e_study_string =  TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&" + dyCutString +"&&" + Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_ps_e>>hcal_dx__ps_e(200, 0, 2, 800, -4, 4)", ps_e_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:bb_ps_e>>hcal_dx__ps_e(200, 0, 2, 400, -4, 4)", ps_e_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__ps_e = (TH2D*)gDirectory->Get("hcal_dx__ps_e");
   if (hcal_dx__ps_e) {
@@ -300,7 +310,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   /// target vertex vs dx study
   std::string target_vertex_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&" +W2CutString+ "&&"+FidXCutString +"&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" + Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_vz>>hcal_dx__tr_vz(200, -0.1, 0.1, 800, -4, 4)", target_vertex_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:bb_tr_vz>>hcal_dx__tr_vz(200, -0.1, 0.1, 400, -4, 4)", target_vertex_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__tr_vz = (TH2D*)gDirectory->Get("hcal_dx__tr_vz");
   if (hcal_dx__tr_vz) {
@@ -334,7 +344,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   // fiducial x vs dx 
   std::string FidX_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:nsigx_fid>>hcal_dx__nsigx_fid(200, -10, 10, 800, -4, 4)",FidX_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:nsigx_fid>>hcal_dx__nsigx_fid(200, -10, 10, 400, -4, 4)",FidX_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__nsigx_fid= (TH2D*)gDirectory->Get("hcal_dx__nsigx_fid");
   if (hcal_dx__nsigx_fid) {
@@ -358,7 +368,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   /// fiducial y vs dx 
   std::string FidY_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString + "&&"+dyCutString+"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:nsigy_fid>>hcal_dx__nsigy_fid(50, -1, 4, 800, -4, 4)", FidY_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:nsigy_fid>>hcal_dx__nsigy_fid(50, -1, 4, 400, -4, 4)", FidY_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__nsigy_fid= (TH2D*)gDirectory->Get("hcal_dx__nsigy_fid");
   if (hcal_dx__nsigy_fid) {
@@ -378,10 +388,10 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
-// hcal_x vs dx 
+  // hcal_x vs dx 
   std::string hcal_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_x>>hcal_dx__hcal_x(450, -3, 1.5, 800, -4, 4)",hcal_x_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_x>>hcal_dx__hcal_x(450, -3, 1.5, 400, -4, 4)",hcal_x_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_x= (TH2D*)gDirectory->Get("hcal_dx__hcal_x");
   if (hcal_dx__hcal_x) {
@@ -400,10 +410,10 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     W2__hcal_x->SetYTitle("W2");
   }
 
-// hcal_x_exp vs dx 
+  // hcal_x_exp vs dx 
   std::string hcal_x_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidYCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_x_exp>>hcal_dx__hcal_x_exp(450, -2, 2.5, 800, -4, 4)",hcal_x_exp_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_x_exp>>hcal_dx__hcal_x_exp(450, -2, 2.5, 400, -4, 4)",hcal_x_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_x_exp= (TH2D*)gDirectory->Get("hcal_dx__hcal_x_exp");
   if (hcal_dx__hcal_x_exp) {
@@ -447,10 +457,10 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
-// hcal_y vs dx 
+  // hcal_y vs dx 
   std::string hcal_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_y>>hcal_dx__hcal_y(200, -1, 1, 800, -4, 4)",hcal_y_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_y>>hcal_dx__hcal_y(200, -1, 1, 400, -4, 4)",hcal_y_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_y= (TH2D*)gDirectory->Get("hcal_dx__hcal_y");
   if (hcal_dx__hcal_y) {
@@ -471,10 +481,10 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
 
 
 
-// hcal_y_exp vs dx 
-  std::string hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  // hcal_y_exp vs dx 
+  std::string hcal_y_exp_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+e_over_p_CutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_y_exp>>hcal_dx__hcal_y_exp(200, -1, 1, 800, -4, 4)",hcal_y_exp_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_y_exp>>hcal_dx__hcal_y_exp(200, -1, 1, 400, -4, 4)",hcal_y_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_y_exp= (TH2D*)gDirectory->Get("hcal_dx__hcal_y_exp");
   if (hcal_dx__hcal_y_exp) {
@@ -497,7 +507,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   // e/p vs dx 
   std::string e_over_p_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString + "&&"+ HCal_Energy_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+ HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:e_over_p>>hcal_dx__e_over_p(400, -1, 3, 800, -4, 4)", e_over_p_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:e_over_p>>hcal_dx__e_over_p(400, -1, 3, 400, -4, 4)", e_over_p_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__e_over_p= (TH2D*)gDirectory->Get("hcal_dx__e_over_p");
   if (hcal_dx__e_over_p) {
@@ -520,7 +530,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   /// hcal energy vs dx 
   std::string hcal_e_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_e>>hcal_dx__hcal_e(2000, 0, 2, 800, -4, 4)", hcal_e_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_e>>hcal_dx__hcal_e(2000, 0, 2, 400, -4, 4)", hcal_e_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_e= (TH2D*)gDirectory->Get("hcal_dx__hcal_e");
   if (hcal_dx__hcal_e) {
@@ -540,11 +550,789 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
+  // Marker for start of GRINCH Section. With track matching. 
+
+
+  /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string_trackmatch = GRINCH_trackmatch+"&&"+EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size_trackmatch(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size_trackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size_trackmatch");
+  if (hcal_dx__grinch_clus_size_trackmatch) {
+    hcal_dx__grinch_clus_size_trackmatch->SetXTitle("bb_grinch_clus_size_trackmatch");
+    hcal_dx__grinch_clus_size_trackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string_trackmatch =GRINCH_trackmatch+"&&"+ EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString  + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size_trackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size_trackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_size_trackmatch");
+  if (W2__grinch_clus_size_trackmatch) {
+    W2__grinch_clus_size_trackmatch->SetXTitle("bb_grinch_clus_size_trackmatch");
+    W2__grinch_clus_size_trackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string_trackmatch = GRINCH_trackmatch+"&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString +"&&" +W2CutString+ "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size_trackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size_trackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size_trackmatch");
+  if (ps_e__grinch_clus_size_trackmatch) {
+    ps_e__grinch_clus_size_trackmatch->SetXTitle("bb_grinch_clus_size_trackmatch");
+    ps_e__grinch_clus_size_trackmatch->SetYTitle("ps_e");
+  }
+
+
+    /// grinch clus size vs track p
+  std::string grinch_clus_size_tr_p_study_string_trackmatch = GRINCH_trackmatch+"&&"+  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString+"&&" +W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size_trackmatch(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size_trackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size_trackmatch");
+  if (tr_p__grinch_clus_size_trackmatch) {
+    tr_p__grinch_clus_size_trackmatch->SetXTitle("bb_grinch_clus_size_trackmatch");
+    tr_p__grinch_clus_size_trackmatch->SetYTitle("tr_p");
+  }
+
+  /// grinch clus size vs e over p
+  std::string grinch_clus_size_e_over_p_study_string_trackmatch = GRINCH_trackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString+"&&" +W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size_trackmatch(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size_trackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size_trackmatch");
+  if (e_over_p__grinch_clus_size_trackmatch) {
+    e_over_p__grinch_clus_size_trackmatch->SetXTitle("bb_grinch_clus_size_trackmatch");
+    e_over_p__grinch_clus_size_trackmatch->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string_trackmatch = GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc_trackmatch(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc_trackmatch");
+  if (hcal_dx__grinch_clus_adc_trackmatch) {
+    hcal_dx__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    hcal_dx__grinch_clus_adc_trackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string_trackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+ EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc_trackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_adc_trackmatch");
+  if (W2__grinch_clus_adc_trackmatch) {
+    W2__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    W2__grinch_clus_adc_trackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string_trackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+  TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc_trackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc_trackmatch");
+  if (ps_e__grinch_clus_adc_trackmatch) {
+    ps_e__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    ps_e__grinch_clus_adc_trackmatch->SetYTitle("ps_e");
+  }
+
+  /// grinch clus adc vs track p
+  std::string grinch_clus_adc_tr_p_study_string_trackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_trackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc_trackmatch(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc_trackmatch");
+  if (tr_p__grinch_clus_adc_trackmatch) {
+    tr_p__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    tr_p__grinch_clus_adc_trackmatch->SetYTitle("tr_p");
+  }
+
+  /// grinch clus adc vs e over p
+  std::string grinch_clus_adc_e_over_p_study_string_trackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_trackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc_trackmatch(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc_trackmatch");
+  if (e_over_p__grinch_clus_adc_trackmatch) {
+    e_over_p__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    e_over_p__grinch_clus_adc_trackmatch->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string_trackmatch = GRINCH_trackmatch+"&&"+ TrackQualityCutString+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch= (TH2D*)gDirectory->Get("grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch");
+  if (grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch) {
+    grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch->SetXTitle("bb_grinch_clus_adc_trackmatch");
+    grinch_clus_size_trackmatch__grinch_clus_adc_trackmatch->SetYTitle("bb_grinch_clus_size_trackmatch");
+  }
+  
+
+  // no cuts
+  /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string_nocuts_trackmatch =GRINCH_trackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+ TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size_nocuts_trackmatch(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size_nocuts_trackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size_nocuts_trackmatch");
+  if (hcal_dx__grinch_clus_size_nocuts_trackmatch) {
+    hcal_dx__grinch_clus_size_nocuts_trackmatch->SetXTitle("bb_grinch_clus_size");
+    hcal_dx__grinch_clus_size_nocuts_trackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string_nocuts_trackmatch = GRINCH_trackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size_nocuts_trackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size_nocuts_trackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_size_nocuts_trackmatch");
+  if (W2__grinch_clus_size_nocuts_trackmatch) {
+    W2__grinch_clus_size_nocuts_trackmatch->SetXTitle("bb_grinch_clus_size");
+    W2__grinch_clus_size_nocuts_trackmatch->SetYTitle("W2");
+  }
+
+  //no cuts
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string_nocuts_trackmatch = GRINCH_trackmatch+"&&"+TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size_nocuts_trackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size_nocuts_trackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size_nocuts_trackmatch");
+  if (ps_e__grinch_clus_size_nocuts_trackmatch) {
+    ps_e__grinch_clus_size_nocuts_trackmatch->SetXTitle("bb_grinch_clus_size");
+    ps_e__grinch_clus_size_nocuts_trackmatch->SetYTitle("ps_e");
+  }
+
+ /// grinch clus size vs track p nocuts_trackmatch
+  std::string grinch_clus_size_tr_p_study_string_nocuts_trackmatch = GRINCH_trackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size_nocuts_trackmatch(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size_nocuts_trackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size_nocuts_trackmatch");
+  if (tr_p__grinch_clus_size_nocuts_trackmatch) {
+    tr_p__grinch_clus_size_nocuts_trackmatch->SetXTitle("bb_grinch_clus_size_nocuts_trackmatch");
+    tr_p__grinch_clus_size_nocuts_trackmatch->SetYTitle("tr_p_nocuts_trackmatch");
+  }
+
+  /// grinch clus size vs e over p nocuts
+  std::string grinch_clus_size_e_over_p_study_string_nocuts_trackmatch = GRINCH_trackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size_nocuts_trackmatch(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size_nocuts_trackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size_nocuts_trackmatch");
+  if (e_over_p__grinch_clus_size_nocuts_trackmatch) {
+    e_over_p__grinch_clus_size_nocuts_trackmatch->SetXTitle("bb_grinch_clus_size_nocuts_trackmatch");
+    e_over_p__grinch_clus_size_nocuts_trackmatch->SetYTitle("e_over_p_nocuts_trackmatch");
+  }
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string_nocuts_trackmatch = GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc_nocuts_trackmatch");
+  if (hcal_dx__grinch_clus_adc_nocuts_trackmatch) {
+    hcal_dx__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc");
+    hcal_dx__grinch_clus_adc_nocuts_trackmatch->SetYTitle("hcal_dx");
+  }
+
+  // no cuts 
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string_nocuts_trackmatch = GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+TrackQualityCutString;// + "&&"+ EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_adc_nocuts_trackmatch");
+  if (W2__grinch_clus_adc_nocuts_trackmatch) {
+    W2__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc");
+    W2__grinch_clus_adc_nocuts_trackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs track p nocuts_trackmatch
+  std::string grinch_clus_adc_tr_p_study_string_nocuts_trackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_trackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc_nocuts_trackmatch");
+  if (tr_p__grinch_clus_adc_nocuts_trackmatch) {
+    tr_p__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc_nocuts_trackmatch");
+    tr_p__grinch_clus_adc_nocuts_trackmatch->SetYTitle("tr_p_nocuts_trackmatch");
+  }
+
+  /// grinch clus adc vs e over p nocuts_trackmatch
+  std::string grinch_clus_adc_e_over_p_study_string_nocuts_trackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_trackmatch+"&&"+  TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc_nocuts_trackmatch");
+  if (e_over_p__grinch_clus_adc_nocuts_trackmatch) {
+    e_over_p__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc_nocuts_trackmatch");
+    e_over_p__grinch_clus_adc_nocuts_trackmatch->SetYTitle("e_over_p_nocuts_trackmatch");
+  }
+
+  // no cuts
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string_nocuts_trackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_trackmatch+"&&"+ TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc_nocuts_trackmatch");
+  if (ps_e__grinch_clus_adc_nocuts_trackmatch) {
+    ps_e__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc");
+    ps_e__grinch_clus_adc_nocuts_trackmatch->SetYTitle("ps_e");
+  }
+
+
+  // no cuts
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string_nocuts_trackmatch = GRINCH_trackmatch+"&&"+ TrackQualityCutString;//+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size__grinch_clus_adc_nocuts_trackmatch(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string_nocuts_trackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size__grinch_clus_adc_nocuts_trackmatch= (TH2D*)gDirectory->Get("grinch_clus_size__grinch_clus_adc_nocuts_trackmatch");
+  if (grinch_clus_size__grinch_clus_adc_nocuts_trackmatch) {
+    grinch_clus_size__grinch_clus_adc_nocuts_trackmatch->SetXTitle("bb_grinch_clus_adc");
+    grinch_clus_size__grinch_clus_adc_nocuts_trackmatch->SetYTitle("bb_grinch_clus_size");
+  }
+  
+  /// Marker for end of  track-matching grinch secion 
+
+  // Marker for the start of GRINCH with no track matching
+    /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size");
+  if (hcal_dx__grinch_clus_size) {
+    hcal_dx__grinch_clus_size->SetXTitle("bb_grinch_clus_size");
+    hcal_dx__grinch_clus_size->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size= (TH2D*)gDirectory->Get("W2__grinch_clus_size");
+  if (W2__grinch_clus_size) {
+    W2__grinch_clus_size->SetXTitle("bb_grinch_clus_size");
+    W2__grinch_clus_size->SetYTitle("W2");
+  }
+
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string = TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size");
+  if (ps_e__grinch_clus_size) {
+    ps_e__grinch_clus_size->SetXTitle("bb_grinch_clus_size");
+    ps_e__grinch_clus_size->SetYTitle("ps_e");
+  }
+
+
+    /// grinch clus size vs track p
+  std::string grinch_clus_size_tr_p_study_string =  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size");
+  if (tr_p__grinch_clus_size) {
+    tr_p__grinch_clus_size->SetXTitle("bb_grinch_clus_size");
+    tr_p__grinch_clus_size->SetYTitle("tr_p");
+  }
+
+  /// grinch clus size vs e over p
+  std::string grinch_clus_size_e_over_p_study_string =  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size");
+  if (e_over_p__grinch_clus_size) {
+    e_over_p__grinch_clus_size->SetXTitle("bb_grinch_clus_size");
+    e_over_p__grinch_clus_size->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string =GRINCH_clus_size_cut +"&&"+  EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc");
+  if (hcal_dx__grinch_clus_adc) {
+    hcal_dx__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    hcal_dx__grinch_clus_adc->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string = GRINCH_clus_size_cut +"&&"+ EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc= (TH2D*)gDirectory->Get("W2__grinch_clus_adc");
+  if (W2__grinch_clus_adc) {
+    W2__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    W2__grinch_clus_adc->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc");
+  if (ps_e__grinch_clus_adc) {
+    ps_e__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    ps_e__grinch_clus_adc->SetYTitle("ps_e");
+  }
+
+  /// grinch clus adc vs track p
+  std::string grinch_clus_adc_tr_p_study_string = GRINCH_clus_size_cut +"&&"+  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc");
+  if (tr_p__grinch_clus_adc) {
+    tr_p__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    tr_p__grinch_clus_adc->SetYTitle("tr_p");
+  }
+
+  /// grinch clus adc vs e over p
+  std::string grinch_clus_adc_e_over_p_study_string = GRINCH_clus_size_cut +"&&"+  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc");
+  if (e_over_p__grinch_clus_adc) {
+    e_over_p__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    e_over_p__grinch_clus_adc->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string =  TrackQualityCutString+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size__grinch_clus_adc(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size__grinch_clus_adc= (TH2D*)gDirectory->Get("grinch_clus_size__grinch_clus_adc");
+  if (grinch_clus_size__grinch_clus_adc) {
+    grinch_clus_size__grinch_clus_adc->SetXTitle("bb_grinch_clus_adc");
+    grinch_clus_size__grinch_clus_adc->SetYTitle("bb_grinch_clus_size");
+  }
+  
+
+  // no cuts
+  /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string_nocuts =TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+ TargetVertexCutString + "&&" + W2CutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size_nocuts(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size_nocuts= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size_nocuts");
+  if (hcal_dx__grinch_clus_size_nocuts) {
+    hcal_dx__grinch_clus_size_nocuts->SetXTitle("bb_grinch_clus_size");
+    hcal_dx__grinch_clus_size_nocuts->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string_nocuts = TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size_nocuts(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size_nocuts= (TH2D*)gDirectory->Get("W2__grinch_clus_size_nocuts");
+  if (W2__grinch_clus_size_nocuts) {
+    W2__grinch_clus_size_nocuts->SetXTitle("bb_grinch_clus_size");
+    W2__grinch_clus_size_nocuts->SetYTitle("W2");
+  }
+
+  //no cuts
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string_nocuts = TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size_nocuts(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size_nocuts= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size_nocuts");
+  if (ps_e__grinch_clus_size_nocuts) {
+    ps_e__grinch_clus_size_nocuts->SetXTitle("bb_grinch_clus_size");
+    ps_e__grinch_clus_size_nocuts->SetYTitle("ps_e");
+  }
+
+ /// grinch clus size vs track p _nocuts
+  std::string grinch_clus_size_tr_p_study_string_nocuts = TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size_nocuts(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size_nocuts= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size_nocuts");
+  if (tr_p__grinch_clus_size_nocuts) {
+    tr_p__grinch_clus_size_nocuts->SetXTitle("bb_grinch_clus_size_nocuts");
+    tr_p__grinch_clus_size_nocuts->SetYTitle("tr_p_nocuts");
+  }
+
+  /// grinch clus size vs e over p nocuts
+  std::string grinch_clus_size_e_over_p_study_string_nocuts =  TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size_nocuts(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size_nocuts= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size_nocuts");
+  if (e_over_p__grinch_clus_size_nocuts) {
+    e_over_p__grinch_clus_size_nocuts->SetXTitle("bb_grinch_clus_size_nocuts");
+    e_over_p__grinch_clus_size_nocuts->SetYTitle("e_over_p_nocuts");
+  }
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string_nocuts = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc_nocuts(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc_nocuts");
+  if (hcal_dx__grinch_clus_adc_nocuts) {
+    hcal_dx__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc");
+    hcal_dx__grinch_clus_adc_nocuts->SetYTitle("hcal_dx");
+  }
+
+  // no cuts 
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string_nocuts =GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;// + "&&"+ EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc_nocuts(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("W2__grinch_clus_adc_nocuts");
+  if (W2__grinch_clus_adc_nocuts) {
+    W2__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc");
+    W2__grinch_clus_adc_nocuts->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs track p nocuts
+  std::string grinch_clus_adc_tr_p_study_string_nocuts = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc_nocuts(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc_nocuts");
+  if (tr_p__grinch_clus_adc_nocuts) {
+    tr_p__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc_nocuts");
+    tr_p__grinch_clus_adc_nocuts->SetYTitle("tr_p_nocuts");
+  }
+
+  /// grinch clus adc vs e over p nocuts
+  std::string grinch_clus_adc_e_over_p_study_string_nocuts = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc_nocuts(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc_nocuts");
+  if (e_over_p__grinch_clus_adc_nocuts) {
+    e_over_p__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc_nocuts");
+    e_over_p__grinch_clus_adc_nocuts->SetYTitle("e_over_p_nocuts");
+  }
+
+  // no cuts
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string_nocuts = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc_nocuts(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc_nocuts");
+  if (ps_e__grinch_clus_adc_nocuts) {
+    ps_e__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc");
+    ps_e__grinch_clus_adc_nocuts->SetYTitle("ps_e");
+  }
+
+
+  // no cuts
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string_nocuts = GRINCH_clus_size_cut +"&&"+  TrackQualityCutString;//+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size__grinch_clus_adc_nocuts(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string_nocuts.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size__grinch_clus_adc_nocuts= (TH2D*)gDirectory->Get("grinch_clus_size__grinch_clus_adc_nocuts");
+  if (grinch_clus_size__grinch_clus_adc_nocuts) {
+    grinch_clus_size__grinch_clus_adc_nocuts->SetXTitle("bb_grinch_clus_adc");
+    grinch_clus_size__grinch_clus_adc_nocuts->SetYTitle("bb_grinch_clus_size");
+  }
+  
+  /// Marker for end of no track matching grinch secion 
+
+  /// marker for the start of grinch anit track matching
+
+  
+  /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string_antitrackmatch = GRINCH_antitrackmatch+"&&"+EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size_antitrackmatch(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size_antitrackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size_antitrackmatch");
+  if (hcal_dx__grinch_clus_size_antitrackmatch) {
+    hcal_dx__grinch_clus_size_antitrackmatch->SetXTitle("bb_grinch_clus_size_antitrackmatch");
+    hcal_dx__grinch_clus_size_antitrackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string_antitrackmatch =GRINCH_antitrackmatch+"&&"+ EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size_antitrackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size_antitrackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_size_antitrackmatch");
+  if (W2__grinch_clus_size_antitrackmatch) {
+    W2__grinch_clus_size_antitrackmatch->SetXTitle("bb_grinch_clus_size_antitrackmatch");
+    W2__grinch_clus_size_antitrackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string_antitrackmatch = GRINCH_antitrackmatch+"&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size_antitrackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size_antitrackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size_antitrackmatch");
+  if (ps_e__grinch_clus_size_antitrackmatch) {
+    ps_e__grinch_clus_size_antitrackmatch->SetXTitle("bb_grinch_clus_size_antitrackmatch");
+    ps_e__grinch_clus_size_antitrackmatch->SetYTitle("ps_e");
+  }
+
+
+    /// grinch clus size vs track p
+  std::string grinch_clus_size_tr_p_study_string_antitrackmatch = GRINCH_antitrackmatch+"&&"+  EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size_antitrackmatch(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size_antitrackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size_antitrackmatch");
+  if (tr_p__grinch_clus_size_antitrackmatch) {
+    tr_p__grinch_clus_size_antitrackmatch->SetXTitle("bb_grinch_clus_size_antitrackmatch");
+    tr_p__grinch_clus_size_antitrackmatch->SetYTitle("tr_p");
+  }
+
+  /// grinch clus size vs e over p
+  std::string grinch_clus_size_e_over_p_study_string_antitrackmatch = GRINCH_antitrackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size_antitrackmatch(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size_antitrackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size_antitrackmatch");
+  if (e_over_p__grinch_clus_size_antitrackmatch) {
+    e_over_p__grinch_clus_size_antitrackmatch->SetXTitle("bb_grinch_clus_size_antitrackmatch");
+    e_over_p__grinch_clus_size_antitrackmatch->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_antitrackmatch+"&&"+EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc_antitrackmatch(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc_antitrackmatch");
+  if (hcal_dx__grinch_clus_adc_antitrackmatch) {
+    hcal_dx__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    hcal_dx__grinch_clus_adc_antitrackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+ EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc_antitrackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_adc_antitrackmatch");
+  if (W2__grinch_clus_adc_antitrackmatch) {
+    W2__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    W2__grinch_clus_adc_antitrackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+  TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc_antitrackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc_antitrackmatch");
+  if (ps_e__grinch_clus_adc_antitrackmatch) {
+    ps_e__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    ps_e__grinch_clus_adc_antitrackmatch->SetYTitle("ps_e");
+  }
+
+  /// grinch clus adc vs track p
+  std::string grinch_clus_adc_tr_p_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_antitrackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc_antitrackmatch(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc_antitrackmatch");
+  if (tr_p__grinch_clus_adc_antitrackmatch) {
+    tr_p__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    tr_p__grinch_clus_adc_antitrackmatch->SetYTitle("tr_p");
+  }
+
+  /// grinch clus adc vs e over p
+  std::string grinch_clus_adc_e_over_p_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_antitrackmatch+"&&"+ EnergyCutString + "&&"+TrackQualityCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc_antitrackmatch(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc_antitrackmatch");
+  if (e_over_p__grinch_clus_adc_antitrackmatch) {
+    e_over_p__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    e_over_p__grinch_clus_adc_antitrackmatch->SetYTitle("e_over_p");
+  }
+
+  
+
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string_antitrackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_antitrackmatch+"&&"+ TrackQualityCutString+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch= (TH2D*)gDirectory->Get("grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch");
+  if (grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch) {
+    grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch->SetXTitle("bb_grinch_clus_adc_antitrackmatch");
+    grinch_clus_size_antitrackmatch__grinch_clus_adc_antitrackmatch->SetYTitle("bb_grinch_clus_size_antitrackmatch");
+  }
+  
+
+  // no cuts
+  /// GRINCH clus size vs dx 
+  std::string grinch_clus_size_study_string_nocuts_antitrackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+ TargetVertexCutString + "&&" + W2CutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_size>>hcal_dx__grinch_clus_size_nocuts_antitrackmatch(50, 0, 50, 400, -4, 4)", grinch_clus_size_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_size_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_size_nocuts_antitrackmatch");
+  if (hcal_dx__grinch_clus_size_nocuts_antitrackmatch) {
+    hcal_dx__grinch_clus_size_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_size");
+    hcal_dx__grinch_clus_size_nocuts_antitrackmatch->SetYTitle("hcal_dx");
+  }
+
+  /// grinch clus size vs W2
+  std::string grinch_clus_size_W2_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_size>>W2__grinch_clus_size_nocuts_antitrackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_W2_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_size_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_size_nocuts_antitrackmatch");
+  if (W2__grinch_clus_size_nocuts_antitrackmatch) {
+    W2__grinch_clus_size_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_size");
+    W2__grinch_clus_size_nocuts_antitrackmatch->SetYTitle("W2");
+  }
+
+  //no cuts
+  /// grinch clus size vs ps_e
+  std::string grinch_clus_size_ps_e_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_size>>ps_e__grinch_clus_size_nocuts_antitrackmatch(50, 0, 50, 300, 0, 3)", grinch_clus_size_ps_e_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_size_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_size_nocuts_antitrackmatch");
+  if (ps_e__grinch_clus_size_nocuts_antitrackmatch) {
+    ps_e__grinch_clus_size_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_size");
+    ps_e__grinch_clus_size_nocuts_antitrackmatch->SetYTitle("ps_e");
+  }
+
+ /// grinch clus size vs track p nocuts_antitrackmatch
+  std::string grinch_clus_size_tr_p_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_size>>tr_p__grinch_clus_size_nocuts_antitrackmatch(50, 0, 50, 600, 0, 6)", grinch_clus_size_tr_p_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_size_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_size_nocuts_antitrackmatch");
+  if (tr_p__grinch_clus_size_nocuts_antitrackmatch) {
+    tr_p__grinch_clus_size_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_size_nocuts_antitrackmatch");
+    tr_p__grinch_clus_size_nocuts_antitrackmatch->SetYTitle("tr_p_nocuts_antitrackmatch");
+  }
+
+  /// grinch clus size vs e over p nocuts
+  std::string grinch_clus_size_e_over_p_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_size>>e_over_p__grinch_clus_size_nocuts_antitrackmatch(50, 0, 50, 200, 0, 2)", grinch_clus_size_e_over_p_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_size_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_size_nocuts_antitrackmatch");
+  if (e_over_p__grinch_clus_size_nocuts_antitrackmatch) {
+    e_over_p__grinch_clus_size_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_size_nocuts_antitrackmatch");
+    e_over_p__grinch_clus_size_nocuts_antitrackmatch->SetYTitle("e_over_p_nocuts_antitrackmatch");
+  }
+  
+
+  /// GRINCH clus adc vs dx 
+  std::string grinch_clus_adc_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;// + "&&"+EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:bb_grinch_clus_adc>>hcal_dx__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 400, -4, 4)", grinch_clus_adc_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("hcal_dx__grinch_clus_adc_nocuts_antitrackmatch");
+  if (hcal_dx__grinch_clus_adc_nocuts_antitrackmatch) {
+    hcal_dx__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc");
+    hcal_dx__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("hcal_dx");
+  }
+
+  // no cuts 
+  /// grinch clus adc vs W2
+  std::string grinch_clus_adc_W2_study_string_nocuts_antitrackmatch = GRINCH_clus_size_cut +"&&"+ GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+TrackQualityCutString;// + "&&"+ EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("W2:bb_grinch_clus_adc>>W2__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_W2_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *W2__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("W2__grinch_clus_adc_nocuts_antitrackmatch");
+  if (W2__grinch_clus_adc_nocuts_antitrackmatch) {
+    W2__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc");
+    W2__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("W2");
+  }
+
+  /// grinch clus adc vs track p nocuts_antitrackmatch
+  std::string grinch_clus_adc_tr_p_study_string_nocuts_antitrackmatch =GRINCH_clus_size_cut +"&&"+  GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_tr_p:bb_grinch_clus_adc>>tr_p__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 600, 0, 6)", grinch_clus_adc_tr_p_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *tr_p__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("tr_p__grinch_clus_adc_nocuts_antitrackmatch");
+  if (tr_p__grinch_clus_adc_nocuts_antitrackmatch) {
+    tr_p__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc_nocuts_antitrackmatch");
+    tr_p__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("tr_p_nocuts_antitrackmatch");
+  }
+
+  /// grinch clus adc vs e over p nocuts_antitrackmatch
+  std::string grinch_clus_adc_e_over_p_study_string_nocuts_antitrackmatch =GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+  TrackQualityCutString;//EnergyCutString + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("e_over_p:bb_grinch_clus_adc>>e_over_p__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 200, 0, 2)", grinch_clus_adc_e_over_p_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *e_over_p__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("e_over_p__grinch_clus_adc_nocuts_antitrackmatch");
+  if (e_over_p__grinch_clus_adc_nocuts_antitrackmatch) {
+    e_over_p__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc_nocuts_antitrackmatch");
+    e_over_p__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("e_over_p_nocuts_antitrackmatch");
+  }
+
+  // no cuts
+  /// grinch clus adc vs ps_e
+  std::string grinch_clus_adc_ps_e_study_string_nocuts_antitrackmatch = GRINCH_clus_size_cut +"&&"+ GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;// + "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_ps_e:bb_grinch_clus_adc>>ps_e__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 300, 0, 3)", grinch_clus_adc_ps_e_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *ps_e__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("ps_e__grinch_clus_adc_nocuts_antitrackmatch");
+  if (ps_e__grinch_clus_adc_nocuts_antitrackmatch) {
+    ps_e__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc");
+    ps_e__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("ps_e");
+  }
+
+
+  // no cuts
+  /// grinch clus adc vs grinch clus size
+  std::string grinch_clus_adc_grinch_clus_size_study_string_nocuts_antitrackmatch = GRINCH_antitrackmatch+"&&"+ TrackQualityCutString;//+ "&&"+TargetVertexCutString + "&&" + W2CutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +"&&"+ dyCutString +"&&" +  Optics_CutString+"&&"+HCal_Energy_CutString+"&&"+ HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size:bb_grinch_clus_adc>>grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch(500, 0, 500, 50, 0, 50)", grinch_clus_adc_grinch_clus_size_study_string_nocuts_antitrackmatch.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch= (TH2D*)gDirectory->Get("grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch");
+  if (grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch) {
+    grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch->SetXTitle("bb_grinch_clus_adc");
+    grinch_clus_size__grinch_clus_adc_nocuts_antitrackmatch->SetYTitle("bb_grinch_clus_size");
+  }
+  
+  /// Marker for end of anti track matching grinch secion 
+  
 
   // coincidence time vs dx 
   std::string hcal_sh_atime_diff_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+dyCutString +"&&" +   Optics_CutString+"&&"+HCal_Energy_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_sh_atime_diff>>hcal_dx__hcal_sh_atime_diff(300, -15, 15, 800, -4, 4)", hcal_sh_atime_diff_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_sh_atime_diff>>hcal_dx__hcal_sh_atime_diff(300, -15, 15, 400, -4, 4)", hcal_sh_atime_diff_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_sh_atime_diff= (TH2D*)gDirectory->Get("hcal_dx__hcal_sh_atime_diff");
   if (hcal_dx__hcal_sh_atime_diff) {
@@ -555,7 +1343,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   // coincidence time vs W2
   std::string hcal_sh_atime_diff_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+dyCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString;
   //// Draw the 2D histogram
-  C->Draw("W2:hcal_sh_atime_diff>>W2__hcal_sh_atime_diff(300, -15, 15, 300, 0, 2)", hcal_sh_atime_diff_W2_study_string.c_str(), "COLZ");
+  C->Draw("W2:hcal_sh_atime_diff>>W2__hcal_sh_atime_diff(300, -15, 15, 300, 0, 3)", hcal_sh_atime_diff_W2_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *W2__hcal_sh_atime_diff= (TH2D*)gDirectory->Get("W2__hcal_sh_atime_diff");
   if (W2__hcal_sh_atime_diff) {
@@ -568,7 +1356,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   // dy vs dx study
   std::string dy_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString +"&&"+ Optics_CutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy(100, -2, 2, 800, -4, 4)", dy_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy(100, -2, 2, 400, -4, 4)", dy_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_dy= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy");
   if (hcal_dx__hcal_dy) {
@@ -578,7 +1366,7 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
 
   // dy in terms of the number of sigma 
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_dy/dysig>>hcal_dx__hcal_nsigdy(100, -5, 5, 800, -4, 4)", dy_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:hcal_dy/dysig>>hcal_dx__hcal_nsigdy(100, -5, 5, 400, -4, 4)", dy_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_nsigdy= (TH2D*)gDirectory->Get("hcal_dx__hcal_nsigdy");
   if (hcal_dx__hcal_nsigdy) {
@@ -608,11 +1396,31 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
+  // coin time vs dx
+  std::string coin_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString +"&&"+FidXCutString +"&&" + W2CutString ;
+ C->Draw("hcal_dx:hcal_sh_atime_diff>>hcal_dx__coin(300, -15, 15,400,-4,4)",  coin_study_string.c_str(), "COLZ");
+TH2D *hcal_dx__coin= (TH2D*)gDirectory->Get("hcal_dx__coin");
+  if (hcal_dx__coin) {
+    hcal_dx__coin->SetXTitle("hcal-shower time");
+    hcal_dx__coin->SetYTitle("hcal_dx");
+  }
+
+  // coin time vs dx
+  std::string coin_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString +"&&"+FidXCutString ;
+ C->Draw("W2:hcal_sh_atime_diff>>W2__coin(300, -15, 15,300,0,3)",  coin_W2_study_string.c_str(), "COLZ");
+TH2D *W2__coin= (TH2D*)gDirectory->Get("W2__coin");
+  if (W2__coin) {
+    W2__coin->SetXTitle("hcal-shower time");
+    W2__coin->SetYTitle("W2");
+  }
+ 
+ 
+  
   // optics y vs dx study
- std::string optics_y_study_string=TargetVertexCutString;
- //std::string optics_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  std::string optics_y_study_string=TargetVertexCutString;
+  //std::string optics_y_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_dx__optics_y(200, -0.2, 0.2, 800, -4, 4)",optics_y_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_dx__optics_y(200, -0.2, 0.2, 400, -4, 4)",optics_y_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__optics_y= (TH2D*)gDirectory->Get("hcal_dx__optics_y");
   if (hcal_dx__optics_y) {
@@ -620,9 +1428,9 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     hcal_dx__optics_y->SetYTitle("hcal_dx");
   }
 
-// optics y vs W2 study
- std::string optics_y_W2_study_string=TargetVertexCutString;
- //std::string optics_y_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  // optics y vs W2 study
+  std::string optics_y_W2_study_string=TargetVertexCutString;
+  //std::string optics_y_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
   C->Draw("W2:bb_tr_r_y-0.9*bb_tr_r_ph>>W2__optics_y(200, -0.2, 0.2, 300, 0, 3)", optics_y_W2_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
@@ -633,9 +1441,9 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   }
 
 
-// optics y vs hcal_y_exp
- std::string optics_y_exp_study_string=TargetVertexCutString;
- //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  // optics y vs hcal_y_exp
+  std::string optics_y_exp_study_string=TargetVertexCutString;
+  //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
   C->Draw("hcal_y_exp:bb_tr_r_y-0.9*bb_tr_r_ph>>hcal_y_exp__optics_y(200, -0.2, 0.2, 400, -2, 2)", optics_y_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
@@ -647,11 +1455,11 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
   
 
 
- // optics x vs dx study
- std::string optics_x_study_string=TargetVertexCutString;
- //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  // optics x vs dx study
+  std::string optics_x_study_string=TargetVertexCutString;
+  //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_dx__optics_x(120, -0.6, 0.6, 800, -4, 4)", optics_x_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_dx__optics_x(120, -0.6, 0.6, 400, -4, 4)", optics_x_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__optics_x= (TH2D*)gDirectory->Get("hcal_dx__optics_x");
   if (hcal_dx__optics_x) {
@@ -659,9 +1467,9 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     hcal_dx__optics_x->SetYTitle("hcal_dx");
   }
 
-// optics x vs W2 study
- std::string optics_x_W2_study_string=TargetVertexCutString;
- //std::string optics_x_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  // optics x vs W2 study
+  std::string optics_x_W2_study_string=TargetVertexCutString;
+  //std::string optics_x_W2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
   C->Draw("W2:bb_tr_r_x-0.9*bb_tr_r_th>>W2__optics_x(120, -0.6, 0.6, 300, 0, 3)", optics_x_W2_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
@@ -671,9 +1479,9 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     W2__optics_x->SetYTitle("W^{2}");
   }
 
- // optics x vs hcal_x_exp
- std::string optics_x_exp_study_string=TargetVertexCutString;
- //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
+  // optics x vs hcal_x_exp
+  std::string optics_x_exp_study_string=TargetVertexCutString;
+  //std::string optics_x_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString+"&&"+ dyCutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
   C->Draw("hcal_x_exp:bb_tr_r_x-0.9*bb_tr_r_th>>hcal_x_exp__optics_x(120, -0.6, 0.6, 600, -3, 3)", optics_x_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
@@ -715,19 +1523,28 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     hcal_dx_1d_allcuts->SetXTitle("hcal_dx");
   }
 
+  // 1d histo of dx with no extra cuts 
+  //// Draw the 1D histogram
+  C->Draw("hcal_dx>>hcal_dx_1d_no_extra_cuts(400, -4, 4)", "", "COLZ");
+  // Retrieve and customize histogram
+  TH1D *hcal_dx_1d_no_extra_cuts= (TH1D*)gDirectory->Get("hcal_dx_1d_no_extra_cuts");
+  if (hcal_dx_1d_no_extra_cuts) {
+    hcal_dx_1d_no_extra_cuts->SetXTitle("hcal_dx");
+  }
+  
 
   // Trying to look at an anticut on coin time on dx to get a background function shape.
   std::string anticoin_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyCutString +"&&" + Optics_CutString+"&&"+HCal_Shower_atime_anticut_CutString;
-   C->Draw("hcal_dx>>hcal_dx_1d_anticoin(50, -4, 4)",  anticoin_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx>>hcal_dx_1d_anticoin(50, -4, 4)",  anticoin_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *hcal_dx_1d_anticoin= (TH1D*)gDirectory->Get("hcal_dx_1d_anticoin");
   if (hcal_dx_1d_anticoin) {
     hcal_dx_1d_anticoin->SetXTitle("hcal_dx");
   }
 
-   // Trying to look at an anticut on dy on dx to get a background function shape.
+  // Trying to look at an anticut on dy on dx to get a background function shape.
   std::string antidy_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" +W2CutString+ "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyAntiCutString +"&&" + Optics_CutString+"&&"+HCal_Shower_atime_CutString;
-   C->Draw("hcal_dx>>hcal_dx_1d_antidy(50, -4, 4)",  antidy_study_string.c_str(), "COLZ");
+  C->Draw("hcal_dx>>hcal_dx_1d_antidy(50, -4, 4)",  antidy_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *hcal_dx_1d_antidy= (TH1D*)gDirectory->Get("hcal_dx_1d_antidy");
   if (hcal_dx_1d_antidy) {
@@ -746,17 +1563,38 @@ void Make2DHistosWithCuts(TString configfileinput="sbs4_30p_cuts"){ // main
     W2_1d_allcuts->SetXTitle("W^{2}");
   }
 
-
-  /// testing 
- // dy vs dx with proton  spot cuts 
-  std::string p_spot_string = ProtonSpot_CutString+"||"+NeutronSpot_CutString;
+  /// 1d histo of Q2
+  std::string allcuts_Q2_study_string = EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString+"&&" +W2CutString+ + "&&"+ FidXCutString + "&&"+ FidYCutString +"&&"+e_over_p_CutString +  "&&"+ HCal_Energy_CutString + +"&&"+ dyCutString +"&&" + Optics_CutString+"&&"+HCal_Shower_atime_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy_protonspot(100, -2, 2, 800, -4, 4)", p_spot_string.c_str(), "COLZ");
+  C->Draw("Q2>>Q2_1d_allcuts(1000, 0, 10)",  allcuts_Q2_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *Q2_1d_allcuts= (TH1D*)gDirectory->Get("Q2_1d_allcuts");
+  if (Q2_1d_allcuts) {
+    Q2_1d_allcuts->SetXTitle("Q^{2}");
+  }
+
+
+ 
+  // dy vs dx with proton  and neutron spot cuts 
+  std::string p_spot_string = ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy_protonspot(100, -2, 2, 400, -4, 4)", p_spot_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH2D *hcal_dx__hcal_dy_protonspot= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy_protonspot");
   if (hcal_dx__hcal_dy_protonspot) {
     hcal_dx__hcal_dy_protonspot->SetXTitle("hcal_dy");
     hcal_dx__hcal_dy_protonspot->SetYTitle("hcal_dx");
+  }
+
+  // dy vs dx with proton  and neutron spot cuts 
+  std::string n_spot_string = NeutronSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("hcal_dx:hcal_dy>>hcal_dx__hcal_dy_neutronspot(100, -2, 2, 400, -4, 4)", n_spot_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH2D *hcal_dx__hcal_dy_neutronspot= (TH2D*)gDirectory->Get("hcal_dx__hcal_dy_neutronspot");
+  if (hcal_dx__hcal_dy_neutronspot) {
+    hcal_dx__hcal_dy_neutronspot->SetXTitle("hcal_dy");
+    hcal_dx__hcal_dy_neutronspot->SetYTitle("hcal_dx");
   }
 
 

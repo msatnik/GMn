@@ -32,7 +32,7 @@
 // Global Params
 Double_t wide_x_range = 0.2;
 Double_t nsigma = 0.6;
-Double_t xmin = -2.5; // -2.1 for sbs4 30p
+Double_t xmin = -2.1; // -2.1 for sbs4 30p
 Double_t xmax = 1.4;//1.4 for sbs4 30p
 
 
@@ -99,16 +99,16 @@ void fit_dx_with_background(){//main
   
   // Using histograms that come from the Make2Dhistos scripts.  
 
- // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
- // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); // proton
- // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); // neutron
- // TFile *f4 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_inel_2Dhistos.root"); // inelastic sim
+ TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
+ TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); // proton
+ TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); // neutron
+ TFile *f4 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_inel_2Dhistos.root"); // inelastic sim
  
 
-  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_2Dhistos.root"); //data
-  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deep_2Dhistos.root"); ///proton
-  TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deen_2Dhistos.root"); //neutron
-  TFile *f4 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_inel_2Dhistos.root");/// inelastic sim
+  // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_2Dhistos.root"); //data
+  // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deep_2Dhistos.root"); ///proton
+  // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deen_2Dhistos.root"); //neutron
+  // TFile *f4 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_inel_2Dhistos.root");/// inelastic sim
 
 
 // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_BinStudy.root"); data
@@ -121,8 +121,8 @@ void fit_dx_with_background(){//main
  TH1D *hist2 = (TH1D*)f2->Get("hcal_dx_1d_allcuts");// proton
  TH1D *hist3 = (TH1D*)f3->Get("hcal_dx_1d_allcuts");// neutron
 
- TH1D *hist4=(TH1D*)f1->Get("hcal_dx_1d_antidy");// Anticut histogram from data that we will use as a background shape.
- //TH1D *hist4=(TH1D*)f4->Get("hcal_dx_1d_allcuts");// dx histogram from the inelastic simulation 
+ //TH1D *hist4=(TH1D*)f1->Get("hcal_dx_1d_antidy");// Anticut histogram from data that we will use as a background shape.
+ TH1D *hist4=(TH1D*)f4->Get("hcal_dx_1d_allcuts");// dx histogram from the inelastic simulation 
 
 
 

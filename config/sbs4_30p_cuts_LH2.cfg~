@@ -1,0 +1,33 @@
+#####################################
+#sseeds 2.28.23 - Setup file for  SBS4. Modified by msatnik.
+#####################################
+## scalesbsfield = 0.369
+#/lustre19/expphy/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc_badfield/rootfiles/deep/*
+#/volatile/halla/sbs/seeds/simc/sbs4_30p_simc/rootfiles/deen/*
+#/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deen/*
+#/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_may20.root
+#/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_simc_deen.root
+#/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_simc_deep.root
+#
+#/volatile/halla/sbs/seeds/simc/sbs4_30p_simc/rootfiles/deep/*
+#/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deep/*
+#/volatile/halla/sbs/msatnik/simc/sbs4_30p_simc/rootfiles/deep/replayed_sbs4_30p_simc_deep_job_6.root
+#/lustre19/expphy/volatile/halla/sbs/msatnik/sbs4_sf02_sbs0p_g4sbs_deeN_job_0.root
+#/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_may20.root
+/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_LH2_sept18.root
+endlist
+#bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz[0])<0.08&&sbs.hcal.e>0.025&&bb.ps.e+bb.sh.e>1.7
+endcut
+EnergyCutString bb_ps_e>0.2
+TrackQualityCutString bb_tr_n==1&&bb_gem_track_nhits>=3&&bb_gem_track_chi2ndf<30
+TargetVertexCutString abs(bb_tr_vz)<0.065
+W2CutString W2>0.66&&W2<1.10
+FidXCutString hcal_x_exp>-1.3&&hcal_x_exp<0.5
+FidYCutString hcal_y_exp>-0.35&&hcal_y_exp<0.4
+dyCutString abs(hcal_dy)<0.3
+e_over_p_CutString abs(e_over_p-0.98)<0.2
+HCal_Energy_CutString hcal_e>0.025
+HCal_Shower_atime_CutString abs(hcal_sh_atime_diff)<10&&passed_atime_cuts==1
+Optics_CutString abs(bb_tr_r_x-bb_tr_r_th*0.9)<0.3&&abs(bb_tr_r_y-0.9*bb_tr_r_ph+0.005)<0.1
+ProtonSpot_CutString pow((hcal_dx+0.71)/0.3,2)+pow(hcal_dy/0.4,2)<=1
+NeutronSpot_CutString pow((hcal_dx+0.05)/0.3,2)+pow(hcal_dy/0.4,2)<=1

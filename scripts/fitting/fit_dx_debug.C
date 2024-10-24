@@ -110,7 +110,7 @@ void fit_dx_debug(){ // going to instead make histograms out of gaussians to try
 
      // add a 2nd order poly of the form f(x) = a(x-h)^2 + k. Point of parabola located at (h,k) and one intercept x0.
      double h = -0.4;
-     double k = 100; 
+     double k = 10; 
      double x0 = -1.5;
      double a = -k/pow((x0-h),2);
      TH1D *background_hist = new TH1D("background_hist","background_hist",500,-4,3);

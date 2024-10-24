@@ -101,6 +101,7 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   std::string e_over_p_CutString = "abs(e_over_p - 1)<0.5";
   std::string HCal_Shower_atime_CutString= "abs(hcal_sh_atime_diff)<10";
   std::string HCal_Energy_CutString = "hcal_e>0.01";
+  std::string GRINCH_CutString= "bb_grinch_clus_size>=3";
   std::string Optics_CutString = "abs(bb_tr_r_x-bb_tr_r_th*0.9)<0.3";
   std::string ProtonSpot_CutString ="pow((hcal_dx+0.71)/0.21,2)+pow(hcal_dy/0.3,2)<=1";
   std::string NeutronSpot_CutString="pow(hcal_dx/0.20,2)+pow(hcal_dy/0.3,2)<=1";
@@ -142,6 +143,11 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
         EnergyCutString = sval.Data();
 	cout << "Loading EnergyCutString: " << EnergyCutString << endl;
+      }
+      if( skey == "GRINCH_CutString" ){
+	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
+        GRINCH_CutString= sval.Data();
+	cout << "Loading GRINCH_CutString: " << GRINCH_CutString<< endl;
       }
       if( skey == "TrackQualityCutString" ){
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
@@ -963,7 +969,7 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   /// 1d histo of ps_e + sh_e
   std::string ps_sh_e_study_string =  TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+FidXCutString +"&&" + W2CutString+"&&"+HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString ;
   //// Draw the 2D histogram
-  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist(400, 0, 4)",  ps_sh_e_study_string.c_str(), "COLZ");
+  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist(600, 0, 6)",  ps_sh_e_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *ps_sh_e_hist= (TH1D*)gDirectory->Get("ps_sh_e_hist");
   if (ps_sh_e_hist) {
@@ -973,7 +979,7 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   /// 1d histo of ps_e +sh_e with proton spot cut. 
   std::string proton_ps_sh_e_study_string = TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString  + "&&"+FidXCutString+"&&"+W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + ProtonSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist_proton(400, 0, 4)",  proton_ps_sh_e_study_string.c_str(), "COLZ E");
+  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist_proton(600, 0, 6)",  proton_ps_sh_e_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *ps_sh_e_hist_proton= (TH1D*)gDirectory->Get("ps_sh_e_hist_proton");
   if (ps_sh_e_hist_proton) {
@@ -983,7 +989,7 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   /// 1d histo of ps_e+sh_e  with neutron spot cut. 
   std::string neutron_ps_sh_e_study_string =  TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+ "&&"+FidXCutString+"&&" +W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + NeutronSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist_neutron(400, 0, 4)",  neutron_ps_sh_e_study_string.c_str(), "COLZ E");
+  C->Draw("bb_ps_e+bb_sh_e>>ps_sh_e_hist_neutron(600, 0, 6)",  neutron_ps_sh_e_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *ps_sh_e_hist_neutron= (TH1D*)gDirectory->Get("ps_sh_e_hist_neutron");
   if (ps_sh_e_hist_neutron) {
@@ -1004,6 +1010,100 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   np_ps_sh_e_hist ->Draw("E");
  
 
+  // Studying n/p for grinch_clus_size
+
+  /// 1d histo of grinch_clus_size
+  std::string grinch_clus_size_study_string = EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+FidXCutString +"&&" + W2CutString+"&&"+HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size>>grinch_clus_size_hist(20, 0, 20)",  grinch_clus_size_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_size_hist= (TH1D*)gDirectory->Get("grinch_clus_size_hist");
+  if (grinch_clus_size_hist) {
+    grinch_clus_size_hist->SetXTitle("GRINCH cluster size");
+  }
+
+  /// 1d histo of grinch_clus_size with proton spot cut. 
+  std::string proton_grinch_clus_size_study_string =EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString  + "&&"+FidXCutString+"&&"+W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size>>grinch_clus_size_hist_proton(20, 0, 20)",  proton_grinch_clus_size_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_size_hist_proton= (TH1D*)gDirectory->Get("grinch_clus_size_hist_proton");
+  if (grinch_clus_size_hist_proton) {
+    grinch_clus_size_hist_proton->SetXTitle("GRINCH cluster size");
+  }
+
+  /// 1d histo of grinch_clus_size  with neutron spot cut. 
+  std::string neutron_grinch_clus_size_study_string = EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+ "&&"+FidXCutString+"&&" +W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + NeutronSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_size>>grinch_clus_size_hist_neutron(20, 0, 20)",  neutron_grinch_clus_size_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_size_hist_neutron= (TH1D*)gDirectory->Get("grinch_clus_size_hist_neutron");
+  if (grinch_clus_size_hist_neutron) {
+    grinch_clus_size_hist_neutron->SetXTitle("GRINCH cluster size");
+  }
+
+  // Get the neutron/proton ratio, bin-by-bin, by dividing the grinch_clus_size histo with the neutron spot cut by the grinch_clus_size histo with the proton spot cut.
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH1D *np_grinch_clus_size_hist = (TH1D*)grinch_clus_size_hist_neutron->Clone("np_grinch_clus_size_hist"); 
+  np_grinch_clus_size_hist ->Divide(grinch_clus_size_hist_proton);
+  double max_grinch_clus_size = np_grinch_clus_size_hist->GetXaxis()->GetXmax();
+  TF1 *grinch_clus_size_fit = new TF1("grinch_clus_size_fit","[0]",0,max_grinch_clus_size);
+  np_grinch_clus_size_hist ->Fit(grinch_clus_size_fit,"Q R");
+  np_grinch_clus_size_hist->SetXTitle("GRINCH cluster size");
+  np_grinch_clus_size_hist->SetYTitle("n/p");
+  np_grinch_clus_size_hist ->Draw("E");
+
+
+  // Studying n/p for grinch_clus_adc
+
+  /// 1d histo of grinch_clus_adc
+  std::string grinch_clus_adc_study_string = EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+FidXCutString +"&&" + W2CutString+"&&"+HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString ;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_adc>>grinch_clus_adc_hist(500, 0, 500)",  grinch_clus_adc_study_string.c_str(), "COLZ");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_adc_hist= (TH1D*)gDirectory->Get("grinch_clus_adc_hist");
+  if (grinch_clus_adc_hist) {
+    grinch_clus_adc_hist->SetXTitle("GRINCH cluster ToT");
+  }
+
+  /// 1d histo of grinch_clus_adc with proton spot cut. 
+  std::string proton_grinch_clus_adc_study_string =EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString  + "&&"+FidXCutString+"&&"+W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + ProtonSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_adc>>grinch_clus_adc_hist_proton(500, 0, 500)",  proton_grinch_clus_adc_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_adc_hist_proton= (TH1D*)gDirectory->Get("grinch_clus_adc_hist_proton");
+  if (grinch_clus_adc_hist_proton) {
+    grinch_clus_adc_hist_proton->SetXTitle("GRINCH cluster ToT");
+  }
+
+  /// 1d histo of grinch_clus_adc  with neutron spot cut. 
+  std::string neutron_grinch_clus_adc_study_string = EnergyCutString+"&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+ "&&"+FidXCutString+"&&" +W2CutString+"&&"+HCal_Energy_CutString+"&&"+  HCal_Shower_atime_CutString +"&&" + NeutronSpot_CutString;
+  //// Draw the 2D histogram
+  C->Draw("bb_grinch_clus_adc>>grinch_clus_adc_hist_neutron(500, 0, 500)",  neutron_grinch_clus_adc_study_string.c_str(), "COLZ E");
+  // Retrieve and customize histogram
+  TH1D *grinch_clus_adc_hist_neutron= (TH1D*)gDirectory->Get("grinch_clus_adc_hist_neutron");
+  if (grinch_clus_adc_hist_neutron) {
+    grinch_clus_adc_hist_neutron->SetXTitle("GRINCH cluster ToT");
+  }
+
+  // Get the neutron/proton ratio, bin-by-bin, by dividing the grinch_clus_adc histo with the neutron spot cut by the grinch_clus_adc histo with the proton spot cut.
+  // Root knows how to do this bin-by-bin with the Divide() function.
+  /// hist1/hist2  == hist1->Divide(hist2); 
+  TH1D *np_grinch_clus_adc_hist = (TH1D*)grinch_clus_adc_hist_neutron->Clone("np_grinch_clus_adc_hist"); 
+  np_grinch_clus_adc_hist ->Divide(grinch_clus_adc_hist_proton);
+  double max_grinch_clus_adc = np_grinch_clus_adc_hist->GetXaxis()->GetXmax();
+  TF1 *grinch_clus_adc_fit = new TF1("grinch_clus_adc_fit","[0]",0,max_grinch_clus_adc);
+  np_grinch_clus_adc_hist ->Fit(grinch_clus_adc_fit,"Q R");
+  np_grinch_clus_adc_hist->SetXTitle("GRINCH cluster ToT");
+  np_grinch_clus_adc_hist->SetYTitle("n/p");
+  np_grinch_clus_adc_hist ->Draw("E");
+
+
+  // Studying Quasi-elastic Electron Detection Eff for GRINCH
+  
+  
+  
   // Studying n/p for coin time
 
   /// 1d histo of coin time
@@ -1103,9 +1203,9 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   hcal_x_hist_neutron->SetLineColor(kMagenta);
   hcal_x_hist_neutron->Draw("same E");
   TLegend *hcal_x_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_x_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_x_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_x_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  hcal_x_leg ->AddEntry(hcal_x_hist,"No Spot Cuts","l");
+  hcal_x_leg ->AddEntry(hcal_x_hist_proton,"Proton Spot Cut","l");
+  hcal_x_leg ->AddEntry(hcal_x_hist_neutron,"Neutron Spot Cut","l");
   hcal_x_leg->Draw();
   hcal_x_canvas->cd(2);
   np_hcal_x_hist->Draw("E");
@@ -1165,10 +1265,10 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   hcal_y_hist_proton->Draw("same E");
   hcal_y_hist_neutron->SetLineColor(kMagenta);
   hcal_y_hist_neutron->Draw("same E");
-  TLegend *hcal_y_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_y_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_y_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_y_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  TLegend *hcal_y_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend boxd
+  hcal_y_leg ->AddEntry(hcal_y_hist,"No Spot Cuts","l");
+  hcal_y_leg ->AddEntry(hcal_y_hist_proton,"Proton Spot Cut","l");
+  hcal_y_leg ->AddEntry(hcal_y_hist_neutron,"Neutron Spot Cut","l");
   hcal_y_leg->Draw();
   hcal_y_canvas->cd(2);
   np_hcal_y_hist->Draw("E");
@@ -1184,9 +1284,9 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   hcal_y_exp_hist_neutron->SetLineColor(kMagenta);
   hcal_y_exp_hist_neutron->Draw("same E");
   TLegend *hcal_y_exp_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_y_exp_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_y_exp_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_y_exp_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  hcal_y_exp_leg ->AddEntry(hcal_y_exp_hist,"No Spot Cuts","l");
+  hcal_y_exp_leg ->AddEntry(hcal_y_exp_hist_proton,"Proton Spot Cut","l");
+  hcal_y_exp_leg ->AddEntry(hcal_y_exp_hist_neutron,"Neutron Spot Cut","l");
   hcal_y_exp_leg->Draw();
   hcal_y_exp_canvas->cd(2);
   np_hcal_y_exp_hist ->GetYaxis() ->SetRangeUser(0, 1);
@@ -1220,9 +1320,9 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   hcal_dy_hist_neutron->SetLineColor(kMagenta);
   hcal_dy_hist_neutron->Draw("same E");
   TLegend *hcal_dy_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_dy_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_dy_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_dy_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  hcal_dy_leg ->AddEntry(hcal_dy_hist,"No Spot Cuts","l");
+  hcal_dy_leg ->AddEntry(hcal_dy_hist_proton,"Proton Spot Cut","l");
+  hcal_dy_leg ->AddEntry(hcal_dy_hist_neutron,"Neutron Spot Cut","l");
   hcal_dy_leg->Draw();
   hcal_dy_canvas->cd(2);
   np_hcal_dy_hist->Draw("E");
@@ -1238,9 +1338,9 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   coin_hist_neutron->SetLineColor(kMagenta);
   coin_hist_neutron->Draw("same E");
   TLegend *coin_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  coin_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  coin_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  coin_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  coin_leg ->AddEntry(coin_hist,"No Spot Cuts","l");
+  coin_leg ->AddEntry(coin_hist_proton,"Proton Spot Cut","l");
+  coin_leg ->AddEntry(coin_hist_neutron,"Neutron Spot Cut","l");
   coin_leg->Draw();
   coin_canvas->cd(2);
   np_coin_hist->Draw("E");
@@ -1255,14 +1355,14 @@ void SpotCutStudy(TString configfileinput="sbs4_30p_cuts"){ // main
   ps_e_hist_neutron->SetLineColor(kMagenta);
   ps_e_hist_neutron->Draw("same E");
   TLegend *ps_e_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  ps_e_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  ps_e_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  ps_e_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  ps_e_leg ->AddEntry(ps_e_hist,"No Spot Cuts","l");
+  ps_e_leg ->AddEntry(ps_e_hist_proton,"Proton Spot Cut","l");
+  ps_e_leg ->AddEntry(ps_e_hist_neutron,"Neutron Spot Cut","l");
   ps_e_leg->Draw();
   ps_e_canvas->cd(2);
   np_ps_e_hist->Draw("E");
 
-TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 600);
+  TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 600);
   ps_sh_e_canvas ->Divide(1,2);
   ps_sh_e_canvas->cd(1);
   ps_sh_e_hist->SetTitle("Preshower + Shower Energy");
@@ -1272,14 +1372,47 @@ TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 
   ps_sh_e_hist_neutron->SetLineColor(kMagenta);
   ps_sh_e_hist_neutron->Draw("same E");
   TLegend *ps_sh_e_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  ps_sh_e_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  ps_sh_e_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  ps_sh_e_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  ps_sh_e_leg ->AddEntry(ps_sh_e_hist,"No Spot Cuts","l");
+  ps_sh_e_leg ->AddEntry(ps_sh_e_hist_proton,"Proton Spot Cut","l");
+  ps_sh_e_leg ->AddEntry(ps_sh_e_hist_neutron,"Neutron Spot Cut","l");
   ps_sh_e_leg->Draw();
   ps_sh_e_canvas->cd(2);
   np_ps_sh_e_hist->Draw("E");
   
-  
+  TCanvas* grinch_clus_size_canvas = new TCanvas("grinch_clus_size_canvas", "grinch_clus_size_canvas", 1000, 600);
+  grinch_clus_size_canvas ->Divide(1,2);
+  grinch_clus_size_canvas->cd(1);
+  grinch_clus_size_hist->SetTitle("GRINCH cluster size");
+  grinch_clus_size_hist->Draw("E");
+  grinch_clus_size_hist_proton->SetLineColor(kGreen);
+  grinch_clus_size_hist_proton->Draw("same E");
+  grinch_clus_size_hist_neutron->SetLineColor(kMagenta);
+  grinch_clus_size_hist_neutron->Draw("same E");
+  TLegend *grinch_clus_size_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
+  grinch_clus_size_leg ->AddEntry(grinch_clus_size_hist,"No Spot Cuts","l");
+  grinch_clus_size_leg ->AddEntry(grinch_clus_size_hist_proton,"Proton Spot Cut","l");
+  grinch_clus_size_leg ->AddEntry(grinch_clus_size_hist_neutron,"Neutron Spot Cut","l");
+  grinch_clus_size_leg->Draw();
+  grinch_clus_size_canvas->cd(2);
+  np_grinch_clus_size_hist->Draw("E");
+
+
+  TCanvas* grinch_clus_adc_canvas = new TCanvas("grinch_clus_adc_canvas", "grinch_clus_adc_canvas", 1000, 600);
+  grinch_clus_adc_canvas ->Divide(1,2);
+  grinch_clus_adc_canvas->cd(1);
+  grinch_clus_adc_hist->SetTitle("GRINCH cluster ToT");
+  grinch_clus_adc_hist->Draw("E");
+  grinch_clus_adc_hist_proton->SetLineColor(kGreen);
+  grinch_clus_adc_hist_proton->Draw("same E");
+  grinch_clus_adc_hist_neutron->SetLineColor(kMagenta);
+  grinch_clus_adc_hist_neutron->Draw("same E");
+  TLegend *grinch_clus_adc_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
+  grinch_clus_adc_leg ->AddEntry(grinch_clus_adc_hist,"No Spot Cuts","l");
+  grinch_clus_adc_leg ->AddEntry(grinch_clus_adc_hist_proton,"Proton Spot Cut","l");
+  grinch_clus_adc_leg ->AddEntry(grinch_clus_adc_hist_neutron,"Neutron Spot Cut","l");
+  grinch_clus_adc_leg->Draw();
+  grinch_clus_adc_canvas->cd(2);
+  np_grinch_clus_adc_hist->Draw("E");
 
   TCanvas* hcal_e_canvas = new TCanvas("hcal_e_canvas", "hcal_e_canvas", 1000, 600);
   hcal_e_canvas ->Divide(1,2);
@@ -1291,9 +1424,9 @@ TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 
   hcal_e_hist_neutron->SetLineColor(kMagenta);
   hcal_e_hist_neutron->Draw("same E");
   TLegend *hcal_e_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  hcal_e_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  hcal_e_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  hcal_e_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  hcal_e_leg ->AddEntry(hcal_e_hist,"No Spot Cuts","l");
+  hcal_e_leg ->AddEntry(hcal_e_hist_proton,"Proton Spot Cut","l");
+  hcal_e_leg ->AddEntry(hcal_e_hist_neutron,"Neutron Spot Cut","l");
   hcal_e_leg->Draw();
   hcal_e_canvas->cd(2);
   np_hcal_e_hist->Draw("E");
@@ -1308,9 +1441,9 @@ TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 
   e_over_p_hist_neutron->SetLineColor(kMagenta);
   e_over_p_hist_neutron->Draw("same E");
   TLegend *e_over_p_leg = new TLegend(0.7, 0.5, 0.9, 0.7);// (x1, y1, x2, y2) are the coordinates of the legend box
-  e_over_p_leg ->AddEntry(W2_hist,"No Spot Cuts","l");
-  e_over_p_leg ->AddEntry(W2_hist_proton,"Proton Spot Cut","l");
-  e_over_p_leg ->AddEntry(W2_hist_neutron,"Neutron Spot Cut","l");
+  e_over_p_leg ->AddEntry(e_over_p_hist,"No Spot Cuts","l");
+  e_over_p_leg ->AddEntry(e_over_p_hist_proton,"Proton Spot Cut","l");
+  e_over_p_leg ->AddEntry(e_over_p_hist_neutron,"Neutron Spot Cut","l");
   e_over_p_leg->Draw();
   e_over_p_canvas->cd(2);
   np_e_over_p_hist->Draw("E");
@@ -1333,7 +1466,7 @@ TCanvas* ps_sh_e_canvas = new TCanvas("ps_sh_e_canvas", "ps_sh_e_canvas", 1000, 
   np_hcal_y_hist->SetTitle("n:p ratio across hcal y");
   np_hcal_y_hist->Draw("E");
   results_canvas->cd(4);
-  np_coin_hist->GetYaxis() ->SetRangeUser(0, 2);
+  //np_coin_hist->GetYaxis() ->SetRangeUser(0, 2);
   np_coin_hist->SetTitle("n:p ratio across Coincidence Time");
   np_coin_hist->Draw("E");
 

@@ -1,0 +1,28 @@
+#####################################
+#sseeds 2.28.23 - Setup file for  SBS4. Modified by msatnik.
+#####################################
+## SBS 30%
+## pass 2
+## Hydrogen LH2
+#/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/hydrogen/sbs4_30p/*11547*
+#/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/hydrogen/sbs4_30p/*11548*
+#/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/hydrogen/sbs4_30p/*11616*
+/w/halla-scshelf2102/sbs/msatnik/GMn/symlinks/sbs4/hydrogen/sbs4_0p/*
+endlist
+#bb.tr.n==1&&abs(bb.tr.vz[0])<0.08&&bb.ps.e+bb.sh.e>1.7&&bb.ps.e>0.2
+endcut
+target hydrogen
+mag_field 0
+E_e 3.7393
+BB_d 1.7988
+BB_th 36.0
+HCal_d 11.65
+HCal_th 31.9
+dxsig_p 0.255
+dxsig_n 0.252
+dysig 0.28
+dx_pn 0.74
+nsigma_p 1
+nsigma_n 1
+nsigma_y 1
+

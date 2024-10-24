@@ -26,7 +26,7 @@
 // Global Params
 Double_t wide_x_range = 0.2;
 Double_t nsigma = 0.6;
-Double_t xmin = -2.5; // -2.1 for SBS4 30p
+Double_t xmin = -2.1; // -2.1 for SBS4 30p, maybe -2.5 for 50p
 Double_t xmax = 1.4;//1.4 for SBS4 40p
 const int numbins = 200;
 
@@ -65,7 +65,7 @@ TH1D *histN;
 void fit_dx_with_cuts(){//main
   gStyle->SetOptFit(11111);
   gStyle->SetCanvasPreferGL(1);
-  gStyle -> SetOptStat(0);
+  //gStyle -> SetOptStat(0);
   gStyle ->SetEndErrorSize(0);
 
 
@@ -84,13 +84,24 @@ void fit_dx_with_cuts(){//main
   
   // Using histograms that come from the Make2Dhistos scripts.  
 
- // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_2Dhistos.root"); // data
+ // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_2Dhistos.root"); // data
  // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_tight_2Dhistos.root"); // proton
  // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_tight_2Dhistos.root"); // neutron
 
- TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_2Dhistos.root"); // data
- TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deep_2Dhistos.root"); // proton
- TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deen_2Dhistos.root"); // neutron
+
+
+ 
+ // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_2Dhistos.root"); // data
+ // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_2Dhistos.root"); // proton
+ // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_2Dhistos.root"); // neutron
+
+   TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_2Dhistos.root"); // data
+ TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deep_2Dhistos_0_99.root"); // proton
+ TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_deen_2Dhistos_0_99.root"); // neutron
+
+ // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_2Dhistos.root"); // data
+ // TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deep_2Dhistos.root"); // proton
+ // TFile *f3 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_50p_cuts_deen_2Dhistos.root"); // neutron
 
 
 // TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_30p_cuts_tight_BinStudy.root"); // data
@@ -161,6 +172,7 @@ void fit_dx_with_cuts(){//main
     double normP_result, normN_result;
     double normP_result_error, normN_result_error;
     double Pshift_result, Nshift_result;
+      double Pshift_result_error, Nshift_result_error;
     double polyresult[5];
     double ChiSq, ndf;
 
@@ -168,14 +180,21 @@ void fit_dx_with_cuts(){//main
     normP_result_error = fitFunc ->GetParError(0);
     normN_result = fitFunc ->GetParameter(1);
     normN_result_error = fitFunc ->GetParError(1);
-    Pshift_result = fitFunc ->GetParameter(2); 
+    Pshift_result = fitFunc ->GetParameter(2);
+    Pshift_result_error = fitFunc ->GetParError(2); 
     Nshift_result = fitFunc ->GetParameter(3);
+    Nshift_result_error = fitFunc ->GetParError(3);
+    
     
     ChiSq = fitFunc->GetChisquare();
     ndf = fitFunc->GetNDF();
 
-    cout<<"Pshift " <<Pshift_result <<endl;
-    cout<<"Nshift " <<Nshift_result <<endl;
+    cout<<"n shift " <<Nshift_result << " +/- "<<Nshift_result_error<<endl;
+    cout<<"p shift " <<Pshift_result << " +/- "<<Pshift_result_error<<endl;
+
+    cout<<"scale n " <<normN_result << " +/- "<<normN_result_error<<endl;
+    cout<<"scale p " <<normP_result << " +/- "<<normP_result_error<<endl;
+
 
       for (int i =0 ; i < 3; i++)
 	{
@@ -223,12 +242,18 @@ void fit_dx_with_cuts(){//main
       customizeGraph(fit_graph, 33, kRed, markersize); // assigns shape, color and marker size to the points
       fit_graph->GetXaxis() ->SetRangeUser(xmin, xmax);
 
+      TCanvas *testcanvas = new TCanvas("testcanvas","testcanvas",800,600);
+      histP->Draw("E hist");
+      histN->Draw("E hist same");
+      
+
       TCanvas *graphcanvas = new TCanvas("graphcanvas","graphcanvas",800,600);   
       adjustCanvas(graphcanvas);
       graphcanvas->Divide(1,2);
       // Upper pad
       graphcanvas->cd(1);
       TPad *upperPad1 = (TPad*)gPad;
+      upperPad1->SetGrid();
       upperPad1->SetPad(0.01, 0.3, 0.99, 0.99); //Double_t xlow, Double_t ylow, Double_t xup, Double_t yup
       adjustPad(upperPad1);
       //upperPad1->SetFillColor(20);
@@ -236,6 +261,7 @@ void fit_dx_with_cuts(){//main
 // Lower pad
       graphcanvas->cd(2);
       TPad *lowerPad1 = (TPad*)gPad;
+      lowerPad1->SetGrid();
       lowerPad1->SetPad(0.01, 0.01, 0.99, 0.29);
       adjustPad(lowerPad1);
       //  lowerPad->SetFillColor(18);
@@ -292,6 +318,7 @@ void fit_dx_with_cuts(){//main
       // Upper pad
       c2->cd(1);
       TPad *upperPad = (TPad*)gPad;
+      upperPad->SetGrid();
       upperPad->SetPad(0.01, 0.3, 0.99, 0.99); //Double_t xlow, Double_t ylow, Double_t xup, Double_t yup
       adjustPad(upperPad);
       //upperPad->SetFillColor(20);
@@ -300,6 +327,7 @@ void fit_dx_with_cuts(){//main
       // Lower pad
       c2->cd(2);
       TPad *lowerPad = (TPad*)gPad;
+      lowerPad->SetGrid();
       lowerPad->SetPad(0.01, 0.01, 0.99, 0.29);
       adjustPad(lowerPad);
       //  lowerPad->SetFillColor(18);
@@ -333,11 +361,11 @@ void fit_dx_with_cuts(){//main
   legend->AddEntry(hist1, "Data", "l");
   legend->AddEntry(fitFunc,"Overall Fit","l");
   legend->AddEntry(histP_clone,"Proton simc","f");
-  legend->AddEntry("", Form("   shifted by %.4f ", Pshift_result), "");
+  legend->AddEntry("", Form("   shifted by %.6f ", Pshift_result), "");
   legend->AddEntry(histN_clone,"Neutron simc","f");
- legend->AddEntry("", Form("   shifted by %.4f ", Nshift_result), "");
+ legend->AddEntry("", Form("   shifted by %.6f ", Nshift_result), "");
   legend->AddEntry(poly_result,"2nd order poly","f");
-  legend->AddEntry("", Form("R= %.4f +/- %.4f ", Ratio,Ratio_error), "");
+  legend->AddEntry("", Form("R= %.6f +/- %.6f ", Ratio,Ratio_error), "");
   legend->AddEntry("", Form("#chi^{2}/ndf = %.2f / %.0f  ", ChiSq ,ndf), "");
   legend->Draw();
 
@@ -352,7 +380,8 @@ void fit_dx_with_cuts(){//main
   c2->Update();
 
   TCanvas *c3 = new TCanvas("c3","c3",800,600);
-  residual_hist ->Draw("E hist");
+   c3->SetGrid();
+  residual_hist ->Draw("E sames");
 
    TCanvas *c4 = new TCanvas("c4","c4",800,600);
    // histP->SetLineColor(kRed);

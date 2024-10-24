@@ -44,63 +44,63 @@ const double M_n = 0.939565;
 
 
 ////  Detectors
-  // HCAL 
-  // Dimensions
-  static const Int_t hcalchan = 288;
-  static const Int_t hcalcol = 12;
-  static const Int_t hcalrow = 24;
-  static const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
-  static const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
-  static const Double_t hcaladc_binw = 4.;        //ns, width of each ADC bin
-  static const Double_t hcalblk_w_p0 = 0.15;      //m, width of a HCAL block, pass0/1
-  static const Double_t hcalblk_h_p0 = 0.15;      //m, height of a HCAL block, pass0/1 
-  static const Double_t hcalblk_w = 0.1524;       //m, width of a HCAL block
-  static const Double_t hcalblk_h = 0.1524;       //m, height of a HCAL block
-  static const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
-  static const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
-  static const Double_t hcalblk_div_hyp = 0.15875;//m, division corner-to-cornter dist.
-  static const Double_t hcalblk_gap_h = 0.00254;  //m, horiz. gap bet. two blocks
-  static const Double_t hcalblk_gap_v = 0.00635;  //m, vert. gap bet. two blocks
-  // Positions (mc)
-  static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
-  static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
-  static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
-  static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
-  // Pass0/1 (no block spacing)
-  static const Double_t hcalposXi_p0 = -2.16014;  //m, distance from beam center to top of HCal w/75cm offset
-  static const Double_t hcalposXf_p0 = 1.43826;   //m, distance from beam center to bottom of HCal w/75cm offset
-  static const Double_t hcalposYi_p0 = -0.9;      //m, distance from beam center to opposite-beam side of HCal
-  static const Double_t hcalposYf_p0 = 0.9;  
+// HCAL 
+// Dimensions
+static const Int_t hcalchan = 288;
+static const Int_t hcalcol = 12;
+static const Int_t hcalrow = 24;
+static const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
+static const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
+static const Double_t hcaladc_binw = 4.;        //ns, width of each ADC bin
+static const Double_t hcalblk_w_p0 = 0.15;      //m, width of a HCAL block, pass0/1
+static const Double_t hcalblk_h_p0 = 0.15;      //m, height of a HCAL block, pass0/1 
+static const Double_t hcalblk_w = 0.1524;       //m, width of a HCAL block
+static const Double_t hcalblk_h = 0.1524;       //m, height of a HCAL block
+static const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
+static const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
+static const Double_t hcalblk_div_hyp = 0.15875;//m, division corner-to-cornter dist.
+static const Double_t hcalblk_gap_h = 0.00254;  //m, horiz. gap bet. two blocks
+static const Double_t hcalblk_gap_v = 0.00635;  //m, vert. gap bet. two blocks
+// Positions (mc)
+static const Double_t hcalposXi_mc = -2.655;    //m, distance from beam center to top of HCal w/75cm offset
+static const Double_t hcalposXf_mc = 1.155;     //m, distance from beam center to bottom of HCal w/75cm offset
+static const Double_t hcalposYi_mc = -0.92964;  //m, distance from beam center to opposite-beam side of HCal
+static const Double_t hcalposYf_mc = 0.92964;   //m, distance from beam center to beam side of HCal
+// Pass0/1 (no block spacing)
+static const Double_t hcalposXi_p0 = -2.16014;  //m, distance from beam center to top of HCal w/75cm offset
+static const Double_t hcalposXf_p0 = 1.43826;   //m, distance from beam center to bottom of HCal w/75cm offset
+static const Double_t hcalposYi_p0 = -0.9;      //m, distance from beam center to opposite-beam side of HCal
+static const Double_t hcalposYf_p0 = 0.9;  
 //m, distance from beam center to beam side of HCal
-  // Positions (data fits)
-  static const Double_t hcalposXi = -2.268095;    //m, distance from beam center to top of HCal (obsolete)
-  static const Double_t hcalposXf = 1.538095;     //m, distance from beam center to bottom of HCal (obsolete)
-  static const Double_t hcalposYi = -0.931545;    //m, distance from beam center to opposite-beam side of HCal (obsolete)
-  static const Double_t hcalposYf = 0.931545;     //m, distance from beam center to beam side of HCal (obsolete)
-  // Global
-  //static const Double_t hcalvoff = -0.2897;       //m, height of the center of hcal above beam (m)
-  //static const Double_t hcalvoff = -0.3735;       //m, height of the center of hcal above beam (m) (sbs8)
-  //static const Double_t hcalvoff = -0.75;       //m, height of the center of hcal above beam (m)
-  //static const Double_t hcalvoff = 0.0;         //m, height of the center of hcal above beam (m) after pass2 corr
+// Positions (data fits)
+static const Double_t hcalposXi = -2.268095;    //m, distance from beam center to top of HCal (obsolete)
+static const Double_t hcalposXf = 1.538095;     //m, distance from beam center to bottom of HCal (obsolete)
+static const Double_t hcalposYi = -0.931545;    //m, distance from beam center to opposite-beam side of HCal (obsolete)
+static const Double_t hcalposYf = 0.931545;     //m, distance from beam center to beam side of HCal (obsolete)
+// Global
+//static const Double_t hcalvoff = -0.2897;       //m, height of the center of hcal above beam (m)
+//static const Double_t hcalvoff = -0.3735;       //m, height of the center of hcal above beam (m) (sbs8)
+//static const Double_t hcalvoff = -0.75;       //m, height of the center of hcal above beam (m)
+//static const Double_t hcalvoff = 0.0;         //m, height of the center of hcal above beam (m) after pass2 corr
 
- // target
-  static const Double_t l_tgt = 0.15;  //m 
-  static const Double_t celldiameter = 1.6*2.54; //cm, 
+// target
+static const Double_t l_tgt = 0.15;  //m 
+static const Double_t celldiameter = 1.6*2.54; //cm, 
 // shielding
-  static const Double_t rho_al = 2.7; //g/cc
-  static const Double_t aldEdx = 0.0021; //According to NIST ESTAR, the collisional stopping power of Aluminum is about 2.1 MeV*cm2/g between 1-4 GeV
+static const Double_t rho_al = 2.7; //g/cc
+static const Double_t aldEdx = 0.0021; //According to NIST ESTAR, the collisional stopping power of Aluminum is about 2.1 MeV*cm2/g between 1-4 GeV
 
-  // LH2
-  static const Double_t lh2tarrho = 0.0723;     //g/cc, target density
-  static const Double_t lh2cthick = 0.02;       //cm, target cell thickness
-  static const Double_t lh2uwallthick = 0.0145; //cm, upstream wall thickness
-  static const Double_t lh2dwallthick = 0.015;  //cm, downstream wall thickness
-  static const Double_t lh2dEdx = 0.00574; //According to NIST ESTAR, the collisional stopping power of hydrogen is about 5.74 MeV*cm2/g at 2 GeV energy. On the other hand, target group -> 0.00480
-  // LD2
-  static const Double_t ld2tarrho = 0.169;      //g/cc, target density
-  static const Double_t ld2dEdx = 0.00581;      //According to https://open.library.ubc.ca/media/stream/pdf/831/1.0085416/1, pick up a factor of 1.012. On the other hand, target group -> 0.00240
-  static const Double_t ld2uwallthick = 0.0145; //cm, assume same as hydrogen for now
-  static const Double_t ld2dwallthick = 0.015;  //cm, assume same as hydrogen for now
+// LH2
+static const Double_t lh2tarrho = 0.0723;     //g/cc, target density
+static const Double_t lh2cthick = 0.02;       //cm, target cell thickness
+static const Double_t lh2uwallthick = 0.0145; //cm, upstream wall thickness
+static const Double_t lh2dwallthick = 0.015;  //cm, downstream wall thickness
+static const Double_t lh2dEdx = 0.00574; //According to NIST ESTAR, the collisional stopping power of hydrogen is about 5.74 MeV*cm2/g at 2 GeV energy. On the other hand, target group -> 0.00480
+// LD2
+static const Double_t ld2tarrho = 0.169;      //g/cc, target density
+static const Double_t ld2dEdx = 0.00581;      //According to https://open.library.ubc.ca/media/stream/pdf/831/1.0085416/1, pick up a factor of 1.012. On the other hand, target group -> 0.00240
+static const Double_t ld2uwallthick = 0.0145; //cm, assume same as hydrogen for now
+static const Double_t ld2dwallthick = 0.015;  //cm, assume same as hydrogen for now
 
 
 
@@ -156,22 +156,22 @@ void dxdy_data_v2(int entries_input = -1, TString configfileinput="sbs4_30p" ){/
   //cout<<"config file"<<configfileinput<<endl;
 
   //// set location to config file
-   //string configfilename = Form("../config/sbs%d.cfg",kine);
-   TString configfilename = "../config/" + configfileinput + ".cfg";
+  //string configfilename = Form("../config/sbs%d.cfg",kine);
+  TString configfilename = "../config/" + configfileinput + ".cfg";
   // string configfilename = "/w/halla-scshelf2102/sbs/msatnik/GMn/config/sbs4_30p.cfg";
-   cout<<"reading from config file: "<<configfilename<<endl;
+  cout<<"reading from config file: "<<configfilename<<endl;
 
-   // set location and name for output file 
-   TString outputfilename = "../output/" + configfileinput + ".root";
-   //TString outputfilename = "../output/test.root";
+  // set location and name for output file 
+  TString outputfilename = "../output/" + configfileinput + ".root";
+  //TString outputfilename = "../output/test.root";
 
-   // Declare outfile
-   // TFile *fout = new TFile( Form("../output/sbs%d.root",kine), "RECREATE" );
-   //TFile *fout = new TFile("../output/sbs4_30p.root", "RECREATE" );
+  // Declare outfile
+  // TFile *fout = new TFile( Form("../output/sbs%d.root",kine), "RECREATE" );
+  //TFile *fout = new TFile("../output/sbs4_30p.root", "RECREATE" );
   TFile *fout = new TFile(outputfilename,"RECREATE");
   cout<<"writing to file: "<< outputfilename <<endl;
 
-    //cout<<"testing reading in from a config file"<<endl;
+  //cout<<"testing reading in from a config file"<<endl;
 
   ifstream configfile(configfilename);
   TString currentline;
@@ -276,7 +276,7 @@ void dxdy_data_v2(int entries_input = -1, TString configfileinput="sbs4_30p" ){/
         target = sval;
 	cout << "Loading target type: " << target << endl;
       }
-    if( skey == "mag_field" ){
+      if( skey == "mag_field" ){
 	TString sval = ( (TObjString*)(*tokens)[1] )->GetString();
         mag_field = sval.Atof();
 	cout << "Loading magnetic field: " << mag_field<< endl;
@@ -287,7 +287,7 @@ void dxdy_data_v2(int entries_input = -1, TString configfileinput="sbs4_30p" ){/
     delete tokens;
   }
 
-if (target == "deuterium")
+  if (target == "deuterium")
     {
       std::cout<<"doing deuterium"<<std::endl;
       M_N = (M_p + M_n)/2;
@@ -314,7 +314,7 @@ if (target == "deuterium")
   // C->Draw(">>elist",globalcut);
 
 
- double BBtr_p[maxTracks], BBtr_px[maxTracks], BBtr_py[maxTracks], BBtr_pz[maxTracks],BBgem_track_nhits[maxTracks],
+  double BBtr_p[maxTracks], BBtr_px[maxTracks], BBtr_py[maxTracks], BBtr_pz[maxTracks],BBgem_track_nhits[maxTracks],
     BBgem_track_ngoodhits[maxTracks], BBgem_track_chi2ndf[maxTracks];
   double BBtr_vz[maxTracks];
   double BBtgt_x[maxTracks], BBtgt_y[maxTracks], BBtgt_th[maxTracks], BBtgt_ph[maxTracks];
@@ -432,160 +432,162 @@ if (target == "deuterium")
 
 
   // Create output tree
-    TTree *P= new TTree("P", "Parsed Tree");
+  TTree *P= new TTree("P", "Parsed Tree");
     
-    // "old" Tree variables we want to keep
-    double bb_tr_vz_out;
-    double bb_tr_n_out;
-    double bb_tr_p_out;
-    double bb_tr_th_out;
-    double bb_tr_ph_out;
-    double bb_tr_r_th_out;
-    double bb_tr_r_ph_out;
-    double bb_tr_r_x_out;
-    double bb_tr_r_y_out;
-    double bb_ps_e_out;
-    double bb_ps_rowblk_out;
-    double bb_ps_colblk_out;
-    double bb_sh_e_out;
-    double bb_sh_rowblk_out;
-    double bb_sh_colblk_out;
-    //double bb_hodotdc_clus_tmean_out;
-    //double bb_grinch_tdc_clus_size_out;
-    //double bb_grinch_tdc_clus_trackindex_out;
-    double bb_gem_track_nhits_out;
-    double bb_gem_track_ngoodhits_out;
-    double bb_gem_track_chi2ndf_out;
-    double bb_etot_over_p_out;
-    double bb_grinch_clus_size_out;
-    double bb_grinch_clus_adc_out;
-    double bb_grinch_clus_trackindex_out;
+  // "old" Tree variables we want to keep
+  double bb_tr_vz_out;
+  double bb_tr_n_out;
+  double bb_tr_p_out;
+  double bb_tr_th_out;
+  double bb_tr_ph_out;
+  double bb_tr_r_th_out;
+  double bb_tr_r_ph_out;
+  double bb_tr_r_x_out;
+  double bb_tr_r_y_out;
+  double bb_ps_e_out;
+  double bb_ps_rowblk_out;
+  double bb_ps_colblk_out;
+  double bb_sh_e_out;
+  double bb_sh_rowblk_out;
+  double bb_sh_colblk_out;
+  //double bb_hodotdc_clus_tmean_out;
+  //double bb_grinch_tdc_clus_size_out;
+  //double bb_grinch_tdc_clus_trackindex_out;
+  double bb_gem_track_nhits_out;
+  double bb_gem_track_ngoodhits_out;
+  double bb_gem_track_chi2ndf_out;
+  double bb_etot_over_p_out;
+  double bb_grinch_clus_size_out;
+  double bb_grinch_clus_adc_out;
+  double bb_grinch_clus_trackindex_out;
 
-    // hcal best cluster 
-    double hcal_x, hcal_y; // 
-    double hcal_e;
+  // hcal best cluster 
+  double hcal_x, hcal_y; // 
+  double hcal_e;
 
-    // hcal default cluster
-    double hcal_x_def, hcal_y_def;
-    double hcal_e_def;
+  // hcal default cluster
+  double hcal_x_def, hcal_y_def;
+  double hcal_e_def;
 
-    // calculated variables 
-    double hcal_dx, hcal_dy; // 
-    double hcal_x_exp, hcal_y_exp; // 
-    double Q2_out, W2_out, nu_out, tau_out, epsilon_out, precon_out;
+  // calculated variables 
+  double hcal_dx, hcal_dy; // 
+  double hcal_x_exp, hcal_y_exp; // 
+  double Q2_out, W2_out, nu_out, tau_out, epsilon_out, precon_out;
 
-     // mc info. These will all be filled with zeros. I want the branches to match for ease of use later. 
-    int is_proton_out=0;
-    int is_neutron_out=0;
-    double corrected_weight_out=1; // when weight ==1, it's as if it was unweighted. 
-    double luminosity_out=0;
-    double generation_volume_out=0;
-    double max_weight_out=0;
-    double Ntried_sum_out=0;
+  // mc info. These will all be filled with zeros. I want the branches to match for ease of use later. 
+  int is_proton_out=0;
+  int is_neutron_out=0;
+  double corrected_weight_out=1; // when weight ==1, it's as if it was unweighted. 
+  double luminosity_out=0;
+  double generation_volume_out=0;
+  double max_weight_out=0;
+  double Ntried_sum_out=0;
 
-    // which target it is. 
-    int is_deuterium_out;
-    int is_hydrogen_out;
+  // which target it is. 
+  int is_deuterium_out;
+  int is_hydrogen_out;
    
-    // fiducial and active area params
-    double dxsig_p_out;
-    double dxsig_n_out;
-    double dysig_out;
-    double dx_pn_out; 
+  // fiducial and active area params
+  double dxsig_p_out;
+  double dxsig_n_out;
+  double dysig_out;
+  double dx_pn_out; 
 
-    double nsigx_fid_out, nsigy_fid_out;
+  double nsigx_fid_out, nsigy_fid_out;
 
-    // other
-    double e_over_p_out;
+  // other
+  double e_over_p_out;
 
-    // HCal - Shower timing best cluster
-    double hcal_clus_atime_out;
-    double bb_sh_atimeblk_out;
-    double hcal_sh_atime_diff_out;
-    int passed_atime_cuts_out;
-   
+  // HCal - Shower timing best cluster
+  double hcal_clus_atime_out;
+  double bb_sh_atimeblk_out;
+  double hcal_sh_atime_diff_out;
+  int passed_atime_cuts_out;
 
-    
-    
+  // energy corrections
+  double Eloss_outgoing_out;
+
     
 
 
   // Create new branches for the output tree
-    P->Branch("bb_tr_n", &bb_tr_n_out, "bb_tr_n/D");
-    P->Branch("bb_tr_vz", &bb_tr_vz_out, "bb_tr_vz/D");
-    P->Branch("bb_tr_p", &bb_tr_p_out, "bb_tr_p/D");
-    P->Branch("bb_tr_th", &bb_tr_th_out, "bb_tr_th/D");
-    P->Branch("bb_tr_ph", &bb_tr_ph_out, "bb_tr_ph/D");
-    P->Branch("bb_tr_r_x", &bb_tr_r_x_out, "bb_tr_r_x/D");
-    P->Branch("bb_tr_r_y", &bb_tr_r_y_out, "bb_tr_r_y/D");
-    P->Branch("bb_tr_r_th", &bb_tr_r_th_out, "bb_tr_r_th/D"); // point where straightline tracks begin 
-    P->Branch("bb_tr_r_ph", &bb_tr_r_ph_out, "bb_tr_r_ph/D"); // point where straightline tracks begin 
-    P->Branch("bb_ps_e", &bb_ps_e_out, "bb_ps_e/D");
-    P->Branch("bb_ps_rowblk", &bb_ps_rowblk_out, "bb_ps_rowblk/D");
-    P->Branch("bb_ps_colblk", &bb_ps_colblk_out, "bb_ps_colblk/D");
-    P->Branch("bb_sh_e", &bb_sh_e_out, "bb_sh_e/D");
-    P->Branch("bb_sh_rowblk", &bb_sh_rowblk_out, "bb_sh_rowblk/D");
-    P->Branch("bb_sh_colblk", &bb_sh_colblk_out, "bb_sh_colblk/D");
-    //P->Branch("bb_hodotdc_clus_tmean", &bb_hodotdc_clus_tmean_out, "bb_hodotdc_clus_tmean/D");
-    //P->Branch("bb_grinch_tdc_clus_size", &bb_grinch_tdc_clus_size_out, "bb_grinch_tdc_clus_size/D");
-    //P->Branch("bb_grinch_tdc_clus_trackindex", &bb_grinch_tdc_clus_trackindex_out, "bb_grinch_tdc_clus_trackindex/D");
-    P->Branch("bb_gem_track_nhits", &bb_gem_track_nhits_out, "bb_gem_track_nhits/D");
-    P->Branch("bb_gem_track_ngoodhits", &bb_gem_track_ngoodhits_out, "bb_gem_track_ngoodhits/D");
-    P->Branch("bb_gem_track_chi2ndf", &bb_gem_track_chi2ndf_out, "bb_gem_track_chi2ndf/D");
-    //P->Branch("bb_etot_over_p", &bb_etot_over_p_out, "bb_etot_over_p/D");
-    P->Branch("bb_grinch_clus_size",&bb_grinch_clus_size_out,"bb_grinch_clus_size/D");
-    P->Branch("bb_grinch_clus_adc",&bb_grinch_clus_adc_out,"bb_grinch_clus_adc/D");
-    P->Branch("bb_grinch_clus_trackindex",&bb_grinch_clus_trackindex_out,"bb_grinch_clus_trackindex/D");
+  P->Branch("bb_tr_n", &bb_tr_n_out, "bb_tr_n/D");
+  P->Branch("bb_tr_vz", &bb_tr_vz_out, "bb_tr_vz/D");
+  P->Branch("bb_tr_p", &bb_tr_p_out, "bb_tr_p/D");
+  P->Branch("bb_tr_th", &bb_tr_th_out, "bb_tr_th/D");
+  P->Branch("bb_tr_ph", &bb_tr_ph_out, "bb_tr_ph/D");
+  P->Branch("bb_tr_r_x", &bb_tr_r_x_out, "bb_tr_r_x/D");
+  P->Branch("bb_tr_r_y", &bb_tr_r_y_out, "bb_tr_r_y/D");
+  P->Branch("bb_tr_r_th", &bb_tr_r_th_out, "bb_tr_r_th/D"); // point where straightline tracks begin 
+  P->Branch("bb_tr_r_ph", &bb_tr_r_ph_out, "bb_tr_r_ph/D"); // point where straightline tracks begin 
+  P->Branch("bb_ps_e", &bb_ps_e_out, "bb_ps_e/D");
+  P->Branch("bb_ps_rowblk", &bb_ps_rowblk_out, "bb_ps_rowblk/D");
+  P->Branch("bb_ps_colblk", &bb_ps_colblk_out, "bb_ps_colblk/D");
+  P->Branch("bb_sh_e", &bb_sh_e_out, "bb_sh_e/D");
+  P->Branch("bb_sh_rowblk", &bb_sh_rowblk_out, "bb_sh_rowblk/D");
+  P->Branch("bb_sh_colblk", &bb_sh_colblk_out, "bb_sh_colblk/D");
+  //P->Branch("bb_hodotdc_clus_tmean", &bb_hodotdc_clus_tmean_out, "bb_hodotdc_clus_tmean/D");
+  //P->Branch("bb_grinch_tdc_clus_size", &bb_grinch_tdc_clus_size_out, "bb_grinch_tdc_clus_size/D");
+  //P->Branch("bb_grinch_tdc_clus_trackindex", &bb_grinch_tdc_clus_trackindex_out, "bb_grinch_tdc_clus_trackindex/D");
+  P->Branch("bb_gem_track_nhits", &bb_gem_track_nhits_out, "bb_gem_track_nhits/D");
+  P->Branch("bb_gem_track_ngoodhits", &bb_gem_track_ngoodhits_out, "bb_gem_track_ngoodhits/D");
+  P->Branch("bb_gem_track_chi2ndf", &bb_gem_track_chi2ndf_out, "bb_gem_track_chi2ndf/D");
+  //P->Branch("bb_etot_over_p", &bb_etot_over_p_out, "bb_etot_over_p/D");
+  P->Branch("bb_grinch_clus_size",&bb_grinch_clus_size_out,"bb_grinch_clus_size/D");
+  P->Branch("bb_grinch_clus_adc",&bb_grinch_clus_adc_out,"bb_grinch_clus_adc/D");
+  P->Branch("bb_grinch_clus_trackindex",&bb_grinch_clus_trackindex_out,"bb_grinch_clus_trackindex/D");
 
-    // calculated variables
-    P->Branch("hcal_x", &hcal_x, "hcal_x/D");
-    P->Branch("hcal_y", &hcal_y, "hcal_y/D");
-    P->Branch("hcal_dx", &hcal_dx, "hcal_dx/D");
-    P->Branch("hcal_dy", &hcal_dy, "hcal_dy/D");
-    P->Branch("hcal_x_exp", &hcal_x_exp, "hcal_x_exp/D");
-    P->Branch("hcal_y_exp", &hcal_y_exp, "hcal_y_exp/D");
+  // calculated variables
+  P->Branch("hcal_x", &hcal_x, "hcal_x/D");
+  P->Branch("hcal_y", &hcal_y, "hcal_y/D");
+  P->Branch("hcal_dx", &hcal_dx, "hcal_dx/D");
+  P->Branch("hcal_dy", &hcal_dy, "hcal_dy/D");
+  P->Branch("hcal_x_exp", &hcal_x_exp, "hcal_x_exp/D");
+  P->Branch("hcal_y_exp", &hcal_y_exp, "hcal_y_exp/D");
 
-    P->Branch("Q2", &Q2_out, "Q2/D");
-    P->Branch("W2", &W2_out, "W2/D");
-    P->Branch("nu", &nu_out, "nu/D");
-    P->Branch("tau", &tau_out, "tau/D");
-    P->Branch("epsilon", &epsilon_out, "epsilon/D");
-    P->Branch("precon", &precon_out, "precon/D");
+  P->Branch("Q2", &Q2_out, "Q2/D");
+  P->Branch("W2", &W2_out, "W2/D");
+  P->Branch("nu", &nu_out, "nu/D");
+  P->Branch("tau", &tau_out, "tau/D");
+  P->Branch("epsilon", &epsilon_out, "epsilon/D");
+  P->Branch("precon", &precon_out, "precon/D");
 
-    // hcal best cluster
-    P->Branch("hcal_e", &hcal_e,"hcal_e/D");
+  // hcal best cluster
+  P->Branch("hcal_e", &hcal_e,"hcal_e/D");
 
-    // Target for Data
-    P->Branch("is_deuterium", &is_deuterium_out, "is_deuterium/I");
-    P->Branch("is_hydrogen", &is_hydrogen_out, "is_hydrogen/I");
+  // Target for Data
+  P->Branch("is_deuterium", &is_deuterium_out, "is_deuterium/I");
+  P->Branch("is_hydrogen", &is_hydrogen_out, "is_hydrogen/I");
     
 
-    // fiducial and active area params
-    P->Branch("dxsig_p", &dxsig_p_out, "dxsig_p/D");
-    P->Branch("dxsig_n", &dxsig_n_out, "dxsig_n/D");
-    P->Branch("dysig", &dysig_out, "dysig/D");
-    P->Branch("dx_pn", &dx_pn, "dx_pn/D");
-    P->Branch("nsigx_fid", &nsigx_fid_out, "nsigx_fid/D");
-    P->Branch("nsigy_fid", &nsigy_fid_out, "nsigy_fid/D");
+  // fiducial and active area params
+  P->Branch("dxsig_p", &dxsig_p_out, "dxsig_p/D");
+  P->Branch("dxsig_n", &dxsig_n_out, "dxsig_n/D");
+  P->Branch("dysig", &dysig_out, "dysig/D");
+  P->Branch("dx_pn", &dx_pn, "dx_pn/D");
+  P->Branch("nsigx_fid", &nsigx_fid_out, "nsigx_fid/D");
+  P->Branch("nsigy_fid", &nsigy_fid_out, "nsigy_fid/D");
 
-    // others
-    P->Branch("e_over_p", &e_over_p_out, "e_over_p/D");
-    P->Branch("mag_field", &mag_field, "mag_field/D");
+  // others
+  P->Branch("e_over_p", &e_over_p_out, "e_over_p/D");
+  P->Branch("mag_field", &mag_field, "mag_field/D");
 
-    // HCal - Shower timing
-    P->Branch("hcal_clus_atime", &hcal_clus_atime_out,"hcal_clus_atime/D");
-    P->Branch("bb_sh_atimeblk", &bb_sh_atimeblk_out,"bb_sh_atimeblk/D");
-    P->Branch("hcal_sh_atime_diff", &hcal_sh_atime_diff_out,"hcal_sh_atime_diff/D");
-    P->Branch("passed_atime_cuts",&passed_atime_cuts_out,"passed_atime_cuts/I");
-
-    // mc info. These will all be filled with zeros. I want the branches to match between data and MC for ease later. 
-    P->Branch("is_proton", &is_proton_out, "is_proton/I");
-    P->Branch("is_neutron", &is_neutron_out, "is_neutron/I");
-    P->Branch("corrected_weight", &corrected_weight_out, "corrected_weight/D");
-    P->Branch("luminosity", &luminosity_out, "luminosity/D");
-    P->Branch("generation_volume", &generation_volume_out, "generation_volume/D");
-    P->Branch("max_weight", &max_weight_out, "max_weight/D");
-    P->Branch("Ntried_sum", &Ntried_sum_out, "Ntried_sum/D");
+  // HCal - Shower timing
+  P->Branch("hcal_clus_atime", &hcal_clus_atime_out,"hcal_clus_atime/D");
+  P->Branch("bb_sh_atimeblk", &bb_sh_atimeblk_out,"bb_sh_atimeblk/D");
+  P->Branch("hcal_sh_atime_diff", &hcal_sh_atime_diff_out,"hcal_sh_atime_diff/D");
+  P->Branch("passed_atime_cuts",&passed_atime_cuts_out,"passed_atime_cuts/I");
+  // Energy Corrections 
+  P->Branch("Eloss_outgoing",&Eloss_outgoing_out, "Eloss_outgoing/D");
+    
+  // mc info. These will all be filled with zeros. I want the branches to match between data and MC for ease later. 
+  P->Branch("is_proton", &is_proton_out, "is_proton/I");
+  P->Branch("is_neutron", &is_neutron_out, "is_neutron/I");
+  P->Branch("corrected_weight", &corrected_weight_out, "corrected_weight/D");
+  P->Branch("luminosity", &luminosity_out, "luminosity/D");
+  P->Branch("generation_volume", &generation_volume_out, "generation_volume/D");
+  P->Branch("max_weight", &max_weight_out, "max_weight/D");
+  P->Branch("Ntried_sum", &Ntried_sum_out, "Ntried_sum/D");
 
 
   TH1D *h_dx_HCAL = new TH1D("h_dx_HCAL", " ; x_{HCAL} - x_{exp} (m)  ", 200,-4,4);
@@ -594,8 +596,8 @@ if (target == "deuterium")
   TH1D* h_W2 = new TH1D("h_W2", "W2",100,0,2);
   TH1D* h_W2_test = new TH1D("h_W2_test", "W2",100,0,2);
 
-   TH1D *h_dx_HCAL_failed_ps = new TH1D("h_dx_HCAL_failed_ps", " ; x_{HCAL} - x_{exp} (m)  ", 200,-4,4);
-   TH1D* h_W2_failed_ps = new TH1D("h_W2_failed_ps", "W2",100,0,2);
+  TH1D *h_dx_HCAL_failed_ps = new TH1D("h_dx_HCAL_failed_ps", " ; x_{HCAL} - x_{exp} (m)  ", 200,-4,4);
+  TH1D* h_W2_failed_ps = new TH1D("h_W2_failed_ps", "W2",100,0,2);
 
 
 
@@ -618,9 +620,9 @@ if (target == "deuterium")
   TH2D* h_xy_HCAL_passedFid_n = new TH2D("h_xy_HCAL_passedFid_n", "Expected: Passed Fiducial for Neutron hyp.;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
   TH2D* h_xy_HCAL_passedFid_p = new TH2D("h_xy_HCAL_passedFid_p", "Expected: Passed Fiducial for Proton hyp.;HCAL Y_{expected} ; HCAL X_{expected}",100,-1,1,225,-3,2);
 
-   TH1D* h_nsigx_fid = new TH1D("h_nsigx_fid", "nsigx_fid",200,-20,20);
-   TH1D* h_nsigy_fid = new TH1D("h_nsigy_fid", "nsigy_fid",200,-20,20);
-   TH1D *h_dx_HCAL_nsig = new TH1D("h_dx_HCAL_nsig ", " ; x_{HCAL} - x_{exp} (m)  ", 200,-4,4);
+  TH1D* h_nsigx_fid = new TH1D("h_nsigx_fid", "nsigx_fid",200,-20,20);
+  TH1D* h_nsigy_fid = new TH1D("h_nsigy_fid", "nsigy_fid",200,-20,20);
+  TH1D *h_dx_HCAL_nsig = new TH1D("h_dx_HCAL_nsig ", " ; x_{HCAL} - x_{exp} (m)  ", 200,-4,4);
 
 
   TH2D* h_W2_dx =  new TH2D("h_W2_dx",";HCAL dx; W2",500,-4,3,100,0,4);
@@ -653,7 +655,7 @@ if (target == "deuterium")
 
   //Long64_t Nevents = elist ->GetN();
 
- // Set long int to keep track of total entries
+  // Set long int to keep track of total entries
   cout<<"Loading branches. Hold tight! "<<endl;
   Long64_t Nevents = C->GetEntries();
   UInt_t run_number = 0;
@@ -662,14 +664,14 @@ if (target == "deuterium")
 
 
   Int_t max = 0;
-    if (entries_input == -1){
-      max = Nevents;
-    }
-    else{
-      max = entries_input; 
-    }
-    if (max > Nevents){ max = Nevents;}
-    cout<<"max = "<<max<<endl;
+  if (entries_input == -1){
+    max = Nevents;
+  }
+  else{
+    max = entries_input; 
+  }
+  if (max > Nevents){ max = Nevents;}
+  cout<<"max = "<<max<<endl;
 
 
   cout<< "# Events = "<<Nevents<<endl;
@@ -679,12 +681,14 @@ if (target == "deuterium")
     
     C->GetEntry(nevent); 
 
-      // doing a global cut manually here for now. 
-    if (BBtr_n ==1 && abs(BBtr_vz[0])<0.08 && BBps_e > 0.1 && BBgem_track_nhits[0]>2){ 
+    // doing a global cut manually here for now. 
+    if (BBtr_n ==1 && abs(BBtr_vz[0])<0.08 && BBps_e > 0.01 && BBgem_track_nhits[0]>2){ 
   
- double Eloss_outgoing = celldiameter/2.0/sin(BB_th) * ld2tarrho * ld2dEdx;
+      double Eloss_outgoing = celldiameter/2.0/sin(BB_th) * ld2tarrho * ld2dEdx;
 
-      double ebeam_c = E_e - ( (BBtr_vz[0]+l_tgt/2.0) * lh2tarrho * lh2dEdx + lh2uwallthick * rho_al * aldEdx );//correct for energy loss of beam electron as it passes into the target material towards the vertex position.
+      // double ebeam_c = E_e - ( (BBtr_vz[0]+l_tgt/2.0) * lh2tarrho * lh2dEdx + lh2uwallthick * rho_al * aldEdx );//correct for energy loss of beam electron as it passes into the target material towards the vertex position. (Why am I using the h2 vars?)
+      
+      double ebeam_c = E_e - ( (BBtr_vz[0]+l_tgt/2.0) * ld2tarrho * ld2dEdx + ld2uwallthick * rho_al * aldEdx );//correct for energy loss of beam electron as it passes into the target material towards the vertex position. (Trying with the d2 vars). What's the difference between this an Eloss_outgoing? 
 
       TVector3 vertex(0,0,BBtr_vz[0]);
 
@@ -917,7 +921,7 @@ if (target == "deuterium")
 	  h_dx_HCAL_nsig->Fill(dx);
 	}
 
- // Update and fill the output branches 
+      // Update and fill the output branches 
       //Fill old output tree
       bb_tr_p_out = BBtr_p[0];
       bb_tr_n_out = BBtr_n;
@@ -983,6 +987,10 @@ if (target == "deuterium")
       bb_sh_atimeblk_out = BBsh_atimeblk;
       hcal_sh_atime_diff_out = HCAL_clus_atime[max_e_index] - BBsh_atimeblk;
       passed_atime_cuts_out = passed_atime_cuts;
+
+      /// Energy Corrections
+      Eloss_outgoing_out = Eloss_outgoing; 
+      
    
       P -> Fill();
     }// end global cut  
@@ -1135,19 +1143,19 @@ if (target == "deuterium")
 
 // BEGIN FUNCTIONS 
 
- // Establish hcal active area excluding N blks from edge, Pass0/1 DB
-  std::vector<Double_t> hcalaa_data(int exblkN_x=1, int exblkN_y=1) {
-    std::vector<Double_t> hcalaa;
-    Double_t hcalaaXi = hcalposXi_p0 + exblkN_x*hcalblk_w_p0;
-    Double_t hcalaaXf = hcalposXf_p0 - exblkN_x*hcalblk_w_p0;
-    Double_t hcalaaYi = hcalposYi_p0 + exblkN_y*hcalblk_h_p0;
-    Double_t hcalaaYf = hcalposYf_p0 - exblkN_y*hcalblk_h_p0;
-    hcalaa.push_back( hcalaaXi ); 
-    hcalaa.push_back( hcalaaXf );
-    hcalaa.push_back( hcalaaYi );
-    hcalaa.push_back( hcalaaYf );
-    return hcalaa;
-  }
+// Establish hcal active area excluding N blks from edge, Pass0/1 DB
+std::vector<Double_t> hcalaa_data(int exblkN_x=1, int exblkN_y=1) {
+  std::vector<Double_t> hcalaa;
+  Double_t hcalaaXi = hcalposXi_p0 + exblkN_x*hcalblk_w_p0;
+  Double_t hcalaaXf = hcalposXf_p0 - exblkN_x*hcalblk_w_p0;
+  Double_t hcalaaYi = hcalposYi_p0 + exblkN_y*hcalblk_h_p0;
+  Double_t hcalaaYf = hcalposYf_p0 - exblkN_y*hcalblk_h_p0;
+  hcalaa.push_back( hcalaaXi ); 
+  hcalaa.push_back( hcalaaXf );
+  hcalaa.push_back( hcalaaYi );
+  hcalaa.push_back( hcalaaYf );
+  return hcalaa;
+}
 
 // Establish hcal active area excluding N blks from edge, MC DB
 std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1) {
@@ -1163,48 +1171,48 @@ std::vector<Double_t> hcalaa_mc (int exblkN_x=1, int exblkN_y=1) {
   return hcalaa;
 }
 
- // Check position per event against hcal active area (TRUE if detection on active area)
-  bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa) {
-    bool on = false;
-    // active area dimensions
-    Double_t hcalx_t = hcalaa[0];
-    Double_t hcalx_b = hcalaa[1];
-    Double_t hcaly_r = hcalaa[2];
-    Double_t hcaly_l = hcalaa[3];
-    on = hcaly>hcaly_r && hcaly<hcaly_l && hcalx>hcalx_t && hcalx<hcalx_b;
-    return on;
-  } 
+// Check position per event against hcal active area (TRUE if detection on active area)
+bool hcalaaON (Double_t hcalx, Double_t hcaly, std::vector<Double_t> hcalaa) {
+  bool on = false;
+  // active area dimensions
+  Double_t hcalx_t = hcalaa[0];
+  Double_t hcalx_b = hcalaa[1];
+  Double_t hcaly_r = hcalaa[2];
+  Double_t hcaly_l = hcalaa[3];
+  on = hcaly>hcaly_r && hcaly<hcaly_l && hcalx>hcalx_t && hcalx<hcalx_b;
+  return on;
+} 
 
 
 // Overload for most cases where dy margin negligable and dx top/bottom configurable by p/n
-  std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa) {
-    std::vector<Double_t> fid;
-    Double_t hcalx_t = hcalaa[0] + dxsig_p;  // top margin (relevant for proton)
-    Double_t hcalx_b = hcalaa[1] - dxsig_n;  // bottom margin (relevant for neutron)
-    Double_t hcaly_r = hcalaa[2] + dysig;    // right margin
-    Double_t hcaly_l = hcalaa[3] - dysig;    // left margin
-    fid.push_back( hcalx_t ); 
-    fid.push_back( hcalx_b );
-    fid.push_back( hcaly_r );
-    fid.push_back( hcaly_l );
-    return fid;
-  }
+std::vector<Double_t> hcalfid (Double_t dxsig_p, Double_t dxsig_n, Double_t dysig, std::vector<Double_t> hcalaa) {
+  std::vector<Double_t> fid;
+  Double_t hcalx_t = hcalaa[0] + dxsig_p;  // top margin (relevant for proton)
+  Double_t hcalx_b = hcalaa[1] - dxsig_n;  // bottom margin (relevant for neutron)
+  Double_t hcaly_r = hcalaa[2] + dysig;    // right margin
+  Double_t hcaly_l = hcalaa[3] - dysig;    // left margin
+  fid.push_back( hcalx_t ); 
+  fid.push_back( hcalx_b );
+  fid.push_back( hcaly_r );
+  fid.push_back( hcaly_l );
+  return fid;
+}
 
 
-  // Check position by event and verify in hcal fiducial area
-  bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid) {
-    Double_t hcalx_t = fid[0];
-    Double_t hcalx_b = fid[1];
-    Double_t hcaly_r = fid[2];
-    Double_t hcaly_l = fid[3];
+// Check position by event and verify in hcal fiducial area
+bool hcalfidIN (Double_t hcalx_exp, Double_t hcaly_exp, Double_t dx_pn, vector<Double_t> fid) {
+  Double_t hcalx_t = fid[0];
+  Double_t hcalx_b = fid[1];
+  Double_t hcaly_r = fid[2];
+  Double_t hcaly_l = fid[3];
 
-    Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
+  Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
 
-    bool infid = hcaly_exp>hcaly_r && hcaly_exp<hcaly_l &&      //dy same for protons and neutrons
-	         hcalx_exp>hcalx_t && hcalx_exp<hcalx_b &&      //dx for neutrons
-	         hcalx_exp_p>hcalx_t && hcalx_exp_p<hcalx_b;	//dx for protons							     
-    return infid;
-  } 
+  bool infid = hcaly_exp>hcaly_r && hcaly_exp<hcaly_l &&      //dy same for protons and neutrons
+					      hcalx_exp>hcalx_t && hcalx_exp<hcalx_b &&      //dx for neutrons
+									     hcalx_exp_p>hcalx_t && hcalx_exp_p<hcalx_b;	//dx for protons							     
+  return infid;
+} 
 
 Double_t calculate_nsigma_fid_y(Double_t hcaly_exp,Double_t dysig, std::vector<Double_t> hcalaa)
 {
@@ -1235,26 +1243,26 @@ Double_t calculate_nsigma_fid_x(Double_t hcalx_exp,Double_t dxsig_n, Double_t dx
   Double_t hcalaa_t = hcalaa[0]; // about -2.5 for 1 block aa cut
   Double_t hcalaa_b = hcalaa[1] ;// about 1.0 for 1 block aa cut 
   
-   Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
+  Double_t hcalx_exp_p = hcalx_exp - dx_pn;      //define the exp pos of a proton from obs dx peak diff
 
-// goal: how many sigma away from each active area boundary is the expected value?
+  // goal: how many sigma away from each active area boundary is the expected value?
   // Also want to incorporate information on if it is on the wrong side of the boundary: ie allow for negative values. 
-   // example: say hcalx_exp = 0.1
-   Double_t distance_to_top_x_aa_n = hcalx_exp - hcalaa_t; // 0.1 - (-2.5) = 2.6. So it is 2.6 away from the top active area boundary.
-   Double_t distance_to_top_x_aa_p = hcalx_exp_p - hcalaa_t; // proton hypothesis 
-   Double_t nsigma_top_n = distance_to_top_x_aa_n / dxsig_p; // express in terms of how many dxsig_p that is. 
-   Double_t nsigma_top_p = distance_to_top_x_aa_p / dxsig_p;// proton hypotheis. 
-   /// what if outside the aa boundary? say hcalx_exp = -2.6:  -2.6 - (-2.5) = -0.1. The sign shows it's outside the boundary. 
+  // example: say hcalx_exp = 0.1
+  Double_t distance_to_top_x_aa_n = hcalx_exp - hcalaa_t; // 0.1 - (-2.5) = 2.6. So it is 2.6 away from the top active area boundary.
+  Double_t distance_to_top_x_aa_p = hcalx_exp_p - hcalaa_t; // proton hypothesis 
+  Double_t nsigma_top_n = distance_to_top_x_aa_n / dxsig_p; // express in terms of how many dxsig_p that is. 
+  Double_t nsigma_top_p = distance_to_top_x_aa_p / dxsig_p;// proton hypotheis. 
+  /// what if outside the aa boundary? say hcalx_exp = -2.6:  -2.6 - (-2.5) = -0.1. The sign shows it's outside the boundary. 
 
-   Double_t distance_to_bottom_x_aa_n = hcalaa_b - hcalx_exp; // 1.0 - 0.1 = 0.9. So it is 0.9 away from the bottom active area boundary.
-   Double_t distance_to_bottom_x_aa_p = hcalaa_b - hcalx_exp_p; // proton hypothesis.
-   Double_t nsigma_bottom_n = distance_to_bottom_x_aa_n / dxsig_n; // express in terms of how many dxsig_n that is. 
-   Double_t nsigma_bottom_p = distance_to_bottom_x_aa_p / dxsig_n;// proton hypotheis. 
-   /// what if outside the aa boundary? say hcalx_exp = 2.0:  1.0 - 2.0  = -1. The sign shows it's outside the boundary. 
+  Double_t distance_to_bottom_x_aa_n = hcalaa_b - hcalx_exp; // 1.0 - 0.1 = 0.9. So it is 0.9 away from the bottom active area boundary.
+  Double_t distance_to_bottom_x_aa_p = hcalaa_b - hcalx_exp_p; // proton hypothesis.
+  Double_t nsigma_bottom_n = distance_to_bottom_x_aa_n / dxsig_n; // express in terms of how many dxsig_n that is. 
+  Double_t nsigma_bottom_p = distance_to_bottom_x_aa_p / dxsig_n;// proton hypotheis. 
+  /// what if outside the aa boundary? say hcalx_exp = 2.0:  1.0 - 2.0  = -1. The sign shows it's outside the boundary. 
 
 
-   //cout<< "hcalaa_t = "<< hcalaa_t << " , hcalyaa_b = "<< hcalaa_b<< " , hcalx_exp = " <<hcalx_exp<<" , hcalx_exp_p = " <<hcalx_exp_p<<endl;
-   //cout << "nsigma_bottom_n= "<<nsigma_bottom_n<<" nsigma_bottom_p, = "<<nsigma_bottom_p << " nsigma_top_n = "<<nsigma_top_n<<" , nsigma_top_p = "<<nsigma_top_p<<endl;
+  //cout<< "hcalaa_t = "<< hcalaa_t << " , hcalyaa_b = "<< hcalaa_b<< " , hcalx_exp = " <<hcalx_exp<<" , hcalx_exp_p = " <<hcalx_exp_p<<endl;
+  //cout << "nsigma_bottom_n= "<<nsigma_bottom_n<<" nsigma_bottom_p, = "<<nsigma_bottom_p << " nsigma_top_n = "<<nsigma_top_n<<" , nsigma_top_p = "<<nsigma_top_p<<endl;
 
   return std::min({nsigma_bottom_n, nsigma_bottom_p ,nsigma_top_n,nsigma_top_p});
 }
