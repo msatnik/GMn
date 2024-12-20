@@ -321,7 +321,7 @@ void HDE_LH2(TString configfileinput="sbs4_30p_cuts_LH2"){ // main
   std::string proton_detected_hcal_x_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString +"&&"+ W2CutString+"&&("+ ProtonSpot_CutString +")";
   //TrackQualityCutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_x_exp>>proton_detected_hcal_x_exp_hist(300, -3, 3)",  proton_detected_hcal_x_exp_study_string.c_str(), "COLZ");
+  C->Draw("hcal_x_exp>>proton_detected_hcal_x_exp_hist(147, -3.5, 2)",  proton_detected_hcal_x_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *proton_detected_hcal_x_exp_hist= (TH1D*)gDirectory->Get("proton_detected_hcal_x_exp_hist");
   //TH1D *shifted_proton_detected_hcal_x_exp_hist = utilityHandler.ScaleAndShiftHistogram(proton_detected_hcal_x_exp_hist,1,ProtonSpot_offset);// hist, scale, shift
@@ -338,7 +338,7 @@ void HDE_LH2(TString configfileinput="sbs4_30p_cuts_LH2"){ // main
   std::string proton_expected_hcal_x_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+e_over_p_CutString +"&&"+ W2CutString;
   //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_x_exp>>proton_expected_hcal_x_exp_hist(300, -3, 3)",  proton_expected_hcal_x_exp_study_string.c_str(), "COLZ E");
+  C->Draw("hcal_x_exp>>proton_expected_hcal_x_exp_hist(147, -3.5, 2)",  proton_expected_hcal_x_exp_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *proton_expected_hcal_x_exp_hist= (TH1D*)gDirectory->Get("proton_expected_hcal_x_exp_hist");
   //TH1D *shifted_proton_expected_hcal_x_exp_hist = utilityHandler.ScaleAndShiftHistogram(proton_expected_hcal_x_exp_hist, 1, ProtonSpot_offset);
@@ -373,7 +373,7 @@ void HDE_LH2(TString configfileinput="sbs4_30p_cuts_LH2"){ // main
   std::string proton_detected_hcal_y_exp_study_string= EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+ HCal_Energy_CutString + "&&"+  HCal_Shower_atime_CutString +"&&"+e_over_p_CutString +"&&"+ W2CutString+"&&("+ ProtonSpot_CutString +")";
   //TrackQualityCutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_y_exp>>proton_detected_hcal_y_exp_hist(300, -3, 3)",  proton_detected_hcal_y_exp_study_string.c_str(), "COLZ");
+  C->Draw("hcal_y_exp>>proton_detected_hcal_y_exp_hist(67, -1.25, 1.25)",  proton_detected_hcal_y_exp_study_string.c_str(), "COLZ");
   // Retrieve and customize histogram
   TH1D *proton_detected_hcal_y_exp_hist= (TH1D*)gDirectory->Get("proton_detected_hcal_y_exp_hist");
   //TH1D *shifted_proton_detected_hcal_y_exp_hist = utilityHandler.ScaleAndShiftHistogram(proton_detected_hcal_y_exp_hist,1,ProtonSpot_offset);// hist, scale, shift
@@ -390,7 +390,7 @@ void HDE_LH2(TString configfileinput="sbs4_30p_cuts_LH2"){ // main
   std::string proton_expected_hcal_y_exp_study_string =EnergyCutString + "&&"+ TrackQualityCutString + "&&"+TargetVertexCutString +"&&" + Optics_CutString+"&&"+e_over_p_CutString +"&&"+ W2CutString;
   //TrackQualityCutString+"&&"+ ProtonSpot_CutString;
   //// Draw the 2D histogram
-  C->Draw("hcal_y_exp>>proton_expected_hcal_y_exp_hist(300, -3, 3)",  proton_expected_hcal_y_exp_study_string.c_str(), "COLZ E");
+  C->Draw("hcal_y_exp>>proton_expected_hcal_y_exp_hist(67, -1.25, 1.25)",  proton_expected_hcal_y_exp_study_string.c_str(), "COLZ E");
   // Retrieve and customize histogram
   TH1D *proton_expected_hcal_y_exp_hist= (TH1D*)gDirectory->Get("proton_expected_hcal_y_exp_hist");
   //TH1D *shifted_proton_expected_hcal_y_exp_hist = utilityHandler.ScaleAndShiftHistogram(proton_expected_hcal_y_exp_hist, 1, ProtonSpot_offset);

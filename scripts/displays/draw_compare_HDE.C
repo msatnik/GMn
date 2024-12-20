@@ -204,8 +204,8 @@ void draw_compare_HDE(TString KineString="sbs4_0p"){// main
 
  
   // load files 
-  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_HDE_oct11.root"); // Deuterium
-  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_LH2_HDE_oct14.root"); // Hydrogen 14 has the average mass
+  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_HDE_oct30.root"); // Deuterium
+  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_LH2_HDE_oct30.root"); // Hydrogen 14 has the average mass
 
   if (!f1||!f2) {
     std::cout<<"Error with loading one of the rootfiles"<<std::endl;

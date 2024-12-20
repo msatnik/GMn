@@ -39,6 +39,19 @@ TH1D* Utility::ScaleAndShiftHistogram(TH1D *hist, double scale, double shift) {
   return scaledShiftedHist;
 }// end scale and shift histogram 2
 
+void Utility::FillHistogramFromVector(const std::vector<double>& data, TH1D* hist) {
+  // Check if the histogram pointer is valid
+  if (!hist) {
+    std::cerr << "Error: Histogram pointer is null!" << std::endl;
+    return;
+  }
+
+  // Fill the histogram with data from the vector
+  for (double value : data) {
+    hist->Fill(value);
+  }
+}// end FillHistogramFromVector
+
 
 TH2* Utility::Shift2DHistogramY(const TH2* hist, double yShift) {
   if (!hist) {
@@ -77,6 +90,264 @@ TH2* Utility::Shift2DHistogramY(const TH2* hist, double yShift) {
   return shiftedHist; // Return the new shifted histogram
 }// end Shift2DHistogramY
 
+// Be sure to convert the rate result to the desired time units 
+double Utility::GetRateFromHistogram(TH1* hist, double xMin, double xMax) {
+  if (!hist) {
+    std::cerr << "Error: Histogram is null!" << std::endl;
+    return -1.0;
+  }
+
+  // Get bin edges corresponding to the specified range
+  int binMin = hist->FindBin(xMin);
+  int binMax = hist->FindBin(xMax);
+
+  // Compute the integral (sum of bin contents in the range)
+  double totalEvents = hist->Integral(binMin, binMax);
+
+  // Calculate the total time (difference between edges of the range)
+  double totalTime = hist->GetBinLowEdge(binMax + 1) - hist->GetBinLowEdge(binMin);
+
+
+  // Prevent division by zero
+  if (totalTime <= 0) {
+    std::cerr << "Error: Total time is zero or negative!" << std::endl;
+    return -10.0; //
+  }
+
+  if (totalEvents <= 0){
+    std::cerr << "Warning: Calculating background rate: Total Events are zero!" << std::endl;
+    return -10.0; // flag that we weren't able to calculate a rate
+  }
+
+  //std::cout<<totalEvents / totalTime<<std::endl;
+
+  //std::cout<<"binMin: "<<binMin<<", binMax: "<<binMax<<", totalEvents: "<<totalEvents<<", totalTime: "<<totalTime<< ", rate: "<< totalEvents/totalTime<<endl;
+      
+  // Calculate and return the rate
+  return totalEvents / totalTime;
+}// end GetRateFromHistogram
+
+// alternative method of calculating the rate by taking the pol0 offset from the fit that is a combination of a gaussian and pol0
+std::pair<double, double> Utility::GetRateAndErrorFromFitOffset(TH1* hist, double c, double c_error) {
+  if (!hist) {
+    std::cerr << "Error: Null pointer passed to GetRateAndErrorFromFitOffset " << std::endl;
+    return {0, 0.0}; // Return zero rate and uncertainty if there's an error
+  }
+
+
+  // Calculate the total time range (using the full range of the histogram)
+  double binWidth = hist->GetBinWidth(1); // Assuming uniform bin width
+  int nBins = hist->GetNbinsX();          // Number of bins in the histogram
+  double totalTime = nBins * binWidth;   // Total time = bin width * number of bins
+
+  // Rate calculation over the whole histogram
+  double totalEvents = nBins * c;
+
+  if(totalEvents<=0){// some kind of error in the fitting or the channel was empty
+    cout<<"warning: offset fit was zero in GetRateAndErrorFromFitOffset"<<endl;
+    return {-10,0};
+  }
+    
+  double rate = totalEvents/totalTime;// = c / binWidth
+
+  // Uncertainty on the rate (error propagation)
+  double rate_error = std::abs(c_error / binWidth); // Uncertainty on rate. I think. 
+
+  //std::cout<<"offset: "<<c<<", binWidth: "<<binWidth<<", nBins: "<<nBins<<", totalTime: "<<totalTime<< ", rate: "<<rate<<", error: "<<rate_error<<std::endl;
+
+  return {rate, rate_error}; // Return both rate and uncertainty as a pair
+}// end GetRateAndErrorFromFitOffset
+
+
+// Gets rates from the y projections of each bin. 
+std::vector<double> Utility::GetRatesFromTH2D(TH2* hist2D, double yMin, double yMax) {
+  if (!hist2D) {
+    std::cerr << "Error: TH2D histogram is null!" << std::endl;
+    return {};
+  }
+
+  int nXBins = hist2D->GetNbinsX();
+  std::vector<double> rates;
+
+  // Loop through X-axis bins and project each onto the Y-axis
+  for (int xBin = 1; xBin <= nXBins; ++xBin) {
+    TString projName = TString::Format("proj_x_bin%d", xBin);
+    TH1D* projY = hist2D->ProjectionY(projName, xBin, xBin);
+
+    // Call GetRateFromHistogram to calculate the rate for the current Y projection
+    double rate = GetRateFromHistogram(projY, yMin, yMax);
+    rates.push_back(rate);
+
+    delete projY; // Clean up the dynamically created projection
+  }
+
+  return rates;
+}// end GetRatesFromTH2D
+
+// Similar to GetRatesFromTH2D but we are using the fit offset method instead
+std::vector<std::pair<double, double>> Utility::GetRatesAndErrorsFromTH2D(TH2* hist2D, std::vector<double> c, std::vector<double> c_error) {
+  if (!hist2D) {
+    std::cerr << "Error: Null pointer passed to GetRatesAndErrorsFromTH2D" << std::endl;
+    return {};
+  }
+
+  int nXBins = hist2D->GetNbinsX(); // Number of X-axis bins
+  std::vector<std::pair<double, double>> ratesAndErrors; // Vector to hold rates and errors
+
+  for (int xBin = 1; xBin <= nXBins; ++xBin) {
+    // Project the current X bin onto the Y-axis
+    TString projName = TString::Format("proj_y_bin%d", xBin);
+    TH1D* projY = hist2D->ProjectionY(projName, xBin, xBin);
+
+    if (!projY || projY->GetEntries() == 0) {
+      std::cerr << "Warning: Projection for X-bin " << xBin << " is empty or null!" << std::endl;
+      ratesAndErrors.push_back({0.0, 0.0});
+      delete projY; // Clean up
+      continue;
+    }
+
+        
+    // Calculate the rate and uncertainty using the new method
+    std::pair<double, double> rateAndError = GetRateAndErrorFromFitOffset(projY, c[xBin-1], c_error[xBin-1]);
+
+    ratesAndErrors.push_back(rateAndError);
+
+    // Clean up dynamically allocated objects
+    delete projY;
+  }
+
+  return ratesAndErrors; // Return the rates and errors
+} // end GetRatesAndErrorsFromTH2D
+
+
+
+std::vector<double> Utility::DivideVectorByScalar(std::vector<double>& vec, double scalar) {
+  if (scalar == 0.0) {
+    std::cerr << "Error: Division by zero!" << std::endl;
+    return {};
+  }
+
+  std::vector<double> result;
+  result.reserve(vec.size()); // Preallocate space for efficiency
+
+  for (const double& element : vec) {
+    if (element < 0) // negative value is a flag that it wasn't able to calcualte a rate
+      {
+	result.push_back(element); // save the flag
+      }
+    else {
+      result.push_back(element / scalar);
+    }
+  }
+
+  return result;
+}// end DivideVectorByScalar
+
+std::vector<double> Utility::MultiplyVectorByScalar(std::vector<double>& vec, double scalar) {
+  if (scalar == 0.0) {
+    std::cout<< "warning: multiplying a vector by zero!"<<std::endl;
+  }
+  std::vector<double> result;
+  result.reserve(vec.size()); // Preallocate space for efficiency
+
+  for (const double& element : vec) {
+    if (element < 0){ // negative value is a flag that it wasn't able to calcualte a rate
+      result.push_back(element); // save the flag
+    }
+    else {
+      result.push_back(element * scalar);
+    }
+  }
+
+  return result;
+    
+}// end MultiplyVectorByScalar
+
+
+
+std::vector<std::pair<double, double>> Utility::DividePairVectorByScalar(
+									 const std::vector<std::pair<double, double>>& vec, double scalar) {
+    
+  if (scalar == 0.0) {
+    std::cerr << "Error: Division by zero!" << std::endl;
+    return {};
+  }
+
+  std::vector<std::pair<double, double>> result;
+  result.reserve(vec.size()); // Preallocate space for efficiency
+
+  for (const auto& pair : vec) {
+    double rate = pair.first;
+    double error = pair.second;
+
+    if (rate < 0) { // Negative rate indicates a flag (e.g., calculation issue)
+      result.emplace_back(rate, error); // Keep the original pair unchanged
+    } else {
+      result.emplace_back(rate / scalar, error / scalar); // Divide both rate and error
+    }
+  }
+
+  return result;
+} // end DividePairVectorByScalar
+
+
+std::vector<std::pair<double, double>> Utility::MultiplyPairVectorByScalar(
+									   const std::vector<std::pair<double, double>>& vec, double scalar) {
+    
+  if (scalar == 0.0) {
+    std::cout<< "warning: multiplication by zero!" << std::endl;
+  }
+
+  std::vector<std::pair<double, double>> result;
+  result.reserve(vec.size()); // Preallocate space for efficiency
+
+  for (const auto& pair : vec) {
+    double rate = pair.first;
+    double error = pair.second;
+
+    if (rate < 0) { // Negative rate indicates a flag (e.g., calculation issue)
+      result.emplace_back(rate, error); // Keep the original pair unchanged
+    } else {
+      result.emplace_back(rate * scalar, error * scalar); // Multiply both rate and error
+    }
+  }
+
+  return result;
+} // end DividePairVectorByScalar
+
+
+
+std::vector<double> Utility::ExtractPairElement(
+						const std::vector<std::pair<double, double>>& vec, bool extractFirst) {
+    
+  std::vector<double> result;
+  result.reserve(vec.size());
+
+  for (const auto& pair : vec) {
+    result.push_back(extractFirst ? pair.first : pair.second);
+  }
+
+  return result;
+}
+
+
+// Function to remove elements from a vector based on a list of indices
+std::vector<double> Utility::RemoveElementsByIndices(const std::vector<double>& input, const std::vector<int>& indices) {
+  std::vector<double> result; // New vector to hold the filtered values
+
+  // Create a sorted copy of indices for efficient lookup
+  std::vector<int> sortedIndices = indices;
+  std::sort(sortedIndices.begin(), sortedIndices.end());
+
+  // Iterate through the input vector and copy elements not in the indices vector
+  for (size_t i = 0; i < input.size(); ++i) {
+    if (!std::binary_search(sortedIndices.begin(), sortedIndices.end(), i)) {
+      result.push_back(input[i]); // Keep elements not in the removal list
+    }
+  }
+
+  return result;
+}// end RemoveElemetsByIndices
 
 void Utility::customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markersize) {
   int numPoints = graph->GetN();
@@ -113,6 +384,131 @@ void Utility::customizeGraphMore(TGraphErrors *graph, int markerStyle, int marke
   graph->GetXaxis()->SetLabelOffset(LabelOffsetX); // Adjust as needed
   graph->GetYaxis()->SetLabelOffset(LabelOffsetY); // Adjust as needed
 }// end customizegraphmore
+
+
+// Function to create a TPolyMarker overlay for recolored points
+TPolyMarker* Utility::CreatePointColorOverlay(TGraphErrors* graph, const std::vector<int>& indices, Color_t color) {
+  if (!graph) {
+    std::cerr << "Error: TGraphErrors is null!" << std::endl;
+    return nullptr;
+  }
+
+  int nPoints = graph->GetN(); // Get the number of points in the graph
+
+  // Create a TPolyMarker to overlay the recolored points
+  TPolyMarker* markerOverlay = new TPolyMarker();
+  //markerOverlay->SetMarkerStyle(graph->GetMarkerStyle()); // Match the marker style
+  markerOverlay->SetMarkerStyle(20); 
+  markerOverlay->SetMarkerSize((graph->GetMarkerSize()) );   // Match the marker size
+  markerOverlay->SetMarkerColor(color);                  // Set the overlay color
+
+  // Loop through the indices and add points to the overlay marker
+  for (int index : indices) {
+    if (index >= 0 && index < nPoints) {
+      double x, y;
+      graph->GetPoint(index, x, y); // Get the coordinates of the point
+      markerOverlay->SetNextPoint(x, y);
+    } else {
+      std::cerr << "Warning: Index " << index << " is out of range (0 to " << nPoints - 1 << ")." << std::endl;
+    }
+  }
+
+  return markerOverlay; // Return the overlay for later use
+}// end CreatePointColorOverlay
+
+
+// draw a gaussian on top of a background (pol0)
+void Utility::DrawGaussianPlusPol0(TH1D* hist, double amp, double mean, double sigma, double p0) {
+  if (!hist) {
+    std::cerr << "Error: The provided histogram is null!" << std::endl;
+    return;
+  }
+
+  // Create a unique canvas name
+  static int canvasCounter = 0; // Ensures unique canvas names
+  TString canvasName = TString::Format("c_%s_%d", hist->GetName(), canvasCounter++);
+  TCanvas* c = new TCanvas(canvasName, canvasName, 800, 600);
+
+  // Draw the histogram
+  hist->Draw("E");
+
+  // Define the Gaussian + pol0 function
+  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  fitFunc->SetParameters(amp, mean, sigma, p0); // Set the parameters: [0]=amp, [1]=mean, [2]=sigma, [3]=p0
+  fitFunc->SetLineColor(kGreen); // Set the line color for better visibility
+  fitFunc->SetLineWidth(5);
+
+  // Draw the fit function on top of the histogram
+  fitFunc->Draw("SAME");
+
+  // Save the canvas to a file with a unique name
+  //TString outputFileName = TString::Format("%s_gauss_pol0.png", canvasName.Data());
+  //c->SaveAs(outputFileName);
+  //std::cout << "Canvas saved to: " << outputFileName << std::endl;
+    
+}// end DrawGaussianPlousPol0
+
+
+// Making a legend for histograms that have been put in a stack. 
+TLegend* Utility::CreateLegendFromStack(THStack* stack, const std::vector<std::string>& labels, const std::vector<std::string>& options, double x1 = 0.7, double y1 = 0.7, double x2 = 0.9, double y2 = 0.9) {
+  if (!stack) {
+    std::cerr << "Error: Stack pointer is null!" << std::endl;
+    return nullptr;
+  }
+
+  // Get the list of histograms from the stack
+  TList* hists = stack->GetHists();
+  if (!hists) {
+    std::cerr << "Error: Stack does not contain any histograms!" << std::endl;
+    return nullptr;
+  }
+
+  if (hists->GetSize() != labels.size()) {
+    std::cerr << "Error: Number of histograms in the stack does not match the number of labels!" << std::endl;
+    return nullptr;
+  }
+
+  // Create the legend
+  TLegend* legend = new TLegend(x1, y1, x2, y2);
+  legend->SetEntrySeparation(0.05); // Reduce space between entries
+  //legend->SetBorderSize(0);
+  legend->SetFillStyle(0); // Transparent background
+
+  // Loop over the histograms and add them to the legend
+  int index = 0;
+  for (auto* obj : *hists) {
+    TH1* hist = dynamic_cast<TH1*>(obj);
+    if (!hist) {
+      std::cerr << "Warning: Object in stack is not a histogram!" << std::endl;
+      continue;
+    }
+
+    // Format the label with the number of entries
+    std::string entryLabel = labels[index] + " (Entries: " + std::to_string(static_cast<int>(hist->GetEntries())) + ")";
+    legend->AddEntry(hist, entryLabel.c_str(), options[index].c_str());
+    ++index;
+  }
+
+  return legend;
+}// end CreateLegendFromStack
+
+
+// take a vector of histograms and turns them into a THStack for easy plotting 
+THStack* Utility::CreateStackFromVector(const std::vector<TH1*>& histograms, const std::string& stackName = "stack", const std::string& stackTitle = "Histogram Stack") {
+  // Create a new stack
+  THStack* stack = new THStack(stackName.c_str(), stackTitle.c_str());
+
+  // Add each histogram to the stack
+  for (const auto& hist : histograms) {
+    if (!hist) {
+      std::cerr << "Warning: Null histogram encountered in vector. Skipping it." << std::endl;
+      continue;
+    }
+    stack->Add(hist);
+  }
+
+  return stack;
+}// end CreateStackFromVector
 
 void Utility::SliceAndProjectHistogram_xMinxMax(TH2D* hist2D, const std::vector<double>& xMinimum,const std::vector<double>& xMaximum, std::vector<TH1D*>& histVector, std::string xAxisName, std::string yAxisName, std::string type) {
   // Clear the vector to ensure it's empty before filling
@@ -235,7 +631,7 @@ TH2D* Utility::CutXYRangeTH2D(TH2D* hist, double xmin, double xmax, double ymin,
   int nBinsY = hist->GetNbinsY();
 
   for (int i = 1; i <= nBinsX; i++) {
-     double binCenterX = hist->GetXaxis()->GetBinCenter(i);
+    double binCenterX = hist->GetXaxis()->GetBinCenter(i);
     for (int j = 1; j <= nBinsY; j++) {
       double binCenterY = hist->GetYaxis()->GetBinCenter(j);
       if (binCenterY < ymin || binCenterY > ymax || binCenterX < xmin || binCenterX>xmax) {
@@ -515,7 +911,7 @@ TH1D* Utility::GetResidualHistogram(TH1D* hist, TF1* fit) {
     double residual = binContent - fitValue;
     h_residual->SetBinContent(i, residual);
     h_residual->SetBinError(i, binError);
-     //h_residual->SetBinError(i, sqrt(binContent));
+    //h_residual->SetBinError(i, sqrt(binContent));
   }
 
   return h_residual;
@@ -524,26 +920,26 @@ TH1D* Utility::GetResidualHistogram(TH1D* hist, TF1* fit) {
 
  // Add the bin-by-bin errors in quarature and return a clone of hist1 with the new errors 
 TH1D* Utility::AddBinErrorsInQuadrature(TH1D* hist1, TH1D* hist2, TH1D* hist3) {
-    // Clone hist1 to create the result histogram
-    TH1D* result = (TH1D*)hist1->Clone();
+  // Clone hist1 to create the result histogram
+  TH1D* result = (TH1D*)hist1->Clone();
     
-    // Loop over all bins
-    for (int i = 1; i <= hist1->GetNbinsX(); ++i) {
-        // Get errors from each histogram
-        double error1 = hist1->GetBinError(i);
-        double error2 = hist2->GetBinError(i);
-        double error3 = hist3->GetBinError(i);
-	// Should cout the bin locatioons to make sure everything is expected
+  // Loop over all bins
+  for (int i = 1; i <= hist1->GetNbinsX(); ++i) {
+    // Get errors from each histogram
+    double error1 = hist1->GetBinError(i);
+    double error2 = hist2->GetBinError(i);
+    double error3 = hist3->GetBinError(i);
+    // Should cout the bin locatioons to make sure everything is expected
         
-        // Calculate the new error as the quadrature sum of the errors
-	double newError = std::sqrt(error1 * error1+ error2 * error2 + error3 * error3);
-	 //cout<<"old data err: "<< error1<<", hist2 err: "<<error2<<", hist3 err: "<<error3<<", new error: "<<newError<<endl;
+    // Calculate the new error as the quadrature sum of the errors
+    double newError = std::sqrt(error1 * error1+ error2 * error2 + error3 * error3);
+    //cout<<"old data err: "<< error1<<", hist2 err: "<<error2<<", hist3 err: "<<error3<<", new error: "<<newError<<endl;
         
-        // Set the new error in the result histogram
-        result->SetBinError(i, newError);
-    }
+    // Set the new error in the result histogram
+    result->SetBinError(i, newError);
+  }
     
-    return result;
+  return result;
 }// end AddBinErrosInQuadrature
 
 
@@ -866,43 +1262,43 @@ std::vector<TLine*> Utility::CreateBox(const std::vector<double>& coords, int co
 
 
 TEllipse* Utility::CreateEllipse(double x_center, double y_center, 
-                              double radius_x, double radius_y, 
+				 double radius_x, double radius_y, 
 				 double angle = 0, int color = kRed, int LineStyle=1, int FillStyle =0) {
-    // Create the ellipse with the specified parameters
-    TEllipse* ellipse = new TEllipse(x_center, y_center, radius_x, radius_y, 0, 360, angle);
+  // Create the ellipse with the specified parameters
+  TEllipse* ellipse = new TEllipse(x_center, y_center, radius_x, radius_y, 0, 360, angle);
     
-    // Set the ellipse style
-    ellipse->SetLineColor(color);  // Set line color
-    ellipse->SetFillStyle(FillStyle); // Set fill style (0 means no fill)
+  // Set the ellipse style
+  ellipse->SetLineColor(color);  // Set line color
+  ellipse->SetFillStyle(FillStyle); // Set fill style (0 means no fill)
 
-    // Optionally adjust other attributes like line width or style
-    ellipse->SetLineWidth(2);
-    ellipse->SetLineStyle(LineStyle); // 1 is sold line, 2 is dashed line. 
+  // Optionally adjust other attributes like line width or style
+  ellipse->SetLineWidth(2);
+  ellipse->SetLineStyle(LineStyle); // 1 is sold line, 2 is dashed line. 
     
-    // Return the ellipse so it can be drawn or manipulated externally
-    return ellipse;
+  // Return the ellipse so it can be drawn or manipulated externally
+  return ellipse;
 }// end create ellipse
 
 
 void Utility::Fit_or_Replace_Pol0(TH1D* hist, std::pair<double, double> range) {
-    // Check if the histogram exists
-    if (!hist) {
-        std::cerr << "Error: Histogram is null!" << std::endl;
-        return;
-    }
+  // Check if the histogram exists
+  if (!hist) {
+    std::cerr << "Error: Histogram is null!" << std::endl;
+    return;
+  }
 
-    // Retrieve the list of functions associated with the histogram
-    TF1* existingFit = hist->GetFunction("pol0");
+  // Retrieve the list of functions associated with the histogram
+  TF1* existingFit = hist->GetFunction("pol0");
 
-    // If there is already a "pol0" fit, remove it
-    if (existingFit) {
-        std::cout << "Removing existing pol0 fit..." << std::endl;
-        hist->GetListOfFunctions()->Remove(existingFit);
-        delete existingFit; // Free the memory for the old fit
-    }
+  // If there is already a "pol0" fit, remove it
+  if (existingFit) {
+    std::cout << "Removing existing pol0 fit..." << std::endl;
+    hist->GetListOfFunctions()->Remove(existingFit);
+    delete existingFit; // Free the memory for the old fit
+  }
 
-    // Define the pol0 function and fit the histogram between range.first and range.second
-    hist->Fit("pol0", "R Q", "", range.first, range.second);
+  // Define the pol0 function and fit the histogram between range.first and range.second
+  hist->Fit("pol0", "R Q", "", range.first, range.second);
 
     
 }// end Fit_or_Replace_Pol0
@@ -910,94 +1306,94 @@ void Utility::Fit_or_Replace_Pol0(TH1D* hist, std::pair<double, double> range) {
 
 
 void Utility::Fit_or_Replace_Pol0_xmin(TH1D* hist, double xmin) {
-    // Check if the histogram exists
-    if (!hist) {
-        std::cerr << "Error: Histogram is null!" << std::endl;
-        return;
-    }
+  // Check if the histogram exists
+  if (!hist) {
+    std::cerr << "Error: Histogram is null!" << std::endl;
+    return;
+  }
 
-    // Get the upper limit of the X-axis (xmax)
-    double xmax = hist->GetXaxis()->GetXmax();
+  // Get the upper limit of the X-axis (xmax)
+  double xmax = hist->GetXaxis()->GetXmax();
 
-    // Retrieve the list of functions associated with the histogram
-    TF1* existingFit = hist->GetFunction("pol0");
+  // Retrieve the list of functions associated with the histogram
+  TF1* existingFit = hist->GetFunction("pol0");
 
-    // If there is already a "pol0" fit, remove it
-    if (existingFit) {
-        std::cout << "Removing existing pol0 fit..." << std::endl;
-        hist->GetListOfFunctions()->Remove(existingFit);
-        delete existingFit; // Free the memory for the old fit
-    }
+  // If there is already a "pol0" fit, remove it
+  if (existingFit) {
+    std::cout << "Removing existing pol0 fit..." << std::endl;
+    hist->GetListOfFunctions()->Remove(existingFit);
+    delete existingFit; // Free the memory for the old fit
+  }
 
-    // Define the pol0 function and fit the histogram between xmin and xmax
-    hist->Fit("pol0", "R Q", "", xmin, xmax);
+  // Define the pol0 function and fit the histogram between xmin and xmax
+  hist->Fit("pol0", "R Q", "", xmin, xmax);
 
 }// end Fit or Replace Pol0 xmin
 
 
 // Removes a fit function from a histogram. 
 void Utility::RemoveExistingFit(TH1D* hist) {
-    // Check if the histogram exists
-    if (!hist) {
-        std::cerr << "Error: Histogram is null!" << std::endl;
-        return;
+  // Check if the histogram exists
+  if (!hist) {
+    std::cerr << "Error: Histogram is null!" << std::endl;
+    return;
+  }
+
+  // Retrieve the list of functions associated with the histogram
+  TList* functions = hist->GetListOfFunctions();
+
+  // Check if there are any functions associated with the histogram
+  if (functions && functions->GetSize() > 0) {
+    //std::cout << "Removing all fits from the histogram..." << std::endl;
+
+    // Loop through all functions and remove them
+    TObject* func = nullptr;
+    TIterator* it = functions->MakeIterator();
+    while ((func = it->Next())) {
+      TF1* fit = dynamic_cast<TF1*>(func);
+      if (fit) {
+	functions->Remove(fit);
+	delete fit; // Free the memory for the old fit
+      }
     }
 
-    // Retrieve the list of functions associated with the histogram
-    TList* functions = hist->GetListOfFunctions();
-
-    // Check if there are any functions associated with the histogram
-    if (functions && functions->GetSize() > 0) {
-      //std::cout << "Removing all fits from the histogram..." << std::endl;
-
-        // Loop through all functions and remove them
-        TObject* func = nullptr;
-        TIterator* it = functions->MakeIterator();
-        while ((func = it->Next())) {
-            TF1* fit = dynamic_cast<TF1*>(func);
-            if (fit) {
-                functions->Remove(fit);
-                delete fit; // Free the memory for the old fit
-            }
-        }
-
-        delete it; // Clean up the iterator
-    } else {
-      // std::cout << "No fit functions to remove." << std::endl;
-    }
+    delete it; // Clean up the iterator
+  } else {
+    // std::cout << "No fit functions to remove." << std::endl;
+  }
 }// end RemoveExistingFit
 
 
 // Remove Zeros from a TGraphErrors 
 void Utility::RemoveZeroPoints(TGraphErrors* graph) {
-    if (!graph) {
-        std::cerr << "Error: Graph is null!" << std::endl;
-        return;
+  if (!graph) {
+    std::cerr << "Error: Graph is null!" << std::endl;
+    return;
+  }
+
+  int nPoints = graph->GetN();  // Get the number of points in the graph
+
+  // Create temporary vectors to store non-zero points
+  std::vector<double> xVals, yVals, exVals, eyVals;
+
+  for (int i = 0; i < nPoints; ++i) {
+    double x, y;
+    graph->GetPoint(i, x, y);
+
+    if (y != 0) {  // Only keep points where y is non-zero
+      xVals.push_back(x);
+      yVals.push_back(y);
+      exVals.push_back(graph->GetErrorX(i));
+      eyVals.push_back(graph->GetErrorY(i));
     }
+  }
 
-    int nPoints = graph->GetN();  // Get the number of points in the graph
+  // Clear the existing points in the graph
+  graph->Set(0);
 
-    // Create temporary vectors to store non-zero points
-    std::vector<double> xVals, yVals, exVals, eyVals;
-
-    for (int i = 0; i < nPoints; ++i) {
-        double x, y;
-        graph->GetPoint(i, x, y);
-
-        if (y != 0) {  // Only keep points where y is non-zero
-            xVals.push_back(x);
-            yVals.push_back(y);
-            exVals.push_back(graph->GetErrorX(i));
-            eyVals.push_back(graph->GetErrorY(i));
-        }
-    }
-
-    // Clear the existing points in the graph
-    graph->Set(0);
-
-    // Add the non-zero points back to the graph
-    for (size_t i = 0; i < xVals.size(); ++i) {
-        graph->SetPoint(i, xVals[i], yVals[i]);
-        graph->SetPointError(i, exVals[i], eyVals[i]);
-    }
+  // Add the non-zero points back to the graph
+  for (size_t i = 0; i < xVals.size(); ++i) {
+    graph->SetPoint(i, xVals[i], yVals[i]);
+    graph->SetPointError(i, exVals[i], eyVals[i]);
+  }
 }// end RemoveZeroPoints

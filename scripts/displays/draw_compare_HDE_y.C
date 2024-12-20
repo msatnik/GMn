@@ -205,8 +205,8 @@ void draw_compare_HDE_y(TString KineString="sbs4_0p"){// main
  
 
   // load files 
-  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_HDE_oct18.root"); // Deuterium
-  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_LH2_HDE_oct18.root"); // Hydrogen
+  TFile *f1 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_HDE_oct30.root"); // Deuterium
+  TFile *f2 = TFile::Open("/w/halla-scshelf2102/sbs/msatnik/GMn/output/sbs4_0p_cuts_LH2_HDE_oct30.root"); // Hydrogen
 
   
   if (!f1||!f2) {

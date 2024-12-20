@@ -14,18 +14,45 @@ public:
 
 
 
-    /* // Utility function for scaling and shifting, Trying to account for bin ranges*/
+  /* // Utility function for scaling and shifting, Trying to account for bin ranges*/
   TH1D* ScaleAndShiftHistogram(TH1D *hist, double scale, double shift);
 
+  void FillHistogramFromVector(const std::vector<double>& data, TH1D* hist);
+  
   // Add the bin-by-bin errors in quarature and return a clone of hist1 with the new errors 
   TH1D* AddBinErrorsInQuadrature(TH1D* hist1, TH1D* hist2, TH1D* hist3); 
 
-/// Set the errors of hist1 with the errors of hist2
+  /// Set the errors of hist1 with the errors of hist2
   void SetBinErrors(TH1D* hist1, TH1D* hist2);
 
   
   // shift a 2d in Y
-  TH2* Shift2DHistogramY(const TH2* hist, double yShift); 
+  TH2* Shift2DHistogramY(const TH2* hist, double yShift);
+
+  /// get the "rate" over a given range on the histogram
+  double GetRateFromHistogram(TH1* hist, double xMin, double xMax);
+
+  // alternative method of calculating the rate using the gaussian+pol0 fit 
+  std::pair<double, double> GetRateAndErrorFromFitOffset(TH1* hist, double c, double c_error);
+  
+  // alternative method of calculating the rate by taking the pol0 offset from the fit that is a combination of a gaussian and pol0
+  std::vector<std::pair<double, double>> GetRatesAndErrorsFromTH2D(TH2* hist2D, std::vector<double> c, std::vector<double> c_error);
+  
+  // get the rates over a TH2D
+  std::vector<double> GetRatesFromTH2D(TH2* hist2D, double xMin, double xMax);
+
+  // takes a vector of doubles and divides every entry by a given scalar (double)
+  std::vector<double> DivideVectorByScalar(std::vector<double>& vec, double scalar);
+  std::vector<double> MultiplyVectorByScalar(std::vector<double>& vec, double scalar);
+
+  std::vector<std::pair<double, double>> DividePairVectorByScalar(const std::vector<std::pair<double, double>>& vec, double scalar);
+  std::vector<std::pair<double, double>> MultiplyPairVectorByScalar(const std::vector<std::pair<double, double>>& vec, double scalar);
+
+  std::vector<double> ExtractPairElement( const std::vector<std::pair<double, double>>& vec, bool extractFirst);
+
+  
+  // Function to remove elements from a vector based on a list of indices
+  std::vector<double> RemoveElementsByIndices(const std::vector<double>& input, const std::vector<int>& indices);
   
   // Utility fucntion to customize a graph 
   void customizeGraph(TGraphErrors *graph, int markerStyle, int markerColor, double markersize);
@@ -34,6 +61,18 @@ public:
 			  double TitleOffsetX = 1.4, double TitleOffsetY = 2, 
 			  double LabelOffsetX = 0.01, double LabelOffsetY = 0.01);
 
+  // Function to create a TPolyMarker overlay for recolored points
+  TPolyMarker* CreatePointColorOverlay(TGraphErrors* graph, const std::vector<int>& indices, Color_t color);
+
+  // draw a gaussian on top of a background (pol0)
+  void DrawGaussianPlusPol0(TH1D* hist, double amp, double mean, double sigma, double p0);
+
+  // make a legend for a stack of histograms with the number of entries
+  TLegend* CreateLegendFromStack(THStack* stack, const std::vector<std::string>& labels, const std::vector<std::string>& options, double x1 = 0.7, double y1 = 0.7, double x2 = 0.9, double y2 = 0.9);
+
+  // take a vector of histograms and turns them into a THStack for easy plotting 
+  THStack* CreateStackFromVector(const std::vector<TH1*>& histograms, const std::string& stackName = "stack", const std::string& stackTitle = "Histogram Stack");
+  
   // ulity fuction to slice up a 2d histogram 
   void SliceAndProjectHistogram_xMinxMax(TH2D* hist2D, const std::vector<double>& xMinimum,const std::vector<double>& xMaximum, std::vector<TH1D*>& histVector, std::string xAxisName, std::string yAxisName, std::string type);
   void SliceAndProjectHistogram_xMinxMax_inclusiveMin(TH2D* hist2D, const std::vector<double>& xMinimum,const std::vector<double>& xMaximum, std::vector<TH1D*>& histVector, std::string xAxisName, std::string yAxisName, std::string type);
@@ -43,7 +82,7 @@ public:
   // sets the bin content to zero outside the xmin xmax ymin ymax range
   TH2D* CutXYRangeTH2D(TH2D* hist, double xmin, double xmax, double ymin, double ymax);
   
-    bool doesFunctionGoBelowZero(TF1* func, Double_t xMin, Double_t xMax, Int_t nSteps = 1000);
+  bool doesFunctionGoBelowZero(TF1* func, Double_t xMin, Double_t xMax, Int_t nSteps = 1000);
 
   // statisitcs on vectors of doubles 
   double CalculateMean(const std::vector<double>& data);
@@ -102,7 +141,7 @@ public:
   std::vector<TLine*> CreateBox(const std::vector<double>& coords, int color, int lineWidth);
   // function to creatue an ellipse 
   TEllipse* CreateEllipse(double x_center, double y_center, 
-                              double radius_x, double radius_y, 
+			  double radius_x, double radius_y, 
 			  double angle = 0, int color = kRed, int LineStyle=1, int FillStyle=0);
 
   // takes a TH1D and replaces the fit with a pol0. (Helpful for draw_SpotCutStudy)
